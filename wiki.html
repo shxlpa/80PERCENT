@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki — Shilpa Rao</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<nav>
+  <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao"></a>
+  <ul class="nav-links">
+    <li><a href="resume.html">Resume</a></li>
+    <li><a href="technical-work.html">Technical Work</a></li>
+    <li><a href="design.html">Design</a></li>
+    <li><a href="wiki.html" class="active">Wiki</a></li>
+    <li><a href="writing.html">Writing</a></li>
+    <li><a href="photography.html">Photography</a></li>
+    <li><a href="bossa.html">Studio BOSSA</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <span class="section-label">Technical notes</span>
+  <h1 class="section-heading">Wiki</h1>
+  <p class="subtitle">Reference material and sick engineering notes.</p>
+</div>
+
+<section class="content-section bg-off-white">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div class="card-grid">
+      <div class="card reveal">
+        <span class="type">Signal Processing</span>
+        <h3>Parks-McClellan & the Art of Filter Design</h3>
+        <p>On designing digital low-pass filters with finite precision constraints — and why the math is more beautiful than it has any right to be.</p>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <span class="type">Embedded Systems</span>
+        <h3>CAN Bus Debugging Cheatsheet</h3>
+        <p>Everything I've learned about CAN DBC errors, byte-level data engineering, and writing Python drivers from scratch.</p>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <span class="type">Controls</span>
+        <h3>Kalman Filters — From Theory to Neural Decoding</h3>
+        <p>Implementing the Kalman filter for continuous state estimation, with applications in brain-computer interfaces.</p>
+      </div>
+      <div class="card reveal">
+        <span class="type">Hardware</span>
+        <h3>PCB Design Notes</h3>
+        <p>Lessons from designing current and voltage sensing breakout boards, low-voltage system PCBs, and Class-D amplifier circuits.</p>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <span class="type">Test Engineering</span>
+        <h3>High Voltage Test Automation</h3>
+        <p>Notes on automating pre-charge, hipot, and pack charge tests using CAN, PLCs, and custom Python frameworks.</p>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <span class="type">Reference</span>
+        <h3>Communication Protocols Compared</h3>
+        <p>I2C vs SPI vs CAN vs GPIO — when to use what, tradeoffs, and practical implementation notes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><span>© 2026 Shilpa Rao</span><span>Made with care</span></footer>
+<script>
+const obs=new IntersectionObserver(e=>e.forEach(n=>{if(n.isIntersecting)n.target.classList.add('visible')}),{threshold:.1});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+addEventListener('scroll',()=>document.querySelector('nav').classList.toggle('scrolled',scrollY>60));
+</script>
+</body>
+</html>

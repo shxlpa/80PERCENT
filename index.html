@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shilpa Rao — Engineer, Designer, Creative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #EDDDC5;
+  --brightred: #db281f;
+  --maroon: #f6f3f2;
+  --gold: #274133;
+  --amber: #CE9042;
+  --sage: #121312;
+  --forest: #274133;
+  --black: #1A1A18;
+  --off-white: #F5F0E8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+::selection { background: var(--brightred); color: var(--cream); }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+html {
+  background: #3A2F2A;
+}
+body {
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+  background: transparent;
+}
+
+.wood-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url('assets/wood.jpg') center/cover no-repeat;
+}
+
+/* PRELOADER */
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+#preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#preloader canvas { width: 100%; height: 100%; }
+
+/* BLACK PANEL */
+.black-panel {
+  position: relative;
+  margin: 28px 28px 0;
+  height: calc(100vh - 28px - 48px);
+  background: #0A0A0A;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.black-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* NAV */
+.top-nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.2rem 1.5rem;
+}
+.top-nav .logo { text-decoration: none; }
+.top-nav .logo img {
+  height: 100px;
+  filter: brightness(0) invert(1);
+}
+.nav-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+.nav-buttons a {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  text-decoration: none;
+  border: 1px solid var(--forest);
+  background: var(--brightred);
+  padding: 0.3rem 0.6rem;
+  margin: 0 -1px -1px 0;
+  transition: all 0.25s;
+}
+.nav-buttons a:hover {
+  background: var(--brightred);
+  border-color: var(--brightred);
+  color: var(--black);
+}
+
+/* HERO CONTENT */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  padding: 0 2rem 1.5rem;
+  align-items: end;
+  overflow: hidden;
+}
+
+/* MEGA TEXT */
+.mega-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-optical-sizing: auto;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  color: var(--brightred);
+  font-size: clamp(4.5rem, 12vw, 14rem);
+  text-shadow: 0 0 120px rgba(200,176,103,0.1);
+}
+.mega-text .line { display: block; overflow: hidden; }
+.mega-text .line span {
+  display: inline-block;
+  transform: translateY(115%);
+  animation: slideUp 0.6s cubic-bezier(0.23,1,0.32,1) forwards;
+}
+.mega-text .line:nth-child(2) span { animation-delay: 0.07s; }
+.mega-text .line:nth-child(3) span { animation-delay: 0.13s; }
+.mega-text .line:nth-child(4) span { animation-delay: 0.19s; }
+@keyframes slideUp { to { transform: translateY(0); } }
+@keyframes fadeIn { to { opacity: 1; } }
+
+.mega-accent { color: var(--brightred); }
+
+/* Right column */
+.right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  max-width: 300px;
+  overflow: hidden;
+}
+.portrait {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: top;
+  filter: grayscale(100%) contrast(1.08);
+  opacity: 0;
+  animation: fadeIn 0.7s ease 0.4s forwards;
+}
+.right-sub {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-optical-sizing: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  line-height: 0.9;
+  color: var(--brightred);
+  font-size: 100;
+  text-shadow: 0 0 120px rgba(200,176,103,0.1);
+}
+.right-desc {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  line-height: 1.75;
+  color: rgba(237,221,197,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  max-width: 280px;
+  opacity: 0;
+  animation: fadeIn 0.6s ease 0.7s forwards;
+}
+.right-cta {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--brightred);
+  color: var(--cream);
+  padding: 0.9rem 2rem;
+  text-decoration: none;
+  transition: all 0.3s;
+  opacity: 0;
+  animation: fadeIn 0.6s ease 0.85s forwards;
+}
+.right-cta:hover { background: var(--brightred); color: var(--black); }
+
+/* BOTTOM BAR */
+.bottom-bar {
+  margin: 0 28px;
+  background: var(--brightred);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.bottom-bar a { color: var(--cream); text-decoration: none; transition: opacity 0.3s; }
+.bottom-bar a:hover { opacity: 0.6; }
+.bottom-links { display: flex; gap: 1.5rem; }
+
+/* BELOW-FOLD */
+.below-fold {
+  margin: 0 28px 28px;
+  background: var(--off-white);
+}
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--amber);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.section-label::before { content: ''; width: 30px; height: 1px; background: var(--amber); }
+.section-heading {
+  font-family: Fraunces;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+.italic { font-style: italic; }
+
+/* Marquee */
+.marquee-strip {
+  background: var(--brightred);
+  color: var(--cream);
+  padding: 0.85rem 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee-inner {
+  display: inline-flex;
+  animation: marquee 30s linear infinite;
+}
+.marquee-inner span {
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0 2rem;
+}
+.marquee-inner .dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  background: var(--gold);
+  border-radius: 50%;
+  margin: 0 1.2rem;
+  vertical-align: middle;
+}
+@keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+#intro { padding: 8rem 2rem; }
+.intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; max-width: 1200px; margin: 0 auto; }
+.intro-text { font-size: 0.85rem; line-height: 1.85; opacity: 0.7; max-width: 480px; color: var(--black); }
+
+.content-section { padding: 6rem 2rem; }
+.bg-cream { background: var(--cream); }
+.preview-strip { display: flex; gap: 2rem; margin-top: 3rem; overflow-x: auto; padding-bottom: 1rem; scrollbar-width: none; }
+.preview-strip::-webkit-scrollbar { display: none; }
+.preview-card {
+  flex-shrink: 0; width: 340px; padding: 2.5rem 2rem;
+  background: var(--off-white); border: 1px solid rgba(0,0,0,0.05);
+  text-decoration: none; color: var(--black); transition: all 0.35s; position: relative;
+}
+.preview-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:3px; background:var(--brightred); transform:scaleX(0); transform-origin:left; transition:transform 0.4s ease; }
+.preview-card:hover::before { transform: scaleX(1); }
+.preview-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.06); }
+.preview-card .type { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--amber); margin-bottom:0.8rem; }
+.preview-card h3 { font-family:'Instrument Serif',serif; font-size:1.4rem; line-height:1.25; margin-bottom:0.6rem; }
+.preview-card p { font-size:0.72rem; line-height:1.7; opacity:0.5; }
+
+.studio-section { background: var(--forest); color: var(--cream); padding: 8rem 2rem; position: relative; overflow: hidden; }
+.studio-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 5rem; max-width: 1200px; margin: 0 auto; }
+.studio-text { font-family: 'Instrument Serif', serif; font-size: clamp(1.3rem,2.4vw,1.9rem); line-height: 1.55; }
+.studio-text .highlight { color: var(--brightred); font-style: italic; }
+.studio-services { display: flex; flex-direction: column; gap: 1rem; }
+.studio-service { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:1rem; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; }
+.studio-service .arrow { color:var(--sage); transition:transform 0.3s; }
+.studio-service:hover .arrow { transform: translateX(5px); }
+.studio-bg-text { position:absolute; bottom:-2.5rem; right:-1rem; font-family:Fraunces; font-weight:800; font-size:clamp(6rem,16vw,15rem); color:rgba(255,255,255,0.025); white-space:nowrap; pointer-events:none; }
+
+.site-footer { background:var(--black); color:var(--cream); padding:2rem; display:flex; justify-content:space-between; align-items:center; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em; opacity:0.4; }
+
+.reveal { opacity:0; transform:translateY(25px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.reveal-delay-1 { transition-delay:0.1s; }
+.reveal-delay-2 { transition-delay:0.2s; }
+.reveal-delay-3 { transition-delay:0.3s; }
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .mega-text { font-size: clamp(3.5rem,10vw,10rem); }
+  .hero-content { grid-template-columns: 1fr 240px; }
+}
+@media (max-width: 800px) {
+  .hero-content { grid-template-columns: 1fr; padding: 0 1.5rem 2rem; }
+  .right-col { align-items:flex-start; text-align:left; padding-top:1.5rem; }
+  .portrait { width:120px; height:150px; }
+  .mega-text { font-size: clamp(3rem,14vw,6rem); }
+  .intro-grid, .studio-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .nav-buttons a { font-size:0.5rem; padding:0.2rem 0.4rem; }
+  .black-panel { margin: 16px 16px 0; height: calc(100vh - 32px - 48px); }
+  .bottom-bar { margin: 0 16px; flex-direction:column; gap:0.4rem; text-align:center; }
+  .bottom-links { flex-wrap:wrap; justify-content:center; gap:0.8rem; }
+  .below-fold { margin: 0 16px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader"><canvas id="preloader-canvas"></canvas></div>
+
+<!-- WOOD TEXTURE BACKGROUND (fixed to viewport) -->
+<div class="wood-bg"></div>
+
+<!-- BLACK PANEL -->
+<div class="black-panel">
+  <div class="top-nav">
+    <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao"></a>
+    <div class="nav-buttons">
+      <a href="resume.html">Resume</a>
+      <a href="technical-work.html">Work</a>
+      <a href="design.html">Design</a>
+      <a href="wiki.html">Wiki</a>
+      <a href="writing.html">Writing</a>
+      <a href="photography.html">Photo</a>
+      <a href="bossa.html">Studio BOSSA</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <h1 class="mega-text">
+      <span class="line"><span class="mega-accent">eighty %</span></span>
+      <span class="line"><span>engineer,</span></span>
+      <span class="line"><span class="mega-accent">twenty %</span></span>
+      <span class="line"><span>lab rat.</span></span>
+    </h1>
+    <div class="right-col">
+      <img src="assets/portrait.jpg" alt="Shilpa Rao" class="portrait">
+      <p class="right-sub">I make art and machines.</p>
+      <p class="right-desc">I’m Shilpa, an electrical engineer and creative generalist. I’ve built electronics and software for harsh environments (space, snow, marine, operating room) at SpaceX, Arc Boats, Type III and Vena Vitals. I designed the first known wireless electromagnetic endoscopy at UCLA. I occasionally take on consulting projects through my boutique studio, Bossa.</p>
+      <a href="technical-work.html" class="right-cta">technical work</a>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bottom-links">
+    <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank">LinkedIn</a>
+    <a href="https://github.com/shxlpa" target="_blank">GitHub</a>
+    <a href="https://shxlpa.substack.com/" target="_blank">Substack</a>
+    <a href="mailto:shilpa.padiki.rao@gmail.com">Email</a>
+  </div>
+  <span>&copy; 2026 Shilpa Rao &mdash; All rights reserved</span>
+</div>
+
+<!-- BELOW FOLD -->
+<div class="below-fold">
+  <div class="marquee-strip">
+    <div class="marquee-inner">
+      <span>Hardware</span><span class="dot"></span><span>Software</span><span class="dot"></span><span>Art</span><span class="dot"></span><span>Design</span><span class="dot"></span><span>Firmware</span><span class="dot"></span><span>Signal Processing</span><span class="dot"></span><span>Creative Direction</span><span class="dot"></span><span>PCB Design</span><span class="dot"></span>
+      <span>Hardware</span><span class="dot"></span><span>Software</span><span class="dot"></span><span>Art</span><span class="dot"></span><span>Design</span><span class="dot"></span><span>Firmware</span><span class="dot"></span><span>Signal Processing</span><span class="dot"></span><span>Creative Direction</span><span class="dot"></span><span>PCB Design</span><span class="dot"></span>
+    </div>
+  </div>
+
+  <section class="content-section bg-cream">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <span class="section-label reveal">Selected Work</span>
+      <h2 class="section-heading reveal">Recent Projects</h2>
+      <div class="preview-strip">
+        <a href="technical-work.html" class="preview-card reveal"><span class="type">SpaceX</span><h3>Anechoic Chamber &amp; Industrial Automation</h3><p>Server rack debugging, Beckhoff TwinCAT motor control, satellite component validation.</p></a>
+        <a href="technical-work.html" class="preview-card reveal reveal-delay-1"><span class="type">Arc Boat Company</span><h3>226 kWh Battery Test System</h3><p>High-voltage test interface, CAN bus automation, fatal defect diagnosis in 24 hours.</p></a>
+        <a href="technical-work.html" class="preview-card reveal reveal-delay-2"><span class="type">Personal Project</span><h3>Speaker Amp + Touchscreen Synth</h3><p>Class-D amp design, custom PWM selection, passive crossover and LC filter.</p></a>
+        <a href="design.html" class="preview-card reveal reveal-delay-3"><span class="type">Design</span><h3>Artistic &amp; Design Projects</h3><p>Creative direction, visual identity, web design — technology meets aesthetics.</p></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="studio-section">
+    <div class="studio-grid">
+      <div class="reveal">
+        <span class="section-label" style="color: var(--sage);">Boutique Studio</span>
+        <h2 class="section-heading" style="color: var(--cream); font-size: clamp(2.5rem,5vw,4rem);">BOSSA</h2>
+        <p class="studio-text">Alongside my engineering career, I occasionally take on consulting project through my independent studio BOSSA. I design spaces, brand identities, art installations and engineering portfolios for various clients. I have a rare blend of electronics, fabrication, and design skills.</p>
+      </div>
+      <div class="studio-services reveal reveal-delay-1">
+        <div class="studio-service"><span>Web Design &amp; Development</span><span class="arrow">&rarr;</span></div>
+        <div class="studio-service"><span>Brand Identity &amp; Creative Direction</span><span class="arrow">&rarr;</span></div>
+        <div class="studio-service"><span>PCB Design</span><span class="arrow">&rarr;</span></div>
+        <div class="studio-service"><span>Embedded Systems</span><span class="arrow">&rarr;</span></div>
+        <div class="studio-service"><span>Design direction for musicians, startups, engineers</span><span class="arrow">&rarr;</span></div>
+        <div class="studio-service"><span>Sculpture &amp; materials (wood/ceramic/metal)</span><span class="arrow">&rarr;</span></div>
+      </div>
+    </div>
+    <div class="studio-bg-text">BOSSA</div>
+  </section>
+
+  <div class="site-footer"><span>&copy; 2026 Shilpa Rao</span><span>Made with care</span></div>
+</div>
+
+<script>
+// PRELOADER — circles spawn from cursor
+// (function(){
+//   const c=document.getElementById('preloader-canvas'),x=c.getContext('2d');
+//   function r(){c.width=innerWidth*2;c.height=innerHeight*2;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';x.scale(2,2)}
+//   r();addEventListener('resize',r);
+//   const cols=['#C8B067','#9AB08D','#CE9042','#EDDDC5','#7D2027'];
+//   let spawnX=innerWidth/2, spawnY=innerHeight/2, gotCursor=false;
+//   function onFirst(e){
+//     if(!gotCursor){
+//       spawnX=e.clientX||e.touches?.[0]?.clientX||spawnX;
+//       spawnY=e.clientY||e.touches?.[0]?.clientY||spawnY;
+//       gotCursor=true;
+//       cs.forEach(o=>{o.x=spawnX+(Math.random()-.5)*60;o.y=spawnY+(Math.random()-.5)*60});
+//     }
+//   }
+//   addEventListener('mousemove',onFirst,{once:true});
+//   addEventListener('touchstart',onFirst,{once:true});
+//   class O{constructor(i){this.br=18+Math.random()*80;this.r=0;this.tr=this.br;this.x=spawnX+(Math.random()-.5)*60;this.y=spawnY+(Math.random()-.5)*60;this.vx=(Math.random()-.5)*2.2;this.vy=(Math.random()-.5)*2.2;this.c=cols[i%cols.length];this.p=Math.random()*Math.PI*2}update(t){this.r+=(this.tr-this.r)*.04;this.x+=this.vx+Math.sin(t*.001+this.p)*.3;this.y+=this.vy+Math.cos(t*.0012+this.p)*.3;if(this.x-this.r<0||this.x+this.r>innerWidth)this.vx*=-.95;if(this.y-this.r<0||this.y+this.r>innerHeight)this.vy*=-.95;this.tr=this.br+Math.sin(t*.002+this.p)*8}draw(x){x.beginPath();x.arc(this.x,this.y,Math.max(0,this.r),0,Math.PI*2);x.strokeStyle=this.c;x.lineWidth=1.5;x.stroke()}}
+//   const cs=[];for(let i=0;i<6;i++)setTimeout(()=>cs.push(new O(i)),i*180);
+//   let run=true;function a(t){if(!run)return;x.clearRect(0,0,innerWidth,innerHeight);cs.forEach(c=>{c.update(t);c.draw(x)});requestAnimationFrame(a)}requestAnimationFrame(a);
+//   setTimeout(()=>{document.getElementById('preloader').classList.add('hidden');setTimeout(()=>{run=false},1e3)},2800);
+// })();
+(function(){
+  const c=document.getElementById('preloader-canvas'),x=c.getContext('2d');
+  function r(){c.width=innerWidth*2;c.height=innerHeight*2;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';x.scale(2,2)}
+  r();addEventListener('resize',r);
+  const cols=['#C8B067','#9AB08D','#CE9042','#EDDDC5','#7D2027'];
+  class O{constructor(i){this.br=18+Math.random()*80;this.r=0;this.tr=this.br;this.x=innerWidth/2+(Math.random()-.5)*120;this.y=innerHeight/2+(Math.random()-.5)*120;this.vx=(Math.random()-.5)*2.2;this.vy=(Math.random()-.5)*2.2;this.c=cols[i%cols.length];this.p=Math.random()*Math.PI*2}update(t){this.r+=(this.tr-this.r)*.04;this.x+=this.vx+Math.sin(t*.001+this.p)*.3;this.y+=this.vy+Math.cos(t*.0012+this.p)*.3;if(this.x-this.r<0||this.x+this.r>innerWidth)this.vx*=-.95;if(this.y-this.r<0||this.y+this.r>innerHeight)this.vy*=-.95;this.tr=this.br+Math.sin(t*.002+this.p)*8}draw(x){x.beginPath();x.arc(this.x,this.y,Math.max(0,this.r),0,Math.PI*2);x.strokeStyle=this.c;x.lineWidth=1.5;x.stroke()}}
+  const cs=[];for(let i=0;i<6;i++)setTimeout(()=>cs.push(new O(i)),i*180);
+  let run=true;function a(t){if(!run)return;x.clearRect(0,0,innerWidth,innerHeight);cs.forEach(c=>{c.update(t);c.draw(x)});requestAnimationFrame(a)}requestAnimationFrame(a);
+  setTimeout(()=>{document.getElementById('preloader').classList.add('hidden');setTimeout(()=>{run=false},1e3)},2800);
+})();
+const obs=new IntersectionObserver(e=>e.forEach(n=>{if(n.isIntersecting)n.target.classList.add('visible')}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
