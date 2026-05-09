@@ -72,12 +72,21 @@ img { max-width: 100%; display: block; }
 #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 #preloader canvas { width: 100%; height: 100%; position: relative; z-index: 1; }
 
-/* BLACK PANEL */
+/* HERO WRAPPER — exactly one viewport tall. Black panel grows to fill,
+   bottom bar always flush against bottom edge of the browser. The marquee
+   strip and everything else lives below this wrapper, off-screen on load. */
+.hero-wrapper {
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* BLACK PANEL — flexes to fill all space above the bottom bar */
 .black-panel {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   margin: 28px 28px 0;
-  /* Use a min-height that respects content but caps viewport height */
-  min-height: calc(100svh - 28px - 48px);
   background: var(--panel);
   overflow: hidden;
   display: flex;
@@ -141,26 +150,28 @@ img { max-width: 100%; display: block; }
 .hero-content {
   position: relative;
   z-index: 2;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;                         /* allow flex children to shrink */
   display: grid;
-  /* Right column scales with the viewport instead of being fixed at 280px */
-  grid-template-columns: minmax(0, 1fr) clamp(240px, 26vw, 380px);
-  gap: clamp(1.5rem, 3vw, 3rem);
-  padding: 0 clamp(1rem, 2.5vw, 2.5rem) 1.5rem;
+  /* Right column scales with the viewport instead of being fixed */
+  grid-template-columns: minmax(0, 1fr) clamp(180px, 19vw, 300px);
+  gap: clamp(1rem, 2.5vw, 2.5rem);
+  padding: 0 clamp(1rem, 2.5vw, 2.5rem) clamp(0.6rem, 1.5vh, 1.5rem);
   align-items: end;
   overflow: hidden;
 }
 
-/* MEGA TEXT — capped by viewport HEIGHT as well as width to prevent overflow */
+/* MEGA TEXT — sized to FILL the panel like the original. Width-driven on wide
+   screens, height-capped so all 4 lines always fit, hard ceiling at 18rem. */
 .mega-text {
   font-family: 'Fraunces', serif;
   font-weight: 900;
   font-optical-sizing: auto;
   text-transform: uppercase;
   letter-spacing: -0.05em;
-  line-height: 0.9;
+  line-height: 0.88;
   color: var(--brightred);
-  font-size: clamp(3rem, min(11.5vw, 17vh), 13rem);
+  font-size: clamp(2.6rem, min(13.5vw, 19vh), 18rem);
   text-shadow: 0 0 120px rgba(219,40,31,0.18);
   max-width: 100%;
   overflow-wrap: break-word;
@@ -186,13 +197,17 @@ img { max-width: 100%; display: block; }
   flex-direction: column;
   align-items: flex-end;
   text-align: right;
-  gap: 0.85rem;
-  padding-bottom: 0.5rem;
+  gap: 0.6rem;
+  padding-bottom: 0.4rem;
   width: 100%;
   min-width: 0;
+  max-height: 100%;
+  overflow: hidden;
 }
 .portrait {
-  width: 100%;
+  /* Bound by both column width AND viewport height. Slightly smaller than before
+     so the mega text gets more visual weight. */
+  width: min(100%, 32vh);
   height: auto;
   aspect-ratio: 4/5;
   object-fit: cover;
@@ -200,6 +215,7 @@ img { max-width: 100%; display: block; }
   filter: grayscale(100%) contrast(1.08);
   opacity: 0;
   animation: fadeIn 0.7s ease 0.4s forwards;
+  align-self: flex-end;
 }
 .right-sub {
   font-family: 'Fraunces', serif;
@@ -241,8 +257,9 @@ img { max-width: 100%; display: block; }
 }
 .right-cta:hover { background: transparent; color: var(--brightred); }
 
-/* BOTTOM BAR */
+/* BOTTOM BAR — flush with the bottom of the viewport */
 .bottom-bar {
+  flex: 0 0 auto;
   margin: 0 28px;
   background: var(--brightred);
   padding: 0.75rem 1.5rem;
@@ -474,58 +491,66 @@ img { max-width: 100%; display: block; }
 /* ---------- TABLET ---------- */
 @media (max-width: 1100px) {
   .hero-content {
-    grid-template-columns: minmax(0, 1fr) clamp(220px, 28vw, 320px);
+    grid-template-columns: minmax(0, 1fr) clamp(180px, 22vw, 280px);
   }
 }
 
-/* ---------- MOBILE ---------- */
+/* ---------- MOBILE — keep hero-wrapper locked to viewport so the
+              bottom bar is still flush. Content is shrunk to fit. ---------- */
 @media (max-width: 800px) {
   .black-panel {
     margin: 12px 12px 0;
-    min-height: auto;
-    padding-bottom: 1rem;
+    padding-bottom: 0.4rem;
   }
   .top-nav {
-    padding: 0.9rem 1rem;
+    padding: 0.7rem 0.9rem;
     align-items: center;
   }
-  .top-nav .logo img { height: 56px; }
-  .nav-buttons { flex-wrap: wrap; max-width: 65%; }
-  .nav-buttons a { font-size: 0.5rem; padding: 0.25rem 0.5rem; }
+  .top-nav .logo img { height: 48px; }
+  .nav-buttons { flex-wrap: wrap; max-width: 70%; }
+  .nav-buttons a { font-size: 0.48rem; padding: 0.22rem 0.45rem; }
 
   .hero-content {
-    grid-template-columns: 1fr;
-    padding: 1rem 1rem 1.5rem;
-    gap: 1.25rem;
-    align-items: start;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    padding: 0.5rem 0.8rem 0.6rem;
+    gap: 0.7rem;
+    align-items: end;
   }
   .mega-text {
-    font-size: clamp(2.6rem, 14vw, 5rem);
+    /* Mobile: tighter cap so all 4 lines + right column fit in viewport */
+    font-size: clamp(1.7rem, min(13vw, 12vh), 5rem);
     letter-spacing: -0.04em;
+    line-height: 0.86;
   }
   .right-col {
-    align-items: flex-start;
-    text-align: left;
+    align-items: flex-end;
+    text-align: right;
     width: 100%;
-    gap: 1rem;
+    gap: 0.4rem;
+    max-height: 100%;
   }
   .portrait {
-    width: 60%;
-    max-width: 220px;
+    width: min(100%, 24vh);
     aspect-ratio: 4/5;
   }
-  .right-sub { font-size: 1rem; }
-  .right-desc { font-size: 0.6rem; }
-  .right-cta { width: 100%; text-align: center; padding: 0.9rem 1rem; }
+  .right-sub { font-size: 0.78rem; }
+  .right-desc { font-size: 0.5rem; line-height: 1.55; max-height: 16vh; overflow: hidden; }
+  .right-cta {
+    width: auto;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.55rem;
+  }
 
   .bottom-bar {
     margin: 0 12px;
-    flex-direction: column;
     text-align: center;
-    font-size: 0.52rem;
-    padding: 0.6rem 1rem;
+    font-size: 0.5rem;
+    padding: 0.45rem 0.8rem;
+    flex-wrap: nowrap;
   }
-  .bottom-links { justify-content: center; gap: 0.8rem; }
+  .bottom-bar > span { display: none; }      /* hide copyright on mobile */
+  .bottom-links { justify-content: center; gap: 0.7rem; flex-wrap: wrap; width: 100%; }
 
   .below-fold { margin: 0 12px 12px; }
   .content-section { padding: 3.5rem 1.1rem; }
@@ -561,44 +586,49 @@ img { max-width: 100%; display: block; }
 <!-- DRIFTWOOD TEXTURE BACKGROUND -->
 <div class="wood-bg"></div>
 
-<!-- BLACK PANEL -->
-<div class="black-panel">
-  <div class="top-nav">
-    <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao"></a>
-    <div class="nav-buttons">
-      <a href="resume.html">Resume</a>
-      <a href="wiki.html">Wiki</a>
-      <a href="writing.html">Writing</a>
-      <a href="photography.html">Photo</a>
-      <a href="contact.html">Contact</a>
+<!-- HERO WRAPPER — locks black panel + bottom bar to exactly viewport height
+     so the marquee/projects sections always start below the fold. -->
+<div class="hero-wrapper">
+
+  <!-- BLACK PANEL -->
+  <div class="black-panel">
+    <div class="top-nav">
+      <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao"></a>
+      <div class="nav-buttons">
+        <a href="resume.html">Resume</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="writing.html">Writing</a>
+        <a href="photography.html">Photo</a>
+      </div>
+    </div>
+
+    <div class="hero-content">
+      <h1 class="mega-text">
+        <span class="line"><span class="mega-accent">eighty %</span></span>
+        <span class="line"><span>engineer,</span></span>
+        <span class="line"><span class="mega-accent">twenty %</span></span>
+        <span class="line"><span>lab rat.</span></span>
+      </h1>
+      <div class="right-col">
+        <img src="assets/portrait.jpg" alt="Shilpa Rao" class="portrait">
+        <p class="right-sub">I make art and machines.</p>
+        <p class="right-desc">I'm Shilpa, an electrical engineer and creative generalist. I've built electronics and software for harsh environments (space, snow, marine, operating room) at SpaceX, Arc Boats, Type III and Vena Vitals. I designed the first known wireless electromagnetic endoscopy at UCLA. I occasionally take on consulting projects through my boutique studio, Bossa.</p>
+        <a href="resume.html" class="right-cta">technical work</a>
+      </div>
     </div>
   </div>
 
-  <div class="hero-content">
-    <h1 class="mega-text">
-      <span class="line"><span class="mega-accent">eighty %</span></span>
-      <span class="line"><span>engineer,</span></span>
-      <span class="line"><span class="mega-accent">twenty %</span></span>
-      <span class="line"><span>lab rat.</span></span>
-    </h1>
-    <div class="right-col">
-      <img src="assets/portrait.jpg" alt="Shilpa Rao" class="portrait">
-      <p class="right-sub">I make art and machines.</p>
-      <p class="right-desc">I'm Shilpa, an electrical engineer and creative generalist. I've built electronics and software for harsh environments (space, snow, marine, operating room) at SpaceX, Arc Boats, Type III and Vena Vitals. I designed the first known wireless electromagnetic endoscopy at UCLA. I occasionally take on consulting projects through my boutique studio, Bossa.</p>
-      <a href="resume.html" class="right-cta">technical work</a>
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <div class="bottom-links">
+      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank">LinkedIn</a>
+      <a href="https://github.com/shxlpa" target="_blank">GitHub</a>
+      <a href="https://shxlpa.substack.com/" target="_blank">Substack</a>
+      <a href="mailto:shilpa.padiki.rao@gmail.com">Email</a>
     </div>
+    <span>&copy; 2026 Shilpa Rao &mdash; All rights reserved</span>
   </div>
-</div>
 
-<!-- BOTTOM BAR -->
-<div class="bottom-bar">
-  <div class="bottom-links">
-    <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank">LinkedIn</a>
-    <a href="https://github.com/shxlpa" target="_blank">GitHub</a>
-    <a href="https://shxlpa.substack.com/" target="_blank">Substack</a>
-    <a href="mailto:shilpa.padiki.rao@gmail.com">Email</a>
-  </div>
-  <span>&copy; 2026 Shilpa Rao &mdash; All rights reserved</span>
 </div>
 
 <!-- BELOW FOLD -->
