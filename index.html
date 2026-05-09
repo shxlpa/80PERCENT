@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHILPA</title>
+<!-- Site identity -->
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="image_src" href="assets/wood.jpg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SHILPA">
+<meta property="og:image" content="assets/wood.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1125">
+<meta name="thumbnail" content="assets/wood.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/wood.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
@@ -451,13 +465,14 @@ img { max-width: 100%; display: block; }
 .studio-text .highlight { color: var(--brightred); font-weight: 700; }
 .studio-services { display: flex; flex-direction: column; gap: 1rem; }
 .studio-service {
-  display:flex; justify-content:space-between; align-items:center;
+  display:flex; justify-content:flex-start; align-items:center;
   border-bottom:1px solid rgba(219,40,31,0.18); padding-bottom:1rem;
   font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em;
   color: var(--cream);
+  /* Plain text — not yet linked to project pages */
+  cursor: default;
+  pointer-events: none;
 }
-.studio-service .arrow { color:var(--brightred); transition:transform 0.3s; }
-.studio-service:hover .arrow { transform: translateX(5px); }
 .studio-bg-text {
   position:absolute; bottom:-2.5rem; right:-1rem;
   font-family:'Fraunces', serif; font-weight:900;
@@ -610,7 +625,7 @@ img { max-width: 100%; display: block; }
         <span class="line"><span>lab rat.</span></span>
       </h1>
       <div class="right-col">
-        <img src="assets/portrait.jpg" alt="Shilpa Rao" class="portrait">
+        <img src="assets/shilpa/prof.jpg" alt="Shilpa Rao" class="portrait">
         <p class="right-sub">I make art and machines.</p>
         <p class="right-desc">I'm Shilpa, an electrical engineer and creative generalist. I've built electronics and software for harsh environments (space, snow, marine, operating room) at Opal Electronics, SpaceX, Arc Boats, Type III and Vena Vitals. I designed a wireless electromagnetic endoscopy at UCLA. I'm currently working on human-computer interaction at Opal.</p>
         <a href="resume.html" class="right-cta">technical work</a>
@@ -661,11 +676,11 @@ img { max-width: 100%; display: block; }
         <p class="studio-text">Alongside my engineering career, I occasionally take on consulting projects through my independent practice <span class="highlight">BOSSA</span>. I design spaces, brand identities, art installations and engineering portfolios for various clients. I have a range of electronics, fabrication, and design skills.</p>
       </div>
       <div class="studio-services reveal reveal-delay-1">
-        <div class="studio-service"><span>Web Design &amp; Development</span><span class="arrow">&rarr;</span></div>
-        <div class="studio-service"><span>Brand Identity &amp; Creative Direction</span><span class="arrow">&rarr;</span></div>
-        <div class="studio-service"><span>PCB Design</span><span class="arrow">&rarr;</span></div>
-        <div class="studio-service"><span>Design direction for musicians, startups, engineers</span><span class="arrow">&rarr;</span></div>
-        <div class="studio-service"><span>Sculpture &amp; materials (wood/ceramic/metal)</span><span class="arrow">&rarr;</span></div>
+        <div class="studio-service"><span>Web Design &amp; Development</span></div>
+        <div class="studio-service"><span>Brand Identity &amp; Creative Direction</span></div>
+        <div class="studio-service"><span>PCB Design</span></div>
+        <div class="studio-service"><span>Design direction for musicians, startups, engineers</span></div>
+        <div class="studio-service"><span>Sculpture &amp; materials (wood/ceramic/metal)</span></div>
       </div>
     </div>
     <div class="studio-bg-text">BOSSA</div>
