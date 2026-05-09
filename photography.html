@@ -188,15 +188,27 @@
 
   .float-img {
     position: relative !important;
+    /* Reset desktop flex sizing. In a column flex with no defined height,
+       flex: 1 1 0 inherited from desktop collapses items to zero height,
+       which is why photos weren't visible on mobile. Force natural sizing
+       so aspect-ratio + width: 100% determine each photo box. */
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
     top: auto !important; right: auto !important;
     bottom: auto !important; left: auto !important;
     width: 100% !important;
     height: auto !important;
+    margin: 0 !important;
     aspect-ratio: 4 / 3;
     transform: none !important;
   }
   .float-img:hover { transform: none !important; }
-  .s3 .img-f { aspect-ratio: 3 / 4; }
+  .s3 .img-f {
+    aspect-ratio: 3 / 4;
+    /* Override the desktop fixed height so the image sizes from aspect-ratio */
+    height: auto !important;
+    max-height: none !important;
+  }
 
   .img-overlay-text {
     position: relative !important;
