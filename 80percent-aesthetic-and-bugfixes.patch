@@ -1,0 +1,1211 @@
+diff --git a/contact.html b/contact.html
+deleted file mode 100644
+index 15e00e7..0000000
+--- a/contact.html
++++ /dev/null
+@@ -1,71 +0,0 @@
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-<meta charset="UTF-8">
+-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+-<title>Contact — Shilpa Rao</title>
+-<link rel="preconnect" href="https://fonts.googleapis.com">
+-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
+-<link rel="stylesheet" href="styles.css">
+-</head>
+-<body>
+-
+-<div class="wood-bg"></div>
+-
+-<div class="shell">
+-
+-  <!-- ===== MENU BLOCK ===== -->
+-  <aside class="block block-menu">
+-    <a href="index.html" class="menu-home">
+-      <img src="assets/figs.png" alt="Shilpa Rao home">
+-      <span class="home-label">home</span>
+-    </a>
+-
+-    <div class="menu-section">pages</div>
+-    <ul class="menu-list">
+-      <li><a href="resume.html">Resume</a></li>
+-      <li><a href="wiki.html">Wiki</a></li>
+-      <li><a href="writing.html">Writing</a></li>
+-      <li><a href="photography.html">Photo</a></li>
+-      <li><a href="contact.html" class="active">Contact</a></li>
+-    </ul>
+-
+-    <div class="menu-socials">
+-      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener">LinkedIn</a>
+-      <a href="https://github.com/shxlpa" target="_blank" rel="noopener">GitHub</a>
+-      <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener">Substack</a>
+-    </div>
+-
+-    <p class="menu-foot">Shilpa Rao &mdash; Los Angeles. 80% engineer, 20% lab rat.</p>
+-  </aside>
+-
+-  <!-- ===== CONTENT BLOCK ===== -->
+-  <main class="block block-content">
+-    <div class="page-eyebrow">contact</div>
+-    <h1 class="page-title">stay for a cup of coffee.</h1>
+-
+-    <div class="contact-stack">
+-      <a href="mailto:shilpa.padiki.rao@gmail.com" class="email-big">shilpa.padiki.rao@gmail.com</a>
+-      <div class="contact-links">
+-        <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener" class="contact-link">LinkedIn</a>
+-        <a href="https://github.com/shxlpa" target="_blank" rel="noopener" class="contact-link">GitHub</a>
+-        <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener" class="contact-link">Substack</a>
+-      </div>
+-    </div>
+-  </main>
+-
+-  <!-- ===== CONTACT BLOCK ===== -->
+-  <aside class="block block-contact">
+-    <div class="contact-block-title">let's chat!</div>
+-    <div class="contact-block-body">
+-      share your critiques, mutual catalysts, insights, current spotify playlist&hellip;
+-      <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+-      <span class="row">&copy; 2026 Shilpa Rao</span>
+-    </div>
+-  </aside>
+-
+-</div>
+-
+-</body>
+-</html>
+diff --git a/index.html b/index.html
+index 65d5c1b..b751420 100644
+--- a/index.html
++++ b/index.html
+@@ -72,12 +72,21 @@ img { max-width: 100%; display: block; }
+ #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+ #preloader canvas { width: 100%; height: 100%; position: relative; z-index: 1; }
+ 
+-/* BLACK PANEL */
++/* HERO WRAPPER — exactly one viewport tall. Black panel grows to fill,
++   bottom bar always flush against bottom edge of the browser. The marquee
++   strip and everything else lives below this wrapper, off-screen on load. */
++.hero-wrapper {
++  height: 100svh;
++  display: flex;
++  flex-direction: column;
++}
++
++/* BLACK PANEL — flexes to fill all space above the bottom bar */
+ .black-panel {
+   position: relative;
++  flex: 1 1 auto;
++  min-height: 0;
+   margin: 28px 28px 0;
+-  /* Use a min-height that respects content but caps viewport height */
+-  min-height: calc(100svh - 28px - 48px);
+   background: var(--panel);
+   overflow: hidden;
+   display: flex;
+@@ -141,26 +150,28 @@ img { max-width: 100%; display: block; }
+ .hero-content {
+   position: relative;
+   z-index: 2;
+-  flex: 1;
++  flex: 1 1 auto;
++  min-height: 0;                         /* allow flex children to shrink */
+   display: grid;
+-  /* Right column scales with the viewport instead of being fixed at 280px */
+-  grid-template-columns: minmax(0, 1fr) clamp(240px, 26vw, 380px);
+-  gap: clamp(1.5rem, 3vw, 3rem);
+-  padding: 0 clamp(1rem, 2.5vw, 2.5rem) 1.5rem;
++  /* Right column scales with the viewport instead of being fixed */
++  grid-template-columns: minmax(0, 1fr) clamp(180px, 19vw, 300px);
++  gap: clamp(1rem, 2.5vw, 2.5rem);
++  padding: 0 clamp(1rem, 2.5vw, 2.5rem) clamp(0.6rem, 1.5vh, 1.5rem);
+   align-items: end;
+   overflow: hidden;
+ }
+ 
+-/* MEGA TEXT — capped by viewport HEIGHT as well as width to prevent overflow */
++/* MEGA TEXT — sized to FILL the panel like the original. Width-driven on wide
++   screens, height-capped so all 4 lines always fit, hard ceiling at 18rem. */
+ .mega-text {
+   font-family: 'Fraunces', serif;
+   font-weight: 900;
+   font-optical-sizing: auto;
+   text-transform: uppercase;
+   letter-spacing: -0.05em;
+-  line-height: 0.9;
++  line-height: 0.88;
+   color: var(--brightred);
+-  font-size: clamp(3rem, min(11.5vw, 17vh), 13rem);
++  font-size: clamp(2.6rem, min(13.5vw, 19vh), 18rem);
+   text-shadow: 0 0 120px rgba(219,40,31,0.18);
+   max-width: 100%;
+   overflow-wrap: break-word;
+@@ -186,13 +197,17 @@ img { max-width: 100%; display: block; }
+   flex-direction: column;
+   align-items: flex-end;
+   text-align: right;
+-  gap: 0.85rem;
+-  padding-bottom: 0.5rem;
++  gap: 0.6rem;
++  padding-bottom: 0.4rem;
+   width: 100%;
+   min-width: 0;
++  max-height: 100%;
++  overflow: hidden;
+ }
+ .portrait {
+-  width: 100%;
++  /* Bound by both column width AND viewport height. Slightly smaller than before
++     so the mega text gets more visual weight. */
++  width: min(100%, 32vh);
+   height: auto;
+   aspect-ratio: 4/5;
+   object-fit: cover;
+@@ -200,6 +215,7 @@ img { max-width: 100%; display: block; }
+   filter: grayscale(100%) contrast(1.08);
+   opacity: 0;
+   animation: fadeIn 0.7s ease 0.4s forwards;
++  align-self: flex-end;
+ }
+ .right-sub {
+   font-family: 'Fraunces', serif;
+@@ -241,8 +257,9 @@ img { max-width: 100%; display: block; }
+ }
+ .right-cta:hover { background: transparent; color: var(--brightred); }
+ 
+-/* BOTTOM BAR */
++/* BOTTOM BAR — flush with the bottom of the viewport */
+ .bottom-bar {
++  flex: 0 0 auto;
+   margin: 0 28px;
+   background: var(--brightred);
+   padding: 0.75rem 1.5rem;
+@@ -474,58 +491,66 @@ img { max-width: 100%; display: block; }
+ /* ---------- TABLET ---------- */
+ @media (max-width: 1100px) {
+   .hero-content {
+-    grid-template-columns: minmax(0, 1fr) clamp(220px, 28vw, 320px);
++    grid-template-columns: minmax(0, 1fr) clamp(180px, 22vw, 280px);
+   }
+ }
+ 
+-/* ---------- MOBILE ---------- */
++/* ---------- MOBILE — keep hero-wrapper locked to viewport so the
++              bottom bar is still flush. Content is shrunk to fit. ---------- */
+ @media (max-width: 800px) {
+   .black-panel {
+     margin: 12px 12px 0;
+-    min-height: auto;
+-    padding-bottom: 1rem;
++    padding-bottom: 0.4rem;
+   }
+   .top-nav {
+-    padding: 0.9rem 1rem;
++    padding: 0.7rem 0.9rem;
+     align-items: center;
+   }
+-  .top-nav .logo img { height: 56px; }
+-  .nav-buttons { flex-wrap: wrap; max-width: 65%; }
+-  .nav-buttons a { font-size: 0.5rem; padding: 0.25rem 0.5rem; }
++  .top-nav .logo img { height: 48px; }
++  .nav-buttons { flex-wrap: wrap; max-width: 70%; }
++  .nav-buttons a { font-size: 0.48rem; padding: 0.22rem 0.45rem; }
+ 
+   .hero-content {
+-    grid-template-columns: 1fr;
+-    padding: 1rem 1rem 1.5rem;
+-    gap: 1.25rem;
+-    align-items: start;
++    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
++    padding: 0.5rem 0.8rem 0.6rem;
++    gap: 0.7rem;
++    align-items: end;
+   }
+   .mega-text {
+-    font-size: clamp(2.6rem, 14vw, 5rem);
++    /* Mobile: tighter cap so all 4 lines + right column fit in viewport */
++    font-size: clamp(1.7rem, min(13vw, 12vh), 5rem);
+     letter-spacing: -0.04em;
++    line-height: 0.86;
+   }
+   .right-col {
+-    align-items: flex-start;
+-    text-align: left;
++    align-items: flex-end;
++    text-align: right;
+     width: 100%;
+-    gap: 1rem;
++    gap: 0.4rem;
++    max-height: 100%;
+   }
+   .portrait {
+-    width: 60%;
+-    max-width: 220px;
++    width: min(100%, 24vh);
+     aspect-ratio: 4/5;
+   }
+-  .right-sub { font-size: 1rem; }
+-  .right-desc { font-size: 0.6rem; }
+-  .right-cta { width: 100%; text-align: center; padding: 0.9rem 1rem; }
++  .right-sub { font-size: 0.78rem; }
++  .right-desc { font-size: 0.5rem; line-height: 1.55; max-height: 16vh; overflow: hidden; }
++  .right-cta {
++    width: auto;
++    text-align: center;
++    padding: 0.5rem 1rem;
++    font-size: 0.55rem;
++  }
+ 
+   .bottom-bar {
+     margin: 0 12px;
+-    flex-direction: column;
+     text-align: center;
+-    font-size: 0.52rem;
+-    padding: 0.6rem 1rem;
++    font-size: 0.5rem;
++    padding: 0.45rem 0.8rem;
++    flex-wrap: nowrap;
+   }
+-  .bottom-links { justify-content: center; gap: 0.8rem; }
++  .bottom-bar > span { display: none; }      /* hide copyright on mobile */
++  .bottom-links { justify-content: center; gap: 0.7rem; flex-wrap: wrap; width: 100%; }
+ 
+   .below-fold { margin: 0 12px 12px; }
+   .content-section { padding: 3.5rem 1.1rem; }
+@@ -561,44 +586,49 @@ img { max-width: 100%; display: block; }
+ <!-- DRIFTWOOD TEXTURE BACKGROUND -->
+ <div class="wood-bg"></div>
+ 
+-<!-- BLACK PANEL -->
+-<div class="black-panel">
+-  <div class="top-nav">
+-    <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao"></a>
+-    <div class="nav-buttons">
+-      <a href="resume.html">Resume</a>
+-      <a href="wiki.html">Wiki</a>
+-      <a href="writing.html">Writing</a>
+-      <a href="photography.html">Photo</a>
+-      <a href="contact.html">Contact</a>
++<!-- HERO WRAPPER — locks black panel + bottom bar to exactly viewport height
++     so the marquee/projects sections always start below the fold. -->
++<div class="hero-wrapper">
++
++  <!-- BLACK PANEL -->
++  <div class="black-panel">
++    <div class="top-nav">
++      <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao"></a>
++      <div class="nav-buttons">
++        <a href="resume.html">Resume</a>
++        <a href="wiki.html">Wiki</a>
++        <a href="writing.html">Writing</a>
++        <a href="photography.html">Photo</a>
++      </div>
+     </div>
+-  </div>
+ 
+-  <div class="hero-content">
+-    <h1 class="mega-text">
+-      <span class="line"><span class="mega-accent">eighty %</span></span>
+-      <span class="line"><span>engineer,</span></span>
+-      <span class="line"><span class="mega-accent">twenty %</span></span>
+-      <span class="line"><span>lab rat.</span></span>
+-    </h1>
+-    <div class="right-col">
+-      <img src="assets/portrait.jpg" alt="Shilpa Rao" class="portrait">
+-      <p class="right-sub">I make art and machines.</p>
+-      <p class="right-desc">I'm Shilpa, an electrical engineer and creative generalist. I've built electronics and software for harsh environments (space, snow, marine, operating room) at SpaceX, Arc Boats, Type III and Vena Vitals. I designed the first known wireless electromagnetic endoscopy at UCLA. I occasionally take on consulting projects through my boutique studio, Bossa.</p>
+-      <a href="resume.html" class="right-cta">technical work</a>
++    <div class="hero-content">
++      <h1 class="mega-text">
++        <span class="line"><span class="mega-accent">eighty %</span></span>
++        <span class="line"><span>engineer,</span></span>
++        <span class="line"><span class="mega-accent">twenty %</span></span>
++        <span class="line"><span>lab rat.</span></span>
++      </h1>
++      <div class="right-col">
++        <img src="assets/portrait.jpg" alt="Shilpa Rao" class="portrait">
++        <p class="right-sub">I make art and machines.</p>
++        <p class="right-desc">I'm Shilpa, an electrical engineer and creative generalist. I've built electronics and software for harsh environments (space, snow, marine, operating room) at SpaceX, Arc Boats, Type III and Vena Vitals. I designed the first known wireless electromagnetic endoscopy at UCLA. I occasionally take on consulting projects through my boutique studio, Bossa.</p>
++        <a href="resume.html" class="right-cta">technical work</a>
++      </div>
+     </div>
+   </div>
+-</div>
+ 
+-<!-- BOTTOM BAR -->
+-<div class="bottom-bar">
+-  <div class="bottom-links">
+-    <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank">LinkedIn</a>
+-    <a href="https://github.com/shxlpa" target="_blank">GitHub</a>
+-    <a href="https://shxlpa.substack.com/" target="_blank">Substack</a>
+-    <a href="mailto:shilpa.padiki.rao@gmail.com">Email</a>
++  <!-- BOTTOM BAR -->
++  <div class="bottom-bar">
++    <div class="bottom-links">
++      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank">LinkedIn</a>
++      <a href="https://github.com/shxlpa" target="_blank">GitHub</a>
++      <a href="https://shxlpa.substack.com/" target="_blank">Substack</a>
++      <a href="mailto:shilpa.padiki.rao@gmail.com">Email</a>
++    </div>
++    <span>&copy; 2026 Shilpa Rao &mdash; All rights reserved</span>
+   </div>
+-  <span>&copy; 2026 Shilpa Rao &mdash; All rights reserved</span>
++
+ </div>
+ 
+ <!-- BELOW FOLD -->
+diff --git a/photography.html b/photography.html
+index 9b1f4d7..5c7f59e 100644
+--- a/photography.html
++++ b/photography.html
+@@ -7,99 +7,55 @@
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
++<link rel="stylesheet" href="styles.css">
+ <style>
+-:root {
+-  --brightred: #db281f;
+-  --cream:     #EDDDC5;
+-  --grey-soft: rgba(237,221,197,0.55);
+-  --grey-mute: rgba(237,221,197,0.40);
+-  --black:     #0A0A0A;
+-}
+-* { margin: 0; padding: 0; box-sizing: border-box; }
+-::selection { background: var(--brightred); color: var(--cream); }
+-
+-html, body { margin: 0; padding: 0; min-height: 100vh; }
+-html { background: #0A0A0A; }
+-body {
+-  font-family: 'DM Mono', monospace;
+-  background: var(--black);
+-  color: var(--cream);
+-  overflow-x: hidden;
+-}
+-img { display: block; max-width: 100%; }
+-
+-/* Subtle graph paper grid behind everything */
+-body::before {
+-  content: '';
+-  position: fixed;
+-  inset: 0;
+-  background-image:
+-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+-  background-size: 36px 36px;
+-  pointer-events: none;
+-  z-index: 0;
+-}
+-
+-/* NAV */
+-nav {
+-  position: fixed;
+-  top: 0; left: 0; right: 0;
+-  z-index: 100;
+-  display: flex;
+-  justify-content: space-between;
+-  align-items: center;
+-  padding: 1.2rem 2rem;
+-  background: rgba(10,10,10,0.6);
+-  backdrop-filter: blur(8px);
+-  -webkit-backdrop-filter: blur(8px);
+-  border-bottom: 1px solid rgba(255,255,255,0.05);
+-}
+-nav .logo { text-decoration: none; }
+-nav .logo img {
+-  height: 56px;
+-  width: auto;
+-  filter: brightness(0) invert(1);
+-  transition: transform 0.3s;
+-}
+-nav .logo:hover img { transform: scale(1.06); }
+-.nav-links { list-style: none; display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: flex-end; }
+-.nav-links a {
+-  font-family: 'DM Mono', monospace;
+-  font-size: 0.6rem;
+-  text-transform: uppercase;
+-  letter-spacing: 0.12em;
+-  text-decoration: none;
+-  color: var(--cream);
+-  transition: color 0.3s;
++/* ============================================
++   Page-specific palette — preserves the original
++   photography aesthetic (cream/gold) inside the
++   center content block.
++   ============================================ */
++.block-photo {
++  --photo-cream:  #EDDDC5;
++  --photo-gold:   #C8B067;
++  --photo-amber:  #CE9042;
++  --photo-maroon: #7D2027;
++  /* zero internal padding so the editorial fills the block edge-to-edge */
++  padding: 0;
++  color: var(--photo-cream);
+ }
+-.nav-links a:hover, .nav-links a.active { color: var(--brightred); }
++.block-photo > * { position: relative; z-index: 1; }
+ 
+-/* EDITORIAL CONTAINER */
++/* Set this block as a positioning context + container for the editorial */
+ .editorial {
+   position: relative;
+-  padding: 6rem 0 0;
+-  z-index: 1;
++  padding: 2rem 0;
+ }
+ 
+-/* Each spread is its own positioning context with explicit min-height */
++/* ============================================
++   SPREADS — flex layout with explicit gaps so
++   photos can never overlap, regardless of viewport.
++   Each spread is a 3-column row; vertical variation
++   comes from per-image align-self / margin-top so
++   the editorial feel is preserved.
++   ============================================ */
+ .spread {
+   position: relative;
+   width: 100%;
+-  padding: 4rem 2rem;
+-  overflow: hidden; /* clip any drift overflow so spreads can't bleed into each other */
++  min-height: 88vh;
++  padding: 3rem clamp(0.6rem, 1.2vw, 1.5rem);
++  display: flex;
++  align-items: stretch;
++  gap: clamp(6px, 0.8vw, 14px);
+ }
+ 
+-/* FLOAT IMG WRAPPER */
+ .float-img {
+-  position: absolute;
++  position: relative;
++  flex: 1 1 0;
++  min-width: 0;
+   overflow: hidden;
+-  /* Use CSS variable for drift so :hover scale doesn't fight it */
+-  transform: translateY(var(--drift, 0px)) scale(var(--scale, 1));
+   transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+-  will-change: transform;
+ }
+-.float-img:hover { --scale: 1.02; }
++.float-img:hover { transform: scale(1.015); }
+ .float-img img {
+   width: 100%;
+   height: 100%;
+@@ -107,21 +63,19 @@ nav .logo:hover img { transform: scale(1.06); }
+   display: block;
+ }
+ 
+-/* Overlay text */
++/* Overlay captions — absolutely positioned over the spread row */
+ .img-overlay-text {
+   position: absolute;
+-  z-index: 3;
++  z-index: 4;
+   pointer-events: none;
+-  max-width: 90%;
++  color: var(--photo-cream);
+ }
+ .img-overlay-text h2 {
+-  font-family: 'Fraunces', serif;
+-  font-weight: 900;
+-  text-transform: uppercase;
++  font-family: 'Instrument Serif', serif;
+   font-style: italic;
+   line-height: 0.95;
+   letter-spacing: -0.02em;
+-  color: var(--cream);
++  color: var(--photo-cream);
+ }
+ .img-overlay-text p {
+   font-family: 'DM Mono', monospace;
+@@ -129,345 +83,263 @@ nav .logo:hover img { transform: scale(1.06); }
+   text-transform: uppercase;
+   letter-spacing: 0.15em;
+   margin-top: 0.5rem;
+-  color: var(--grey-mute);
++  opacity: 0.7;
++  color: var(--photo-cream);
+ }
+ 
+ /* ============================================
+    SPREAD VARIANTS
+-   Every image has explicit aspect-ratio so width
+-   determines height deterministically across all
+-   browsers. Spreads have min-height clamped to fit.
+    ============================================ */
+ 
+-/* S1 — three verticals + heading */
+-.s1 { min-height: clamp(620px, 95vh, 1100px); }
+-.s1 .img-a { top: 8%;  left: 4%;   width: clamp(180px, 28vw, 460px); aspect-ratio: 3/4; }
+-.s1 .img-b { bottom: 6%; right: 6%; width: clamp(160px, 24vw, 380px); aspect-ratio: 2/3; }
+-.s1 .img-c { top: 10%; left: 38%;  width: clamp(160px, 23vw, 360px); aspect-ratio: 2/3; }
+-.s1 .ot1  { top: 14%; right: 6%; color: var(--cream); text-align: right; }
+-.s1 .ot1 h2 { font-size: clamp(2.2rem, 7vw, 7rem); color: var(--brightred); }
+-
+-/* S2 — three travel images + heading */
+-.s2 { min-height: clamp(620px, 95vh, 1100px); }
+-.s2 .img-a { top: 6%;   right: 5%; width: clamp(220px, 30vw, 480px); aspect-ratio: 3/4; }
+-.s2 .img-b { bottom: 8%; left: 5%;  width: clamp(200px, 28vw, 460px); aspect-ratio: 4/3; }
+-.s2 .img-c { top: 4%;   left: 38%; width: clamp(150px, 22vw, 340px); aspect-ratio: 2/3; }
+-.s2 .ot2 { bottom: 4%; right: 6%; color: var(--cream); text-align: right; }
+-.s2 .ot2 h2 { font-size: clamp(1.4rem, 3.4vw, 3rem); }
+-
+-/* S3 — single hero with overlay text */
+-.s3 { min-height: clamp(560px, 90vh, 1000px); }
+-.s3 .img-hero {
+-  top: 0; left: 0;
+-  width: 100%; height: 100%;
++/* S1 — three verticals (gaps guaranteed by flex gap) */
++.s1 .img-a  { aspect-ratio: 3/4; align-self: flex-start; }
++.s1 .img-bc { aspect-ratio: 2/3; align-self: center; }
++.s1 .img-b  { aspect-ratio: 2/3; align-self: flex-end; }
++.s1 .ot1 { top: 8%; right: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
++.s1 .ot1 h2 { font-size: clamp(2rem, 5vw, 5rem); }
++
++/* S2 — heading floats above, three travel images below it */
++.s2 { padding-top: clamp(4.5rem, 9vh, 7rem); }
++.s2 .img-c { flex: 1.25 1 0; aspect-ratio: 3/4; align-self: flex-start; }
++.s2 .img-d { flex: 1 1 0;    aspect-ratio: 4/3; align-self: flex-end; }
++.s2 .img-e { flex: 0.85 1 0; aspect-ratio: 2/3; align-self: center; }
++.s2 .ot2 { top: 1.5rem; right: clamp(0.6rem, 1.2vw, 1.5rem); left: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
++.s2 .ot2 h2 { font-size: clamp(1.4rem, 3.5vw, 3.5rem); }
++
++/* S3 — single hero + huge centered title */
++.s3 { min-height: 78vh; display: block; padding: 2rem clamp(0.6rem, 1.2vw, 1.5rem); }
++.s3 .img-f {
++  position: relative;
++  width: 100%;
++  height: 75vh;
++  max-height: calc(88vh - 4rem);
++  flex: none;
+ }
+ .s3 .ot3 {
+   top: 50%; left: 50%;
+   transform: translate(-50%, -50%);
+   text-align: center;
+-  z-index: 4;
++  /* The ONLY overlay that keeps the negative-color blend */
+   mix-blend-mode: difference;
+   color: #fff;
+ }
+ .s3 .ot3 h2 {
+-  font-family: 'Fraunces', serif;
+-  font-weight: 900;
++  font-family: 'Instrument Serif', serif;
++  font-weight: 800;
+   font-style: normal;
+-  font-size: clamp(2.8rem, 9vw, 9rem);
++  font-size: clamp(2.4rem, 8vw, 8rem);
+   text-transform: uppercase;
+-  letter-spacing: -0.04em;
+-  line-height: 0.9;
++  letter-spacing: -0.05em;
++  line-height: 0.85;
+   color: #fff;
+ }
+ 
+-/* S4 — three images side-by-side composition */
+-.s4 { min-height: clamp(620px, 95vh, 1100px); }
+-.s4 .img-a { top: 14%; left: 4%;  width: clamp(180px, 24vw, 380px); aspect-ratio: 2/3; }
+-.s4 .img-b { top: 6%;  left: 36%; width: clamp(180px, 24vw, 380px); aspect-ratio: 3/4; }
+-.s4 .img-c { bottom: 6%; right: 4%; width: clamp(220px, 30vw, 480px); aspect-ratio: 3/2; }
+-.s4 .ot4 { top: 4%; left: 4%; color: var(--brightred); }
+-.s4 .ot4 h2 { font-size: clamp(1.6rem, 4.5vw, 4rem); color: var(--brightred); }
+-
+-/* S5 — three images + small caption */
+-.s5 { min-height: clamp(620px, 95vh, 1100px); }
+-.s5 .img-a { top: 8%;   left: 4%;  width: clamp(200px, 28vw, 460px); aspect-ratio: 4/3; }
+-.s5 .img-b { bottom: 8%; right: 6%; width: clamp(180px, 25vw, 400px); aspect-ratio: 2/3; }
+-.s5 .img-c { top: 10%;  left: 38%; width: clamp(160px, 23vw, 360px); aspect-ratio: 2/3; }
+-.s5 .ot5 { bottom: 6%; left: 4%; color: var(--grey-mute); }
+-.s5 .ot5 p { font-size: 0.7rem; }
+-
+-/* S6 — three travel mid */
+-.s6 { min-height: clamp(620px, 95vh, 1100px); }
+-.s6 .img-a { top: 6%;   right: 6%; width: clamp(220px, 30vw, 460px); aspect-ratio: 3/4; }
+-.s6 .img-b { bottom: 8%; left: 5%;  width: clamp(200px, 28vw, 440px); aspect-ratio: 4/3; }
+-.s6 .img-c { top: 4%;   left: 38%; width: clamp(150px, 22vw, 340px); aspect-ratio: 2/3; }
+-
+-/* S7 — three industrial/portrait + reflection text */
+-.s7 { min-height: clamp(720px, 105vh, 1200px); }
+-.s7 .img-a { top: 14%; left: 4%;  width: clamp(180px, 24vw, 380px); aspect-ratio: 2/3; }
+-.s7 .img-b { top: 6%;  left: 36%; width: clamp(180px, 24vw, 380px); aspect-ratio: 3/4; }
+-.s7 .img-c { bottom: 22%; right: 4%; width: clamp(220px, 30vw, 460px); aspect-ratio: 4/5; }
+-.s7 .ot7 { bottom: 4%; left: 4%; right: 4%; color: var(--cream); max-width: 100%; }
+-.s7 .ot7 h2 {
+-  font-family: 'Fraunces', serif;
+-  font-style: italic;
+-  font-weight: 900;
+-  font-size: clamp(1rem, 2vw, 1.7rem);
+-  line-height: 1.5;
+-  text-transform: none;
+-  letter-spacing: 0;
+-  color: var(--grey-soft);
+-}
++/* S4 — hudson & ari, ot4 in top-left */
++.s4 { min-height: 84vh; padding-top: clamp(4rem, 7vh, 6rem); }
++.s4 .img-g { aspect-ratio: 2/3; align-self: flex-start; margin-top: 4%; }
++.s4 .img-h { aspect-ratio: 3/4; align-self: flex-start; }
++.s4 .img-i { flex: 1.2 1 0; aspect-ratio: 3/2; align-self: flex-end; }
++.s4 .ot4 { top: 1.5rem; left: clamp(0.6rem, 1.2vw, 1.5rem); }
++.s4 .ot4 h2 { font-size: clamp(1.5rem, 3.5vw, 3.5rem); color: var(--photo-gold); }
+ 
+-/* FOOTER */
+-footer {
++/* Reflective text below the last spread */
++.ot-reflect {
+   position: relative;
+-  z-index: 1;
+-  border-top: 1px solid rgba(255,255,255,0.05);
+-  padding: 2rem;
+-  display: flex;
+-  justify-content: space-between;
+-  font-size: 0.6rem;
+-  text-transform: uppercase;
+-  letter-spacing: 0.1em;
+-  color: var(--grey-mute);
+-  flex-wrap: wrap;
+-  gap: 0.5rem;
++  z-index: 3;
++  padding: 2rem 1.5rem 4rem;
++  color: var(--photo-cream);
++}
++.ot-reflect h2 {
++  font-family: 'Instrument Serif', serif;
++  font-style: italic;
++  font-weight: 400;
++  font-size: clamp(1.05rem, 1.8vw, 1.6rem);
++  line-height: 1.55;
++  color: var(--photo-cream);
++  opacity: 0.75;
+ }
+ 
+-/* REVEAL */
+ .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+ .reveal.visible { opacity: 1; transform: translateY(0); }
+ 
+ /* ============================================
+-   TABLET
++   TABLET — squeeze a bit
+    ============================================ */
+-@media (max-width: 980px) {
+-  .spread { padding: 3rem 1.4rem; }
+-  .s1, .s2, .s4, .s5, .s6 { min-height: clamp(540px, 82vh, 900px); }
+-  .s7 { min-height: clamp(640px, 95vh, 1100px); }
+-  .img-overlay-text h2 { font-size: clamp(1.8rem, 6vw, 4.5rem); }
+-
+-  /* Reposition some images to avoid crowding at narrow widths */
+-  .s1 .img-c, .s2 .img-c, .s4 .img-b, .s5 .img-c, .s6 .img-c, .s7 .img-b {
+-    left: auto; right: auto;
+-  }
++@media (max-width: 1100px) {
++  .spread { padding: 2rem 1rem; }
++  .s1 .ot1 h2 { font-size: clamp(1.8rem, 5.5vw, 3.5rem); }
+ }
+ 
+ /* ============================================
+-   MOBILE — switch to vertical stacked layout
++   MOBILE — vertical stacked editorial inside
++   the (now full-width) center block. No more
++   absolute positioning, no overlap possible.
+    ============================================ */
+-@media (max-width: 760px) {
+-  nav { padding: 0.9rem 1rem; }
+-  nav .logo img { height: 44px; }
+-  .nav-links { gap: 0.8rem; }
+-  .nav-links a { font-size: 0.5rem; letter-spacing: 0.08em; }
+-
+-  .editorial { padding: 5rem 0 0; }
++@media (max-width: 820px) {
++  .editorial { padding: 0.5rem 0; }
+ 
+   .spread {
+-    padding: 2rem 1rem;
+     min-height: 0 !important;
+-    height: auto;
++    padding: 1rem 0.4rem;
+     display: flex;
+     flex-direction: column;
+-    gap: 1rem;
+-    overflow: visible;
++    gap: 0.9rem;
+   }
+ 
+-  /* Convert all float-img to static stacked blocks on mobile */
+   .float-img {
+     position: relative !important;
+     top: auto !important; right: auto !important;
+     bottom: auto !important; left: auto !important;
+     width: 100% !important;
+-    aspect-ratio: 4/3 !important;
++    height: auto !important;
++    aspect-ratio: 4 / 3;
+     transform: none !important;
+   }
+-  .float-img:hover { --scale: 1; }
+-
+-  /* Hide drifty extras so spreads stay readable */
+-  .s1 .img-c, .s2 .img-c, .s5 .img-c, .s6 .img-c, .s7 .img-b { display: none; }
++  .float-img:hover { transform: none !important; }
++  .s3 .img-f { aspect-ratio: 3 / 4; }
+ 
+-  /* Overlay text becomes inline */
+   .img-overlay-text {
+     position: relative !important;
+     top: auto !important; right: auto !important;
+     bottom: auto !important; left: auto !important;
+     transform: none !important;
+     text-align: left !important;
++    margin: 0.4rem 0;
+     max-width: 100%;
+-    margin: 0.5rem 0;
++    /* Drop blend-mode on mobile so plain cream text reads cleanly over black */
++    mix-blend-mode: normal;
+   }
+-  .s3 .ot3 { mix-blend-mode: normal; color: var(--brightred); }
+-  .s3 .ot3 h2 { color: var(--brightred); font-size: clamp(2rem, 11vw, 4rem); }
+-  .s1 .ot1 h2 { font-size: clamp(2rem, 11vw, 4rem); }
+-  .s2 .ot2 h2 { font-size: clamp(1.1rem, 5.5vw, 2rem); }
+-  .s4 .ot4 h2 { font-size: clamp(1.4rem, 7vw, 3rem); }
+-  .s7 .ot7 h2 { font-size: clamp(0.9rem, 3.5vw, 1.4rem); line-height: 1.5; }
+-
+-  /* S3 hero needs height since float-img turned static */
+-  .s3 .img-hero { aspect-ratio: 3/4 !important; }
+-
+-  footer { padding: 1.5rem 1rem; font-size: 0.55rem; flex-direction: column; text-align: center; }
++  .s1 .ot1 h2 { font-size: clamp(2rem, 9vw, 4rem); }
++  .s2 .ot2 h2 { font-size: clamp(1.4rem, 6vw, 2.2rem); }
++  .s3 .ot3 h2 { font-size: clamp(2.4rem, 12vw, 4.5rem); }
++  .s4 .ot4 h2 { font-size: clamp(1.6rem, 7vw, 3rem); }
++  .ot-reflect { padding: 1.5rem 0.4rem 2rem; }
++  .ot-reflect h2 { font-size: clamp(0.9rem, 3.5vw, 1.2rem); }
+ }
+ </style>
+ </head>
+ <body>
+ 
+-<nav>
+-  <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao home"></a>
+-  <ul class="nav-links">
+-    <li><a href="resume.html">Resume</a></li>
+-    <li><a href="wiki.html">Wiki</a></li>
+-    <li><a href="writing.html">Writing</a></li>
+-    <li><a href="photography.html" class="active">Photography</a></li>
+-    <li><a href="contact.html">Contact</a></li>
+-  </ul>
+-</nav>
+-
+-<div class="editorial">
+-
+-  <!-- S1 — fujifilm intro -->
+-  <section class="spread s1">
+-    <div class="float-img img-a drift" data-drift="0.03">
+-      <img src="assets/DSCF1042.jpg" alt="ceramic">
+-    </div>
+-    <div class="float-img img-b drift" data-drift="-0.05">
+-      <img src="assets/DSCF1625.jpg" alt="lantern">
+-    </div>
+-    <div class="float-img img-c drift" data-drift="-0.05">
+-      <img src="assets/DSCF1473.jpg" alt="sink">
+-    </div>
+-    <div class="img-overlay-text ot1 reveal">
+-      <h2>photography</h2>
+-      <p>fujifilm xt30 | 27mm pancake</p>
+-    </div>
+-  </section>
+-
+-  <!-- S2 — selected from -->
+-  <section class="spread s2">
+-    <div class="float-img img-a drift" data-drift="0.04">
+-      <img src="assets/DSCF8116.jpg" alt="india">
+-    </div>
+-    <div class="float-img img-b drift" data-drift="-0.06">
+-      <img src="assets/DSCF7264.jpg" alt="vietnam_float">
+-    </div>
+-    <div class="float-img img-c drift" data-drift="0.02">
+-      <img src="assets/DSCF8591.jpg" alt="sat">
+-    </div>
+-    <div class="img-overlay-text ot2 reveal">
+-      <h2>selected from chile, vietnam, japan, india, nepal, hong kong, portugal, spain</h2>
+-      <p>&amp; joshua tree, colorado, eastern sierras, los angeles</p>
+-    </div>
+-  </section>
+-
+-  <!-- S3 — hero -->
+-  <section class="spread s3">
+-    <div class="float-img img-hero">
+-      <img src="assets/DSCF7081.jpg" alt="vietnam_shop">
+-    </div>
+-    <div class="img-overlay-text ot3">
+-      <h2>three<br>continents.<br>eight<br>countries.</h2>
+-    </div>
+-  </section>
+-
+-  <!-- S4 — hudson & ari -->
+-  <section class="spread s4">
+-    <div class="float-img img-a drift" data-drift="0.035">
+-      <img src="assets/DSCF1791.jpg" alt="hudson">
++<div class="wood-bg"></div>
++
++<div class="shell">
++
++  <!-- ===== MENU BLOCK ===== -->
++  <aside class="block block-menu">
++    <a href="index.html" class="menu-home">
++      <img src="assets/figs.png" alt="Shilpa Rao home">
++      <span class="home-label">home</span>
++    </a>
++
++    <div class="menu-section">pages</div>
++    <ul class="menu-list">
++      <li><a href="resume.html">Resume</a></li>
++      <li><a href="wiki.html">Wiki</a></li>
++      <li><a href="writing.html">Writing</a></li>
++      <li><a href="photography.html" class="active">Photo</a></li>
++    </ul>
++
++    <div class="menu-socials">
++      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener">LinkedIn</a>
++      <a href="https://github.com/shxlpa" target="_blank" rel="noopener">GitHub</a>
++      <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener">Substack</a>
+     </div>
+-    <div class="float-img img-b drift" data-drift="-0.04">
+-      <img src="assets/DSCF1907.jpg" alt="recliner">
+-    </div>
+-    <div class="float-img img-c drift" data-drift="0.05">
+-      <img src="assets/DSCF6621.jpg" alt="ari">
+-    </div>
+-    <div class="img-overlay-text ot4 reveal">
+-      <h2>hudson &amp; ari</h2>
+-    </div>
+-  </section>
+ 
+-  <!-- S5 — sometimes 18-55mm -->
+-  <section class="spread s5">
+-    <div class="float-img img-a drift" data-drift="0.03">
+-      <img src="assets/DSCF6921.jpg" alt="ship_friends">
+-    </div>
+-    <div class="float-img img-b drift" data-drift="-0.05">
+-      <img src="assets/DSCF1478.jpg" alt="japan_hut">
+-    </div>
+-    <div class="float-img img-c drift" data-drift="-0.05">
+-      <img src="assets/DSCF8319.jpg" alt="yak">
+-    </div>
+-    <div class="img-overlay-text ot5 reveal">
+-      <p>sometimes an 18-55mm lens too</p>
+-    </div>
+-  </section>
++    <p class="menu-foot">Shilpa Rao &mdash; Los Angeles. 80% engineer, 20% lab rat.</p>
++  </aside>
++
++  <!-- ===== CONTENT BLOCK — photography editorial ===== -->
++  <main class="block block-content block-photo">
++    <div class="editorial">
++
++      <div class="spread s1">
++        <div class="float-img img-a"><img src="assets/DSCF1042.jpg" alt="ceramic"></div>
++        <div class="float-img img-b"><img src="assets/DSCF1625.jpg" alt="lantern"></div>
++        <div class="float-img img-bc"><img src="assets/DSCF1473.jpg" alt="sink"></div>
++        <div class="img-overlay-text ot1 reveal">
++          <h2>photography</h2>
++          <p>fujifilm xt30 | 27mm pancake</p>
++        </div>
++      </div>
++
++      <div class="spread s2">
++        <div class="float-img img-c"><img src="assets/DSCF8116.jpg" alt="india"></div>
++        <div class="float-img img-d"><img src="assets/DSCF7264.jpg" alt="vietnam_float"></div>
++        <div class="float-img img-e"><img src="assets/DSCF8591.jpg" alt="sat"></div>
++        <div class="img-overlay-text ot2 reveal">
++          <h2>selected from chile, vietnam, japan, india, nepal, hong kong, portugal, spain</h2>
++          <p>&amp; joshua tree, colorado, eastern sierras, los angeles</p>
++        </div>
++      </div>
++
++      <div class="spread s3">
++        <div class="float-img img-f"><img src="assets/DSCF7081.jpg" alt="vietnam_shop"></div>
++        <div class="img-overlay-text ot3">
++          <h2>three<br>continents.<br>eight<br>countries.</h2>
++        </div>
++      </div>
++
++      <div class="spread s4">
++        <div class="float-img img-g"><img src="assets/DSCF1791.jpg" alt="hudson"></div>
++        <div class="float-img img-h"><img src="assets/DSCF1907.jpg" alt="recliner"></div>
++        <div class="float-img img-i"><img src="assets/DSCF6621.jpg" alt="ari"></div>
++        <div class="img-overlay-text ot4 reveal">
++          <h2>hudson &amp; ari</h2>
++        </div>
++      </div>
++
++      <div class="spread s1">
++        <div class="float-img img-a"><img src="assets/DSCF6921.jpg" alt="ship_friends"></div>
++        <div class="float-img img-b"><img src="assets/DSCF1478.jpg" alt="japan_hut"></div>
++        <div class="float-img img-bc"><img src="assets/DSCF8319.jpg" alt="yak"></div>
++        <div class="img-overlay-text ot1 reveal">
++          <p>sometimes an 18-55mm lens too</p>
++        </div>
++      </div>
++
++      <div class="spread s2">
++        <div class="float-img img-c"><img src="assets/DSCF7078.jpg" alt="vietnam_shop2"></div>
++        <div class="float-img img-d"><img src="assets/DSCF7129.jpg" alt="tavan"></div>
++        <div class="float-img img-e"><img src="assets/DSCF7173.jpg" alt="vietnam_bull"></div>
++      </div>
++
++      <div class="spread s4">
++        <div class="float-img img-g"><img src="assets/DSCF8120.jpg" alt="gastanker"></div>
++        <div class="float-img img-h"><img src="assets/DSCF1401.jpg" alt="cyclist"></div>
++        <div class="float-img img-i"><img src="assets/DSCF7853.jpg" alt="crane"></div>
++      </div>
++
++      <div class="ot-reflect reveal">
++        <h2>I find places stripped of filters. <br>What is the world like behind the scenes? <br>Who runs this whole operation? <br>What are they feeling, thinking, doing &mdash; <br>these machines and people?</h2>
++      </div>
+ 
+-  <!-- S6 — vietnam quietly -->
+-  <section class="spread s6">
+-    <div class="float-img img-a drift" data-drift="0.04">
+-      <img src="assets/DSCF7078.jpg" alt="vietnam_shop2">
+     </div>
+-    <div class="float-img img-b drift" data-drift="-0.06">
+-      <img src="assets/DSCF7129.jpg" alt="tavan">
++  </main>
++
++  <!-- ===== CONTACT BLOCK ===== -->
++  <aside class="block block-contact">
++    <div class="contact-block-title">stay for a cup of coffee</div>
++    <div class="contact-block-body">
++      <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
++      <span class="row">san francisco</span>
+     </div>
+-    <div class="float-img img-c drift" data-drift="0.02">
+-      <img src="assets/DSCF7173.jpg" alt="vietnam_bull">
+-    </div>
+-  </section>
+-
+-  <!-- S7 — industrial + reflection -->
+-  <section class="spread s7">
+-    <div class="float-img img-a drift" data-drift="0.035">
+-      <img src="assets/DSCF8120.jpg" alt="gastanker">
+-    </div>
+-    <div class="float-img img-b drift" data-drift="-0.04">
+-      <img src="assets/DSCF1401.jpg" alt="cyclist">
+-    </div>
+-    <div class="float-img img-c drift" data-drift="0.05">
+-      <img src="assets/DSCF7853.jpg" alt="crane">
+-    </div>
+-    <div class="img-overlay-text ot7 reveal">
+-      <h2>I find places stripped of filters. <br>What is the world like behind the scenes? <br>Who runs this whole operation? <br>What are they feeling, thinking, doing &mdash; <br>these machines and people?</h2>
+-    </div>
+-  </section>
++  </aside>
+ 
+ </div>
+ 
+-<footer><span>&copy; 2026 Shilpa Rao</span><span>Made with care</span></footer>
+-
+ <script>
+-// Reveal on scroll
+-var obs = new IntersectionObserver(function(entries) {
+-  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+-}, { threshold: 0.1 });
+-document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+-
+-// Drift effect — uses CSS variable so it doesn't fight the :hover transform
+-var drifts = Array.prototype.slice.call(document.querySelectorAll('.drift'));
+-function applyDrift() {
+-  // Disable drift on small screens (we already stack vertically there)
+-  if (window.matchMedia('(max-width: 760px)').matches) {
+-    drifts.forEach(function(el) { el.style.removeProperty('--drift'); });
+-    return;
+-  }
+-  drifts.forEach(function(el) {
+-    var rate = parseFloat(el.getAttribute('data-drift')) || 0;
+-    var rect = el.getBoundingClientRect();
+-    var offset = (rect.top - window.innerHeight / 2) * rate;
+-    el.style.setProperty('--drift', offset + 'px');
+-  });
+-}
+-applyDrift();
+-var ticking = false;
+-window.addEventListener('scroll', function() {
+-  if (!ticking) {
+-    window.requestAnimationFrame(function() { applyDrift(); ticking = false; });
+-    ticking = true;
+-  }
+-});
+-window.addEventListener('resize', applyDrift);
++// Reveal-on-scroll. On desktop the .block-photo scrolls internally, so the
++// IntersectionObserver root must be the block (not the window). Falls back to
++// the window automatically on mobile where the page itself scrolls.
++(function () {
++  var bc = document.querySelector('.block-photo');
++  var isDesktop = window.matchMedia('(min-width: 981px)').matches;
++  var opts = (isDesktop && bc) ? { root: bc, threshold: 0.1 } : { threshold: 0.1 };
++  var obs = new IntersectionObserver(function (entries) {
++    entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
++  }, opts);
++  document.querySelectorAll('.reveal').forEach(function (el) { obs.observe(el); });
++})();
+ </script>
+ </body>
+ </html>
+diff --git a/resume.html b/resume.html
+index 4c8370c..ec717ae 100644
+--- a/resume.html
++++ b/resume.html
+@@ -28,7 +28,6 @@
+       <li><a href="wiki.html">Wiki</a></li>
+       <li><a href="writing.html">Writing</a></li>
+       <li><a href="photography.html">Photo</a></li>
+-      <li><a href="contact.html">Contact</a></li>
+     </ul>
+ 
+     <div class="menu-socials">
+@@ -138,11 +137,10 @@
+ 
+   <!-- ===== CONTACT BLOCK ===== -->
+   <aside class="block block-contact">
+-    <div class="contact-block-title">let's chat!</div>
++    <div class="contact-block-title">stay for a cup of coffee</div>
+     <div class="contact-block-body">
+-      share your critiques, mutual catalysts, insights, current spotify playlist&hellip;
+       <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+-      <span class="row">&copy; 2026 Shilpa Rao</span>
++      <span class="row">san francisco</span>
+     </div>
+   </aside>
+ 
+diff --git a/styles.css b/styles.css
+index 5cb13d4..8aa0e2d 100644
+--- a/styles.css
++++ b/styles.css
+@@ -82,21 +82,42 @@ img { max-width: 100%; display: block; }
+ }
+ .block > * { position: relative; z-index: 1; }
+ 
+-.block-menu {
+-  align-self: start;
+-  position: sticky;
+-  top: 28px;
++.block-menu,
++.block-contact {
++  /* Side blocks: no sticky needed — desktop locks all blocks to viewport height. */
+ }
+ 
+ .block-content {
+   padding: 2.2rem 2rem;
+-  min-height: calc(100vh - 56px);
+ }
+ 
+-.block-contact {
+-  align-self: start;
+-  position: sticky;
+-  top: 28px;
++/* ============================================
++   DESKTOP — lock layout to viewport, scroll
++   only inside the center content block
++   ============================================ */
++@media (min-width: 981px) {
++  html, body {
++    height: 100%;
++    overflow: hidden;
++  }
++  .shell {
++    height: 100vh;
++    min-height: 0;
++  }
++  .block {
++    height: 100%;
++    min-height: 0;
++  }
++  .block-content {
++    overflow-y: auto;
++    overscroll-behavior: contain;
++    /* slim scrollbar */
++    scrollbar-width: thin;
++    scrollbar-color: var(--brightred) transparent;
++  }
++  .block-content::-webkit-scrollbar { width: 6px; }
++  .block-content::-webkit-scrollbar-thumb { background: var(--brightred); border-radius: 3px; }
++  .block-content::-webkit-scrollbar-track { background: transparent; }
+ }
+ 
+ /* ============================================
+@@ -507,15 +528,20 @@ img { max-width: 100%; display: block; }
+ }
+ 
+ @media (max-width: 980px) {
++  /* Mobile: vertical stack, body scrolls normally — no viewport lock. */
+   .shell {
+     grid-template-columns: 1fr;
+     gap: 14px;
+     padding: 14px;
++    height: auto;
++    min-height: 100vh;
++  }
++  .block {
++    height: auto;
+   }
+-  .block-menu, .block-contact { position: static; }
+   .block-content {
+     padding: 1.8rem 1.4rem;
+-    min-height: auto;
++    overflow-y: visible;
+   }
+   .resume-grid {
+     grid-template-columns: 1fr;
+diff --git a/wiki.html b/wiki.html
+index dbf7a7d..330f81d 100644
+--- a/wiki.html
++++ b/wiki.html
+@@ -28,7 +28,6 @@
+       <li><a href="wiki.html" class="active">Wiki</a></li>
+       <li><a href="writing.html">Writing</a></li>
+       <li><a href="photography.html">Photo</a></li>
+-      <li><a href="contact.html">Contact</a></li>
+     </ul>
+ 
+     <div class="menu-socials">
+@@ -49,11 +48,10 @@
+ 
+   <!-- ===== CONTACT BLOCK ===== -->
+   <aside class="block block-contact">
+-    <div class="contact-block-title">let's chat!</div>
++    <div class="contact-block-title">stay for a cup of coffee</div>
+     <div class="contact-block-body">
+-      share your critiques, mutual catalysts, insights, current spotify playlist&hellip;
+       <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+-      <span class="row">&copy; 2026 Shilpa Rao</span>
++      <span class="row">san francisco</span>
+     </div>
+   </aside>
+ 
+diff --git a/writing.html b/writing.html
+index e72e7d4..b561642 100644
+--- a/writing.html
++++ b/writing.html
+@@ -28,7 +28,6 @@
+       <li><a href="wiki.html">Wiki</a></li>
+       <li><a href="writing.html" class="active">Writing</a></li>
+       <li><a href="photography.html">Photo</a></li>
+-      <li><a href="contact.html">Contact</a></li>
+     </ul>
+ 
+     <div class="menu-socials">
+@@ -55,11 +54,10 @@
+ 
+   <!-- ===== CONTACT BLOCK ===== -->
+   <aside class="block block-contact">
+-    <div class="contact-block-title">let's chat!</div>
++    <div class="contact-block-title">stay for a cup of coffee</div>
+     <div class="contact-block-body">
+-      share your critiques, mutual catalysts, insights, current spotify playlist&hellip;
+       <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+-      <span class="row">&copy; 2026 Shilpa Rao</span>
++      <span class="row">san francisco</span>
+     </div>
+   </aside>
+ 

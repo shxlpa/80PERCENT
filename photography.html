@@ -6,341 +6,340 @@
 <title>Photography — Shilpa Rao</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root {
-  --cream: #EDDDC5;
-  --maroon: #7D2027;
-  --gold: #C8B067;
-  --amber: #CE9042;
-  --sage: #9AB08D;
-  --forest: #274133;
-  --black: #1A1A18;
-  --off-white: #F5F0E8;
+/* ============================================
+   Page-specific palette — preserves the original
+   photography aesthetic (cream/gold) inside the
+   center content block.
+   ============================================ */
+.block-photo {
+  --photo-cream:  #EDDDC5;
+  --photo-gold:   #C8B067;
+  --photo-amber:  #CE9042;
+  --photo-maroon: #7D2027;
+  /* zero internal padding so the editorial fills the block edge-to-edge */
+  padding: 0;
+  color: var(--photo-cream);
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-::selection { background: var(--maroon); color: var(--cream); }
+.block-photo > * { position: relative; z-index: 1; }
 
-body {
-  font-family: 'DM Mono', monospace;
-  background: var(--black);
-  color: var(--cream);
-  overflow-x: hidden;
+/* Set this block as a positioning context + container for the editorial */
+.editorial {
+  position: relative;
+  padding: 2rem 0;
 }
 
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
+/* ============================================
+   SPREADS — flex layout with explicit gaps so
+   photos can never overlap, regardless of viewport.
+   Each spread is a 3-column row; vertical variation
+   comes from per-image align-self / margin-top so
+   the editorial feel is preserved.
+   ============================================ */
+.spread {
+  position: relative;
+  width: 100%;
+  min-height: 88vh;
+  padding: 3rem clamp(0.6rem, 1.2vw, 1.5rem);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.2rem 2rem;
-  mix-blend-mode: difference;
+  align-items: stretch;
+  gap: clamp(6px, 0.8vw, 14px);
 }
-nav .logo img {
-  height: 100px;
-  width: auto;
-  filter: brightness(0) invert(1); 
-  transition: transform 0.3s;
-}
-nav .logo { text-decoration: none; }
-.nav-links { list-style: none; display: flex; gap: 2rem; }
-.nav-links a {
-  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em;
-  text-decoration: none; color: #fff; transition: opacity 0.3s;
-}
-.nav-links a:hover, .nav-links a.active { opacity: 0.5; }
 
-.editorial { position: relative; padding: 6rem 0; }
-.spread { position: relative; min-height: 100vh; padding: 4rem 2rem; }
 .float-img {
-  position: absolute; overflow: hidden;
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
   transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
 }
-.float-img:hover { transform: scale(1.02) !important; }
-.float-img .ph {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em;
+.float-img:hover { transform: scale(1.015); }
+.float-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
-.img-overlay-text { position: absolute; z-index: 3; pointer-events: none; }
+
+/* Overlay captions — absolutely positioned over the spread row */
+.img-overlay-text {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  color: var(--photo-cream);
+}
 .img-overlay-text h2 {
   font-family: 'Instrument Serif', serif;
-  font-style: italic; line-height: 0.95; letter-spacing: -0.02em;
+  font-style: italic;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--photo-cream);
 }
 .img-overlay-text p {
   font-family: 'DM Mono', monospace;
-  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em;
-  margin-top: 0.5rem; opacity: 0.5;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 0.5rem;
+  opacity: 0.7;
+  color: var(--photo-cream);
 }
 
-/* vertical left*/
-.s1 .img-a { top: 5%; left: 4%; width: 30vw; height: auto; }
-/* vertical right */
-.s1 .img-b { bottom: 1%; right: 6%; width: 25vw; height: auto }
-/* vertical middle */
-.s1 .img-bc { top: 10%; left: 37%; width: 25vw; height: auto; }
+/* ============================================
+   SPREAD VARIANTS
+   ============================================ */
 
-.s1 .ot1 { top: 10%; right: 6%; color: var(--cream); }
-.s1 .ot1 h2 { font-size: clamp(3rem, 8vw, 8rem); }
+/* S1 — three verticals (gaps guaranteed by flex gap) */
+.s1 .img-a  { aspect-ratio: 3/4; align-self: flex-start; }
+.s1 .img-bc { aspect-ratio: 2/3; align-self: center; }
+.s1 .img-b  { aspect-ratio: 2/3; align-self: flex-end; }
+.s1 .ot1 { top: 8%; right: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
+.s1 .ot1 h2 { font-size: clamp(2rem, 5vw, 5rem); }
 
-.s2 .img-c { top: 8%; right: 6%; width: 32vw; height: 80vh; }
-.s2 .img-d { bottom: 12%; left: 5%; width: 30vw; height: auto; }
-.s2 .img-e { top: -3%; left: 36%; width: 25vw; height: auto; }
-.s2 .ot2 { bottom: 100%; right: 10%; color: var(--cream); text-align: right; }
-.s2 .ot2 h2 { font-size: clamp(2.5rem, 6vw, 6rem); }
+/* S2 — heading floats above, three travel images below it */
+.s2 { padding-top: clamp(4.5rem, 9vh, 7rem); }
+.s2 .img-c { flex: 1.25 1 0; aspect-ratio: 3/4; align-self: flex-start; }
+.s2 .img-d { flex: 1 1 0;    aspect-ratio: 4/3; align-self: flex-end; }
+.s2 .img-e { flex: 0.85 1 0; aspect-ratio: 2/3; align-self: center; }
+.s2 .ot2 { top: 1.5rem; right: clamp(0.6rem, 1.2vw, 1.5rem); left: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
+.s2 .ot2 h2 { font-size: clamp(1.4rem, 3.5vw, 3.5rem); }
 
-.s3 { min-height: 90vh; }
-.s3 .img-f { top: 0; left: 0; width: 100%; height: 80vh; }
+/* S3 — single hero + huge centered title */
+.s3 { min-height: 78vh; display: block; padding: 2rem clamp(0.6rem, 1.2vw, 1.5rem); }
+.s3 .img-f {
+  position: relative;
+  width: 100%;
+  height: 75vh;
+  max-height: calc(88vh - 4rem);
+  flex: none;
+}
 .s3 .ot3 {
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  color: #fff; text-align: center; mix-blend-mode: difference;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  /* The ONLY overlay that keeps the negative-color blend */
+  mix-blend-mode: difference;
+  color: #fff;
 }
 .s3 .ot3 h2 {
   font-family: 'Instrument Serif', serif;
   font-weight: 800;
-  font-size: clamp(4rem, 12vw, 14rem);
-  text-transform: uppercase;
   font-style: normal;
+  font-size: clamp(2.4rem, 8vw, 8rem);
+  text-transform: uppercase;
   letter-spacing: -0.05em;
   line-height: 0.85;
+  color: #fff;
 }
 
-.s4 { min-height: 85vh; }
-.s4 .img-g { top: 15%; left: 3%; width: auto; height: 80vh; }
-.s4 .img-h { top: 3%; left: 35%; width: auto; height: 70vh; }
-.s4 .img-i { bottom: -20%; right: 2%; width: 35vw; height: auto; }
-.s4 .ot4 { top: 0%; left: 3%; color: var(--gold); }
-.s4 .ot4 h2 { font-size: clamp(2rem, 4.5vw, 4.5rem); }
+/* S4 — hudson & ari, ot4 in top-left */
+.s4 { min-height: 84vh; padding-top: clamp(4rem, 7vh, 6rem); }
+.s4 .img-g { aspect-ratio: 2/3; align-self: flex-start; margin-top: 4%; }
+.s4 .img-h { aspect-ratio: 3/4; align-self: flex-start; }
+.s4 .img-i { flex: 1.2 1 0; aspect-ratio: 3/2; align-self: flex-end; }
+.s4 .ot4 { top: 1.5rem; left: clamp(0.6rem, 1.2vw, 1.5rem); }
+.s4 .ot4 h2 { font-size: clamp(1.5rem, 3.5vw, 3.5rem); color: var(--photo-gold); }
 
-.s5 { min-height: 65vh; }
-.s5 .img-j { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50vw; height: 60vh; }
-.s5 .ot5 { bottom: 10%; left: 50%; transform: translateX(-50%); color: var(--cream); text-align: center; white-space: nowrap; }
-.s5 .ot5 h2 {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.3em; font-style: normal;
+/* Reflective text below the last spread */
+.ot-reflect {
+  position: relative;
+  z-index: 3;
+  padding: 2rem 1.5rem 4rem;
+  color: var(--photo-cream);
 }
-
-.s4 .ot6 h2 { font-size: clamp(1rem, 1vw, 1rem); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.3em; font-style: normal; color: var(--cream); }
-
-.quote-strip {
-  padding: 6rem 2rem; text-align: center;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.quote-strip blockquote {
+.ot-reflect h2 {
   font-family: 'Instrument Serif', serif;
-  font-size: clamp(1.4rem, 3vw, 2.4rem);
-  font-style: italic; line-height: 1.5;
-  max-width: 750px; margin: 0 auto; opacity: 0.6;
-}
-
-.series-index { padding: 6rem 2rem; max-width: 900px; margin: 0 auto; }
-.series-index h3 {
-  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.2em;
-  color: var(--amber); margin-bottom: 2.5rem;
-}
-.series-row {
-  display: flex; justify-content: space-between; align-items: baseline;
-  padding: 1.2rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-  transition: all 0.3s; cursor: pointer; text-decoration: none; color: var(--cream);
-}
-.series-row:hover { padding-left: 1rem; border-color: var(--gold); }
-.series-name { font-family: 'Instrument Serif', serif; font-size: 1.5rem; font-style: italic; }
-.series-meta { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.3; }
-
-footer {
-  border-top: 1px solid rgba(255,255,255,0.05);
-  padding: 2rem; display: flex; justify-content: space-between;
-  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.25;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.8vw, 1.6rem);
+  line-height: 1.55;
+  color: var(--photo-cream);
+  opacity: 0.75;
 }
 
 .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
-@media (max-width: 900px) {
-  .s1 .img-a { width: 88vw; height: 50vh; left: 4%; }
-  .s1 .img-b { width: 55vw; height: 32vh; }
-  .s1 .ot1 { top: auto; bottom: 14%; }
-  .s1 .ot1 h2 { font-size: clamp(2rem, 9vw, 4.5rem); }
-  .s2 .img-c { width: 65vw; height: 50vh; }
-  .s2 .img-d { width: 45vw; }
-  .s2 .img-e { width: 28vw; }
-  .s4 .img-g { width: 44vw; }
-  .s4 .img-i { width: 55vw; }
-  .series-name { font-size: 1.2rem; }
-  nav { padding: 1rem; }
-  .nav-links { gap: 1rem; }
-  .nav-links a { font-size: 0.5rem; }
+/* ============================================
+   TABLET — squeeze a bit
+   ============================================ */
+@media (max-width: 1100px) {
+  .spread { padding: 2rem 1rem; }
+  .s1 .ot1 h2 { font-size: clamp(1.8rem, 5.5vw, 3.5rem); }
 }
-@media (max-width: 600px) {
-  .spread { min-height: 65vh; }
-  .s1 .img-b, .s2 .img-d, .s2 .img-e { display: none; }
-  .s1 .img-a { width: 92vw; }
-  .s2 .img-c { width: 88vw; }
-  .nav-links { display: none; }
+
+/* ============================================
+   MOBILE — vertical stacked editorial inside
+   the (now full-width) center block. No more
+   absolute positioning, no overlap possible.
+   ============================================ */
+@media (max-width: 820px) {
+  .editorial { padding: 0.5rem 0; }
+
+  .spread {
+    min-height: 0 !important;
+    padding: 1rem 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .float-img {
+    position: relative !important;
+    top: auto !important; right: auto !important;
+    bottom: auto !important; left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 4 / 3;
+    transform: none !important;
+  }
+  .float-img:hover { transform: none !important; }
+  .s3 .img-f { aspect-ratio: 3 / 4; }
+
+  .img-overlay-text {
+    position: relative !important;
+    top: auto !important; right: auto !important;
+    bottom: auto !important; left: auto !important;
+    transform: none !important;
+    text-align: left !important;
+    margin: 0.4rem 0;
+    max-width: 100%;
+    /* Drop blend-mode on mobile so plain cream text reads cleanly over black */
+    mix-blend-mode: normal;
+  }
+  .s1 .ot1 h2 { font-size: clamp(2rem, 9vw, 4rem); }
+  .s2 .ot2 h2 { font-size: clamp(1.4rem, 6vw, 2.2rem); }
+  .s3 .ot3 h2 { font-size: clamp(2.4rem, 12vw, 4.5rem); }
+  .s4 .ot4 h2 { font-size: clamp(1.6rem, 7vw, 3rem); }
+  .ot-reflect { padding: 1.5rem 0.4rem 2rem; }
+  .ot-reflect h2 { font-size: clamp(0.9rem, 3.5vw, 1.2rem); }
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="index.html" class="logo"><img src="assets/figs.png" alt="SR"></a>
-  <ul class="nav-links">
-    <li><a href="resume.html">Resume</a></li>
-    <!-- <li><a href="technical-work.html">Technical Work</a></li> -->
-    <!-- <li><a href="design.html">Design</a></li> -->
-    <li><a href="wiki.html">Wiki</a></li>
-    <li><a href="writing.html">Writing</a></li>
-    <li><a href="photography.html" class="active">Photography</a></li>
-    <!-- <li><a href="bossa.html">Studio BOSSA</a></li> -->
-    <li><a href="contact.html">Contact</a></li>
-  </ul>
-</nav>
+<div class="wood-bg"></div>
 
-<div class="editorial">
-  <div class="spread s1">
-    <div class="float-img img-a drift" data-drift="0.03">
-      <img src="assets/DSCF1042.jpg" alt="ceramic" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="float-img img-b drift" data-drift="-0.05">
-       <img src="assets/DSCF1625.jpg" alt="lantern" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="float-img img-bc drift" data-drift="-0.05">
-       <img src="assets/DSCF1473.jpg" alt="sink" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="img-overlay-text ot1 reveal">
-      <h2>photography</h2>
-      <p>fujifilm xt30 | 27mm pancake</p>
-    </div>
-  </div>
+<div class="shell">
 
-  <div class="spread s2">
-    <div class="float-img img-c drift" data-drift="0.04">
-      <img src="assets/DSCF8116.jpg" alt="india" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="float-img img-d drift" data-drift="-0.06">
-      <img src="assets/DSCF7264.jpg" alt="vietnam_float" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="float-img img-e drift" data-drift="0.02">
-      <img src="assets/DSCF8591.jpg" alt="sat" style="width:100%;height:100%;object-fit:cover;">
+  <!-- ===== MENU BLOCK ===== -->
+  <aside class="block block-menu">
+    <a href="index.html" class="menu-home">
+      <img src="assets/figs.png" alt="Shilpa Rao home">
+      <span class="home-label">home</span>
+    </a>
+
+    <div class="menu-section">pages</div>
+    <ul class="menu-list">
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="wiki.html">Wiki</a></li>
+      <li><a href="writing.html">Writing</a></li>
+      <li><a href="photography.html" class="active">Photo</a></li>
+    </ul>
+
+    <div class="menu-socials">
+      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/shxlpa" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener">Substack</a>
     </div>
 
-    <div class="img-overlay-text ot2 reveal">
-      <h2>selected from chile, vietnam, japan, india, nepal, hong kong, portugal, spain</h2>
-      <p>& joshua tree, colorado, eastern sierras, los angeles</p>
-    </div>
-  </div>
+    <p class="menu-foot">Shilpa Rao &mdash; Los Angeles. 80% engineer, 20% lab rat.</p>
+  </aside>
 
-  <div class="spread s3">
-    <div class="float-img img-f">
-      <img src="assets/DSCF7081.jpg" alt="vietnam_shop" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="img-overlay-text ot3">
-      <h2>three<br>continents.<br>eight<br>countries.</h2>
-    </div>
-  </div>
+  <!-- ===== CONTENT BLOCK — photography editorial ===== -->
+  <main class="block block-content block-photo">
+    <div class="editorial">
 
-  <div class="spread s4">
-    <div class="float-img img-g drift" data-drift="0.035">
-      <img src="assets/DSCF1791.jpg" alt="hudson" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="float-img img-h drift" data-drift="-0.04">
-      <img src="assets/DSCF1907.jpg" alt="recliner" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="float-img img-i drift" data-drift="0.05">
-      <img src="assets/DSCF6621.jpg" alt="ari" style="width:100%;height:100%;object-fit:cover;">
-    </div>
-    <div class="img-overlay-text ot4 reveal">
-      <h2>hudson & ari</h2>
-      <!-- <p>Still Life &mdash; 2024</p> -->
-    </div>
-  </div>
-
-  <div class="editorial">
-    <div class="spread s1">
-      <div class="float-img img-a drift" data-drift="0.03">
-        <img src="assets/DSCF6921.jpg" alt="ship_friends" style="width:100%;height:100%;object-fit:cover;">
+      <div class="spread s1">
+        <div class="float-img img-a"><img src="assets/DSCF1042.jpg" alt="ceramic"></div>
+        <div class="float-img img-b"><img src="assets/DSCF1625.jpg" alt="lantern"></div>
+        <div class="float-img img-bc"><img src="assets/DSCF1473.jpg" alt="sink"></div>
+        <div class="img-overlay-text ot1 reveal">
+          <h2>photography</h2>
+          <p>fujifilm xt30 | 27mm pancake</p>
+        </div>
       </div>
-      <div class="float-img img-b drift" data-drift="-0.05">
-        <img src="assets/DSCF1478.jpg" alt="japan_hut" style="width:100%;height:100%;object-fit:cover;">
-      </div>
-      <div class="float-img img-bc drift" data-drift="-0.05">
-        <img src="assets/DSCF8319.jpg" alt="yak" style="width:100%;height:100%;object-fit:cover;">
-      </div>
-      <div class="img-overlay-text ot1 reveal">
-        <p>sometimes an 18-55mm lens too</p>
-      </div>
-    </div>
-  </div>
 
-    <div class="spread s2">
-      <div class="float-img img-c drift" data-drift="0.04">
-        <img src="assets/DSCF7078.jpg" alt="vietnam_shop2" style="width:100%;height:100%;object-fit:cover;">
+      <div class="spread s2">
+        <div class="float-img img-c"><img src="assets/DSCF8116.jpg" alt="india"></div>
+        <div class="float-img img-d"><img src="assets/DSCF7264.jpg" alt="vietnam_float"></div>
+        <div class="float-img img-e"><img src="assets/DSCF8591.jpg" alt="sat"></div>
+        <div class="img-overlay-text ot2 reveal">
+          <h2>selected from chile, vietnam, japan, india, nepal, hong kong, portugal, spain</h2>
+          <p>&amp; joshua tree, colorado, eastern sierras, los angeles</p>
+        </div>
       </div>
-      <div class="float-img img-d drift" data-drift="-0.06">
-        <img src="assets/DSCF7129.jpg" alt="tavan" style="width:100%;height:100%;object-fit:cover;">
-      </div>
-      <div class="float-img img-e drift" data-drift="0.02">
-        <img src="assets/DSCF7173.jpg" alt="vietnam_bull" style="width:100%;height:100%;object-fit:cover;">
-      </div>
-    </div>
 
-    <div class="spread s4">
-      <div class="float-img img-g drift" data-drift="0.035">
-        <img src="assets/DSCF8120.jpg" alt="gastanker" style="width:100%;height:100%;object-fit:cover;">
+      <div class="spread s3">
+        <div class="float-img img-f"><img src="assets/DSCF7081.jpg" alt="vietnam_shop"></div>
+        <div class="img-overlay-text ot3">
+          <h2>three<br>continents.<br>eight<br>countries.</h2>
+        </div>
       </div>
-      <div class="float-img img-h drift" data-drift="-0.04">
-        <img src="assets/DSCF1401.jpg" alt="cyclist" style="width:100%;height:100%;object-fit:cover;">
+
+      <div class="spread s4">
+        <div class="float-img img-g"><img src="assets/DSCF1791.jpg" alt="hudson"></div>
+        <div class="float-img img-h"><img src="assets/DSCF1907.jpg" alt="recliner"></div>
+        <div class="float-img img-i"><img src="assets/DSCF6621.jpg" alt="ari"></div>
+        <div class="img-overlay-text ot4 reveal">
+          <h2>hudson &amp; ari</h2>
+        </div>
       </div>
-      <div class="float-img img-i drift" data-drift="0.05">
-        <img src="assets/DSCF7853.jpg" alt="crane" style="width:100%;height:100%;object-fit:cover;">
+
+      <div class="spread s1">
+        <div class="float-img img-a"><img src="assets/DSCF6921.jpg" alt="ship_friends"></div>
+        <div class="float-img img-b"><img src="assets/DSCF1478.jpg" alt="japan_hut"></div>
+        <div class="float-img img-bc"><img src="assets/DSCF8319.jpg" alt="yak"></div>
+        <div class="img-overlay-text ot1 reveal">
+          <p>sometimes an 18-55mm lens too</p>
+        </div>
       </div>
-    </div>
-    <div class="img-overlay-text ot4 reveal">
-  <h2>I find places stripped of filters. <br>What is the world like behind the scenes? <br>Who runs this whole operation? <br>What are they feeling, thinking, doing - <br>these machines and people? 
-</h2>
-    </div>
 
+      <div class="spread s2">
+        <div class="float-img img-c"><img src="assets/DSCF7078.jpg" alt="vietnam_shop2"></div>
+        <div class="float-img img-d"><img src="assets/DSCF7129.jpg" alt="tavan"></div>
+        <div class="float-img img-e"><img src="assets/DSCF7173.jpg" alt="vietnam_bull"></div>
+      </div>
 
+      <div class="spread s4">
+        <div class="float-img img-g"><img src="assets/DSCF8120.jpg" alt="gastanker"></div>
+        <div class="float-img img-h"><img src="assets/DSCF1401.jpg" alt="cyclist"></div>
+        <div class="float-img img-i"><img src="assets/DSCF7853.jpg" alt="crane"></div>
+      </div>
 
+      <div class="ot-reflect reveal">
+        <h2>I find places stripped of filters. <br>What is the world like behind the scenes? <br>Who runs this whole operation? <br>What are they feeling, thinking, doing &mdash; <br>these machines and people?</h2>
+      </div>
 
-  <!-- <div class="spread s5">
-    <div class="float-img img-j drift" data-drift="-0.03">
-      <div class="ph" style="background:#3a3028;">Replace with photo</div>
     </div>
-    <div class="img-overlay-text ot5 reveal">
-      <h2>View the full archive &rarr;</h2>
+  </main>
+
+  <!-- ===== CONTACT BLOCK ===== -->
+  <aside class="block block-contact">
+    <div class="contact-block-title">stay for a cup of coffee</div>
+    <div class="contact-block-body">
+      <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+      <span class="row">san francisco</span>
     </div>
-  </div> -->
+  </aside>
+
 </div>
 
-<!-- <div class="series-index reveal">
-  <h3>Series</h3>
-  <a class="series-row" href="#"><span class="series-name">India, 2023</span><span class="series-meta">Street &amp; Documentary &mdash; 24 images</span></a>
-  <a class="series-row" href="#"><span class="series-name">Portraits</span><span class="series-meta">People &mdash; Ongoing</span></a>
-  <a class="series-row" href="#"><span class="series-name">Landscapes</span><span class="series-meta">Nature &amp; Environment &mdash; 18 images</span></a>
-  <a class="series-row" href="#"><span class="series-name">Texture &amp; Detail</span><span class="series-meta">Still Life &mdash; 12 images</span></a>
-  <a class="series-row" href="#"><span class="series-name">Los Angeles</span><span class="series-meta">City &mdash; 15 images</span></a>
-</div> -->
-
-<footer><span>&copy; 2026 Shilpa Rao</span><span>Made with care</span></footer>
-
 <script>
-const obs = new IntersectionObserver(function(entries) {
-  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
-
-window.addEventListener('scroll', function() {
-  document.querySelectorAll('.drift').forEach(function(el) {
-    const rate = parseFloat(el.getAttribute('data-drift')) || 0;
-    const rect = el.getBoundingClientRect();
-    const offset = (rect.top - window.innerHeight / 2) * rate;
-    el.style.transform = 'translateY(' + offset + 'px)';
-  });
-});
+// Reveal-on-scroll. On desktop the .block-photo scrolls internally, so the
+// IntersectionObserver root must be the block (not the window). Falls back to
+// the window automatically on mobile where the page itself scrolls.
+(function () {
+  var bc = document.querySelector('.block-photo');
+  var isDesktop = window.matchMedia('(min-width: 981px)').matches;
+  var opts = (isDesktop && bc) ? { root: bc, threshold: 0.1 } : { threshold: 0.1 };
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, opts);
+  document.querySelectorAll('.reveal').forEach(function (el) { obs.observe(el); });
+})();
 </script>
 </body>
 </html>
