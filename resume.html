@@ -6,53 +6,70 @@
 <title>Resume — Shilpa Rao</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<nav>
-  <a href="index.html" class="logo"><img src="assets/figs.png" alt="Shilpa Rao"></a>
-  <ul class="nav-links">
-    <li><a href="resume.html" class="active">Resume</a></li>
-    <!-- <li><a href="technical-work.html">Technical Work</a></li> -->
-    <!-- <li><a href="design.html">Design</a></li> -->
-    <li><a href="wiki.html">Wiki</a></li>
-    <li><a href="writing.html">Writing</a></li>
-    <li><a href="photography.html">Photography</a></li>
-    <!-- <li><a href="bossa.html">Studio BOSSA</a></li> -->
-    <li><a href="contact.html">Contact</a></li>
-  </ul>
-</nav>
 
-<div class="page-header">
-  <span class="section-label">Curriculum Vitae</span>
-  <h1 class="section-heading">Resume</h1>
-  <!-- <p class="subtitle">Electrical engineer, multimedia artist. UCLA BS '24, MS '26.</p> -->
-</div>
+<div class="wood-bg"></div>
 
-<section class="content-section bg-off-white">
-  <div style="max-width: 1100px; margin: 0 auto;">
+<div class="shell">
+
+  <!-- ===== MENU BLOCK ===== -->
+  <aside class="block block-menu">
+    <a href="index.html" class="menu-home">
+      <img src="assets/figs.png" alt="Shilpa Rao home">
+      <span class="home-label">home</span>
+    </a>
+
+    <div class="menu-section">pages</div>
+    <ul class="menu-list">
+      <li><a href="resume.html" class="active">Resume</a></li>
+      <li><a href="wiki.html">Wiki</a></li>
+      <li><a href="writing.html">Writing</a></li>
+      <li><a href="photography.html">Photo</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+
+    <div class="menu-socials">
+      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/shxlpa" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener">Substack</a>
+    </div>
+
+    <p class="menu-foot">Shilpa Rao &mdash; Los Angeles. 80% engineer, 20% lab rat.</p>
+  </aside>
+
+  <!-- ===== CONTENT BLOCK ===== -->
+  <main class="block block-content">
+    <div class="page-eyebrow">Curriculum Vitae</div>
+    <h1 class="page-title">Resume</h1>
+
     <div class="resume-grid">
       <div class="resume-column reveal">
         <h3>Experience</h3>
+
         <div class="resume-entry">
           <div class="role">Graduate Engineer Intern</div>
           <div class="company">SpaceX</div>
           <div class="date">January 2026 — Present</div>
           <div class="desc">TLDR: I built a near field 3 axis chamber. <br>I built the electrical & software side of a chamber to test phased array beamforming accuracy. I wired the CNC electronics and its peripherals (antenna, laser, FPGA, bare metal server setup, beckhoff safety circuit, infrared cameras). To control the system, I repurposed legacy PLC motor control code and set up a Python control interface to enable simple jupyter notebook control of an otherwise complex system. <br> Skills: Beckhoff TwinCAT, PLC code, industrial automation, CI, Linux Autotest, Docker testbed, Python.</div>
         </div>
+
         <div class="resume-entry">
           <div class="role">Electrical Systems Engineering Intern</div>
           <div class="company">Arc Boat Company — Battery HW</div>
           <div class="date">June 2024 — October 2024</div>
           <div class="desc">I designed a high-voltage test rack for 226 kWh marine battery. Using Linux and CAN, I automated the pre-charge, pack charge, and hipot tests. I wrote custom Python/OpenHTF drivers and delivered a cohesive product to the software team. I also caught a fatal harnessing defect and PCB design flaw. I diagnosed and fixed in 24 hours, unblocking boat production. <br>I also redesigned the battery's HVIL PCB in Altium.</div>
         </div>
+
         <div class="resume-entry">
           <div class="role">Independent Undergraduate Researcher</div>
           <div class="company">UCLA — Anatomical Engineering Group</div>
           <div class="date">January 2023 — June 2024</div>
           <div class="desc">I designed and fabricated a wireless, minimally invasive alternative to endoscopic biopsies. I proposed an alternative to the capsule endoscopy standard using electromagnets. I implemented a feedback control loop with camera tracking (Python OpenCV), force sensor input (I2C, C++), and current sensor input (custom PCB, SPI). <br>I also spent some time exploring the inductive properties of electromagnets to use induction as a proxy for distance. I then used that signal to find the distance of an electromagnetic prosthetic leg from a bone-anchored implant.<br>Poster presentations at SoCal Robotics Symposium and BMES Annual Meeting.</div>
         </div>
+
         <div class="resume-entry">
           <div class="role">Software Engineering Intern</div>
           <div class="company">Vena Vitals — R&D SWE</div>
@@ -63,12 +80,14 @@
 
       <div class="resume-column reveal reveal-delay-1">
         <h3>Education</h3>
+
         <div class="resume-entry">
           <div class="role">MS Electrical Engineering</div>
           <div class="company">University of California, Los Angeles</div>
           <div class="date">Expected December 2026 — 3.72 GPA</div>
           <div class="desc">Digital Signal Processing, Digital Filter Design, MIMO Wireless Communications, GPU Microarchitecture, Deep Learning, Computational Genetics I & II.</div>
         </div>
+
         <div class="resume-entry">
           <div class="role">BS Electrical Engineering</div>
           <div class="company">University of California, Los Angeles</div>
@@ -76,24 +95,27 @@
           <div class="desc">AM/FM Wireless Communication, Bionic Systems Engineering, Data Structures & Algorithms, Applied Numerical Computing & Linear Algebra, Feedback Controls.</div>
         </div>
 
-        <h3 style="margin-top: 3rem;">Projects</h3>
+        <h3>Projects</h3>
+
         <div class="resume-entry">
           <div class="role">Digital Low Pass Filter Design</div>
           <div class="date">December 2025</div>
           <div class="desc">Designed a digital LPF using Parks-McClellan algorithm. Simulated finite precision effects (coefficient quantization, roundoff noise). Met stop-band attenuation, pass-band ripple, and SNR requirements despite finite effects.</div>
         </div>
+
         <div class="resume-entry">
           <div class="role">Custom Speaker Amp + Capacitive Touchscreen Synth</div>
           <div class="date">April 2025</div>
           <div class="desc">Designed speaker amplifier based on TPA3128 Class-D chip. Custom PWM frequency selection, custom passive crossover and LC filter. Debounce circuits on buttons.</div>
         </div>
+
         <div class="resume-entry">
           <div class="role">ML Discrete & Continuous Decoding of Neural Signals</div>
           <div class="date">June 2023</div>
           <div class="desc">Derived probabilistic ML model parameters (Poisson, Gaussian) to decode real neural data. Implemented Kalman filter to continuously infer monkey's hand position from neural activity. Compared Wiener filter and Optimal Linear Estimator performance.</div>
         </div>
 
-        <h3 style="margin-top: 3rem;">Skills</h3>
+        <h3>Skills</h3>
         <div class="skills-cloud">
           <span class="skill-pill">Python</span>
           <span class="skill-pill">C++</span>
@@ -107,19 +129,30 @@
           <span class="skill-pill">Hardware-in-the-Loop</span>
           <span class="skill-pill">Digital Filter Design</span>
           <span class="skill-pill">OpenCV</span>
-          <!-- <span class="skill-pill">Kalman Filters</span> -->
           <span class="skill-pill">Machine Learning</span>
           <span class="skill-pill">Signal Processing</span>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </main>
 
-<footer><span>© 2026 Shilpa Rao</span><span>Made with care</span></footer>
+  <!-- ===== CONTACT BLOCK ===== -->
+  <aside class="block block-contact">
+    <div class="contact-block-title">let's chat!</div>
+    <div class="contact-block-body">
+      share your critiques, mutual catalysts, insights, current spotify playlist&hellip;
+      <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+      <span class="row">&copy; 2026 Shilpa Rao</span>
+    </div>
+  </aside>
+
+</div>
+
 <script>
-const obs=new IntersectionObserver(e=>e.forEach(n=>{if(n.isIntersecting)n.target.classList.add('visible')}),{threshold:.1});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-addEventListener('scroll',()=>document.querySelector('nav').classList.toggle('scrolled',scrollY>60));
+const obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
 </script>
 </body>
 </html>
