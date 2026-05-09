@@ -1,23 +1,33 @@
-diff --git a/resume.html b/resume.html
-index ec717ae..c75c977 100644
---- a/resume.html
-+++ b/resume.html
-@@ -48,10 +48,17 @@
-       <div class="resume-column reveal">
-         <h3>Experience</h3>
+diff --git a/photography.html b/photography.html
+index 5c7f59e..79880c1 100644
+--- a/photography.html
++++ b/photography.html
+@@ -188,15 +188,27 @@
  
-+        <div class="resume-entry">
-+          <div class="role">Electrical Engineer</div>
-+          <div class="company">Opal Electronics</div>
-+          <div class="date">April 2026 — Present</div>
-+          <div class="desc">I'm working on unreleased human-computer interaction projects at Opal. I spend most of my time on firmware and embedded systems. Specifically, I work with FreeRTOS, C++ for 32-bit Arm cortex MCUs, custom I2C drivers, field-oriented-control for BLDC motors, and PCB layout.<br>I wear many hats here &mdash; I also work on electromechanical integration, part production, industrial design, and R&D for future products.</div>
-+        </div>
-+
-         <div class="resume-entry">
-           <div class="role">Graduate Engineer Intern</div>
-           <div class="company">SpaceX</div>
--          <div class="date">January 2026 — Present</div>
-+          <div class="date">January 2026 — March 2026</div>
-           <div class="desc">TLDR: I built a near field 3 axis chamber. <br>I built the electrical & software side of a chamber to test phased array beamforming accuracy. I wired the CNC electronics and its peripherals (antenna, laser, FPGA, bare metal server setup, beckhoff safety circuit, infrared cameras). To control the system, I repurposed legacy PLC motor control code and set up a Python control interface to enable simple jupyter notebook control of an otherwise complex system. <br> Skills: Beckhoff TwinCAT, PLC code, industrial automation, CI, Linux Autotest, Docker testbed, Python.</div>
-         </div>
+   .float-img {
+     position: relative !important;
++    /* Reset desktop flex sizing. In a column flex with no defined height,
++       flex: 1 1 0 inherited from desktop collapses items to zero height,
++       which is why photos weren't visible on mobile. Force natural sizing
++       so aspect-ratio + width: 100% determine each photo box. */
++    flex: 0 0 auto !important;
++    align-self: stretch !important;
+     top: auto !important; right: auto !important;
+     bottom: auto !important; left: auto !important;
+     width: 100% !important;
+     height: auto !important;
++    margin: 0 !important;
+     aspect-ratio: 4 / 3;
+     transform: none !important;
+   }
+   .float-img:hover { transform: none !important; }
+-  .s3 .img-f { aspect-ratio: 3 / 4; }
++  .s3 .img-f {
++    aspect-ratio: 3 / 4;
++    /* Override the desktop fixed height so the image sizes from aspect-ratio */
++    height: auto !important;
++    max-height: none !important;
++  }
  
+   .img-overlay-text {
+     position: relative !important;
