@@ -1,7 +1,7 @@
 
-<img width="1470" height="956" alt="Screenshot 2026-03-07 at 1 19 22 PM" src="https://github.com/user-attachments/assets/52ead2cc-3a4e-4830-b9ed-e4ee854791aa" />
-<img width="1470" height="956" alt="Screenshot 2026-03-07 at 1 21 31 PM" src="https://github.com/user-attachments/assets/ca35f2e8-55c2-45d8-a5cf-d36cde55c7d5" />
-<img width="1470" height="956" alt="Screenshot 2026-03-07 at 1 21 42 PM" src="https://github.com/user-attachments/assets/543d97b9-d3d7-4d8d-85b8-b6d50ae39766" />
+<img width="1470" height="956" alt="readme1" src="assets/Screenshot 2026-05-08 at 11.12.40 PM.png" />
+<img width="1470" height="956" alt="readme2" src="assets/Screenshot 2026-05-08 at 11.12.49 PM.png" />
+<img width="1470" height="956" alt="readme3" src="assets/Screenshot 2026-05-08 at 11.13.01 PM.png" />
 This is a sketch of my final portfolio. It's a little buggy. Expect these fixes soon:
 
 • HTML optimized for mobile

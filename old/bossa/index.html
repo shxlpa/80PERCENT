@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio BOSSA — Shilpa Rao</title>
+<!-- Site identity -->
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+<link rel="image_src" href="/assets/wood.jpg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Studio BOSSA — Shilpa Rao">
+<meta property="og:image" content="/assets/wood.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1125">
+<meta name="thumbnail" content="/assets/wood.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/wood.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #EDDDC5;
+  --gold: #C8B067;
+  --amber: #CE9042;
+  --sage: #9AB08D;
+  --forest: #274133;
+  --black: #1A1A18;
+  --off-white: #F5F0E8;
+  --panel-black: #0A0A0A;
+  --brightred: #db281f;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+::selection { background: var(--gold); color: var(--black); }
+
+html, body { margin: 0; padding: 0; min-height: 100vh; }
+html { background: #3A2F2A; }
+body {
+  font-family: 'DM Mono', monospace;
+  overflow-x: hidden;
+  background: transparent;
+}
+
+a { color: inherit; }
+
+.wood-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url('/assets/wood.jpg') center/cover no-repeat;
+}
+
+/* ============================================
+   NAV
+   ============================================ */
+.top-nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.2rem 1.5rem;
+}
+.top-nav .logo { text-decoration: none; }
+.top-nav .logo img {
+  height: 100px;
+  filter: brightness(0) invert(1);
+}
+.nav-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+.nav-buttons a {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  text-decoration: none;
+  border: 1px solid rgba(200,176,103,0.2);
+  background: transparent;
+  padding: 0.3rem 0.6rem;
+  margin: 0 -1px -1px 0;
+  transition: all 0.25s;
+}
+.nav-buttons a:hover {
+  background: var(--brightred);
+  border-color: var(--forest);
+  color: var(--black);
+}
+.nav-buttons a.active {
+  background: var(--brightred);
+  border-color: var(--forest);
+  color: var(--brightred);
+}
+
+/* ============================================
+   BLACK PANEL — HERO
+   ============================================ */
+.black-panel {
+  position: relative;
+  margin: 28px 28px 0;
+  min-height: calc(100vh - 28px - 48px);
+  background: var(--panel-black);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.black-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  padding: 0 2rem 2.5rem;
+  align-items: end;
+}
+
+.bossa-mega {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-optical-sizing: auto;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 0.82;
+  color: var(--brightred);
+  font-size: clamp(5rem, 11vw, 13rem);
+  text-shadow: 0 0 120px rgba(200,176,103,0.06);
+  max-width: 600px;
+}
+.bossa-mega .line { display: block; overflow: hidden; }
+.bossa-mega .line span {
+  display: inline-block;
+  transform: translateY(115%);
+  animation: slideUp 0.6s cubic-bezier(0.23,1,0.32,1) forwards;
+}
+.bossa-mega .line:nth-child(2) span { animation-delay: 0.08s; }
+
+@keyframes slideUp { to { transform: translateY(0); } }
+@keyframes fadeIn { to { opacity: 1; } }
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 1.2rem;
+  padding-bottom: 0.5rem;
+  max-width: 440px;
+}
+.hero-images {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  opacity: 0;
+  animation: fadeIn 0.7s ease 0.3s forwards;
+}
+.hero-img {
+  flex: 1;
+  aspect-ratio: 2/3;
+  background: rgba(200,176,103,0.04);
+  border: 1px solid rgba(200,176,103,0.08);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* filter: grayscale(80%) contrast(1.08); */
+  transition: filter 0.5s ease;
+  position: relative;
+  z-index: 1;
+}
+.hero-img:hover img {
+  /* filter: grayscale(30%) contrast(1.1); */
+}
+/* Hide placeholder when image loads */
+.hero-img img[src] ~ .hero-img-placeholder { display: block; }
+.hero-img-placeholder {
+  position: absolute;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(200,176,103,0.15);
+  z-index: 0;
+}
+/* If the img fails to load, show placeholder */
+.hero-img img {
+  position: relative;
+}
+.hero-img img:not([src]),
+.hero-img img[src=""] {
+  display: none;
+}
+.hero-img img:not([src]) ~ .hero-img-placeholder,
+.hero-img img[src=""] ~ .hero-img-placeholder {
+  z-index: 1;
+}
+.hero-desc {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  line-height: 1.75;
+  color: rgba(237,221,197,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  animation: fadeIn 0.6s ease 0.5s forwards;
+}
+.hero-cta {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--brightred);
+  color: var(--black);
+  padding: 0.9rem 2rem;
+  text-decoration: none;
+  transition: all 0.3s;
+  opacity: 0;
+  animation: fadeIn 0.6s ease 0.7s forwards;
+}
+.hero-cta:hover { background: var(--cream); }
+
+/* ============================================
+   BOTTOM BAR
+   ============================================ */
+.bottom-bar {
+  margin: 0 28px;
+  background: var(--brightred);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--black);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.bottom-bar a {
+  color: var(--black);
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+.bottom-bar a:hover { opacity: 0.5; }
+.bottom-links { display: flex; gap: 1.5rem; }
+
+/* ============================================
+   BELOW FOLD
+   ============================================ */
+.below-fold {
+  margin: 0 28px 28px;
+}
+
+/* ============================================
+   SERVICES PANEL — with expandable blocks
+   ============================================ */
+.services-panel {
+  background: var(--panel-black);
+  padding: 5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.services-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+}
+.services-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.panel-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.panel-label::before {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+/* ---- SERVICE BLOCK (clickable header + dropdown) ---- */
+.service-block {
+  border-top: 1px solid rgba(200,176,103,0.08);
+  border-left: 1px solid rgba(200,176,103,0.08);
+  transition: background 0.35s ease;
+}
+.service-block:nth-child(odd) { border-left: none; }
+.service-block:nth-child(1),
+.service-block:nth-child(2) { border-top: 1px solid rgba(200,176,103,0.12); }
+
+/* Header row — always visible, clickable */
+.service-header {
+  padding: 2.2rem 2rem;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.35s ease;
+}
+.service-header:hover {
+  background: rgba(200,176,103,0.03);
+}
+.service-header:hover h3 { color: var(--gold); }
+
+.service-header h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: var(--cream);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.7rem;
+  transition: color 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.service-header p {
+  font-size: 0.68rem;
+  line-height: 1.75;
+  color: rgba(237,221,197,0.35);
+  max-width: 360px;
+}
+.service-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 1rem;
+}
+.service-tag {
+  font-size: 0.52rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(200,176,103,0.12);
+  color: rgba(200,176,103,0.4);
+}
+
+/* Toggle indicator */
+.toggle-icon {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: rgba(200,176,103,0.3);
+  flex-shrink: 0;
+  margin-left: 1rem;
+  transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), color 0.3s;
+  display: inline-block;
+}
+.service-block.open .toggle-icon {
+  transform: rotate(45deg);
+  color: var(--gold);
+}
+.service-header:hover .toggle-icon {
+  color: var(--gold);
+}
+
+/* ---- DROPDOWN — project gallery ---- */
+.service-dropdown {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.55s cubic-bezier(0.23,1,0.32,1);
+}
+.service-block.open .service-dropdown {
+  max-height: 800px;
+}
+
+.dropdown-inner {
+  padding: 0 2rem 2.5rem;
+  border-top: 1px solid rgba(200,176,103,0.06);
+}
+
+/* Project gallery row */
+.project-gallery {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.project-card {
+  flex: 1;
+  min-width: 0;
+}
+.project-thumb {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: rgba(200,176,103,0.04);
+  border: 1px solid rgba(200,176,103,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 0.8rem;
+  position: relative;
+}
+.project-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* filter: grayscale(80%) contrast(1.05); */
+  transition: filter 0.4s ease;
+}
+/* Placeholder for images not yet added */
+.project-thumb .placeholder {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(200,176,103,0.15);
+}
+.project-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 0.85rem;
+  color: var(--cream);
+  margin-bottom: 0.3rem;
+}
+.project-desc {
+  font-size: 0.55rem;
+  line-height: 1.7;
+  color: rgba(237,221,197,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Ghost watermark */
+.ghost-text {
+  position: absolute;
+  bottom: -2.5rem;
+  right: -1rem;
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(6rem, 18vw, 16rem);
+  color: rgba(200,176,103,0.025);
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+}
+
+/* ============================================
+   PHILOSOPHY
+   ============================================ */
+.philosophy-panel {
+  background: var(--cream);
+  padding: 6rem 2rem;
+}
+.philosophy-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.35fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+.philosophy-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--amber);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+.philosophy-label::before {
+  content: '';
+  width: 30px;
+  height: 1px;
+  background: var(--amber);
+}
+.philosophy-quote {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--forest);
+  margin-bottom: 2rem;
+}
+.philosophy-body {
+  font-size: 0.8rem;
+  line-height: 1.85;
+  opacity: 0.55;
+  max-width: 520px;
+  color: var(--black);
+}
+
+/* ============================================
+   CTA
+   ============================================ */
+.cta-panel {
+  background: var(--panel-black);
+  padding: 6rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+}
+.cta-inner { position: relative; z-index: 2; }
+.cta-heading {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: var(--cream);
+  margin-bottom: 2rem;
+}
+.cta-heading .gold { color: var(--gold); }
+.cta-email {
+  font-family: 'DM Mono', monospace;
+  font-size: clamp(0.7rem, 1.2vw, 0.95rem);
+  color: rgba(200,176,103,0.6);
+  display: inline-block;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200,176,103,0.2);
+  padding-bottom: 3px;
+  transition: color 0.3s, border-color 0.3s;
+}
+.cta-email:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+.cta-note {
+  font-size: 0.65rem;
+  color: rgba(237,221,197,0.25);
+  margin-top: 1.5rem;
+  max-width: 420px;
+  line-height: 1.7;
+  margin-left: auto;
+  margin-right: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.site-footer {
+  background: var(--panel-black);
+  color: var(--cream);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.3;
+}
+
+/* ============================================
+   REVEAL
+   ============================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1100px) {
+  .bossa-mega { font-size: clamp(4rem, 10vw, 10rem); }
+  .hero-content { grid-template-columns: 1fr 360px; }
+}
+@media (max-width: 800px) {
+  .hero-content { grid-template-columns: 1fr; }
+  .hero-right { align-items: flex-start; text-align: left; padding-top: 1.5rem; }
+  .hero-images { max-width: 300px; }
+  .black-panel { margin: 16px 16px 0; min-height: calc(100vh - 32px - 48px); }
+  .bottom-bar { margin: 0 16px; flex-direction: column; gap: 0.4rem; text-align: center; }
+  .bottom-links { flex-wrap: wrap; justify-content: center; gap: 0.8rem; }
+  .below-fold { margin: 0 16px 16px; }
+  .bossa-mega { font-size: clamp(3.5rem, 16vw, 7rem); }
+  .nav-buttons a { font-size: 0.5rem; padding: 0.2rem 0.4rem; }
+  .services-grid { grid-template-columns: 1fr; }
+  .service-block { border-left: none !important; }
+  .philosophy-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+  .project-gallery { flex-direction: column; }
+}
+@media (max-width: 600px) {
+  .nav-buttons { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<div class="wood-bg"></div>
+
+<!-- ============================================
+     BLACK PANEL — HERO
+     ============================================ -->
+<div class="black-panel">
+  <div class="top-nav">
+    <a href="/" class="logo"><img src="/assets/figs.png" alt="Shilpa Rao"></a>
+    <div class="nav-buttons">
+      <a href="/resume/">Resume</a>
+      <!-- <a href="/technical-work/">Work</a> -->
+      <!-- <a href="/old/design/">Design</a> -->
+      <a href="/wiki/">Wiki</a>
+      <a href="/writing/">Writing</a>
+      <a href="/photography/">Photo</a>
+      <a href="/old/bossa/" class="active">Studio BOSSA</a>
+      <a href="/contact/">Contact</a>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <div>
+      <h1 class="bossa-mega">
+        <span class="line"><span>Studio</span></span>
+        <span class="line"><span>BOSSA</span></span>
+      </h1>
+    </div>
+    <div class="hero-right">
+      <div class="hero-images">
+        <div class="hero-img">
+          <img src="/assets/DSCF1089_80p.jpg" alt="Studio BOSSA work" onerror="this.style.display='none'">
+          <span class="hero-img-placeholder">Image</span>
+        </div>
+        <div class="hero-img">
+          <img src="/assets/DSCF1090_80p.jpg" alt="Studio BOSSA work" onerror="this.style.display='none'">
+          <span class="hero-img-placeholder">Image</span>
+        </div>
+      </div>
+      <a href="mailto:shilpa.padiki.rao@gmail.com" class="hero-cta">Get in touch</a>
+      <p class="hero-desc">Bossa is a design studio driven by first-principles. We bring professional hardware & software experience to our creative practice. Bossa has focused on audio projects, album releases, web design, low power skiing equipment, and art installations. We can bring bold ideas and forms to life, whether electromechanical, spatial, or acoustic in nature. The team consists of Shilpa and her diverse network of artists, mechanical/software/electrical engineers, wood and metalworkers, etc.</p>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bottom-links">
+    <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank">LinkedIn</a>
+    <a href="https://github.com/shxlpa" target="_blank">GitHub</a>
+    <a href="mailto:shilpa.padiki.rao@gmail.com">Email</a>
+  </div>
+  <span>Studio BOSSA &mdash; Los Angeles</span>
+</div>
+
+<!-- ============================================
+     BELOW FOLD
+     ============================================ -->
+<div class="below-fold">
+
+  <!-- SERVICES -->
+  <section class="services-panel">
+    <div class="services-inner">
+      <div class="panel-label reveal">Services</div>
+
+      <div class="services-grid">
+
+        <!-- 01 — WEB DESIGN -->
+        <div class="service-block reveal">
+          <div class="service-header">
+            <h3>Web Design &amp; Development <span class="toggle-icon">+</span></h3>
+            <p>Custom portfolio sites, landing pages, and interactive web experiences. Hand-coded with attention to detail, performance, and personality.</p>
+            <div class="service-tags">
+              <span class="service-tag">HTML / CSS / JS</span>
+              <span class="service-tag">React</span>
+              <span class="service-tag">Responsive</span>
+            </div>
+          </div>
+          <div class="service-dropdown">
+            <div class="dropdown-inner">
+              <div class="project-gallery">
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">This Portfolio</div>
+                  <div class="project-desc">Custom hand-coded site with graph paper grid, parallax photography, and animated preloader.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Musician Landing Page</div>
+                  <div class="project-desc">Single-page site for an LA-based artist. Embedded audio player, tour dates, mailing list.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Startup Product Page</div>
+                  <div class="project-desc">Marketing site for a hardware startup. Responsive, optimized for conversion, built in React.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 — BRAND IDENTITY -->
+        <div class="service-block reveal reveal-delay-1">
+          <div class="service-header">
+            <h3>Brand Identity &amp; Creative Direction <span class="toggle-icon">+</span></h3>
+            <p>Logos, color systems, typography, and visual language. I build brands that feel considered and cohesive across every touchpoint.</p>
+            <div class="service-tags">
+              <span class="service-tag">Visual Identity</span>
+              <span class="service-tag">Art Direction</span>
+              <span class="service-tag">Print</span>
+            </div>
+          </div>
+          <div class="service-dropdown">
+            <div class="dropdown-inner">
+              <div class="project-gallery">
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">BOSSA Brand System</div>
+                  <div class="project-desc">Self-directed identity design. Logo, color palette, typography rules, print collateral.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Album Art Direction</div>
+                  <div class="project-desc">Full visual package for an indie release — cover art, liner notes, social assets, merch.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 — HARDWARE PROTOTYPING -->
+        <div class="service-block reveal">
+          <div class="service-header">
+            <h3>Hardware Prototyping <span class="toggle-icon">+</span></h3>
+            <p>From concept to working prototype. I help teams navigate the gap between idea and physical product with electronics, firmware, and fabrication.</p>
+            <div class="service-tags">
+              <span class="service-tag">Prototyping</span>
+              <span class="service-tag">Arduino / ESP32</span>
+              <span class="service-tag">Sensors</span>
+            </div>
+          </div>
+          <div class="service-dropdown">
+            <div class="dropdown-inner">
+              <div class="project-gallery">
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Low-Power Ski Gear</div>
+                  <div class="project-desc">Battery-heated ski boot system with BLE temperature control and custom enclosure.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Touchscreen Synth</div>
+                  <div class="project-desc">ESP32-based synthesizer with capacitive touch, custom UI, and Class-D amplifier output.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Environmental Sensor Array</div>
+                  <div class="project-desc">Multi-sensor node for air quality monitoring. Solar-powered, LoRa mesh networking.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 — PCB DESIGN -->
+        <div class="service-block reveal reveal-delay-1">
+          <div class="service-header">
+            <h3>PCB Design &amp; Embedded Systems <span class="toggle-icon">+</span></h3>
+            <p>Custom PCB design in Altium and Eagle, firmware development, and embedded systems integration for production or prototype environments.</p>
+            <div class="service-tags">
+              <span class="service-tag">Altium</span>
+              <span class="service-tag">Eagle</span>
+              <span class="service-tag">C++ / Python</span>
+            </div>
+          </div>
+          <div class="service-dropdown">
+            <div class="dropdown-inner">
+              <div class="project-gallery">
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Speaker Amplifier Board</div>
+                  <div class="project-desc">4-layer Class-D amplifier PCB. Custom LC filter, passive crossover network, thermal management.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Wireless Endoscopy Module</div>
+                  <div class="project-desc">Miniaturized RF front-end for electromagnetic capsule tracking. Designed at UCLA.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 05 — TECHNICAL WRITING -->
+        <div class="service-block reveal">
+          <div class="service-header">
+            <h3>Technical Writing &amp; Documentation <span class="toggle-icon">+</span></h3>
+            <p>Clear, well-structured documentation for engineering teams. Test procedures, architecture docs, and technical guides that people actually read.</p>
+            <div class="service-tags">
+              <span class="service-tag">Docs</span>
+              <span class="service-tag">Procedures</span>
+              <span class="service-tag">Guides</span>
+            </div>
+          </div>
+          <div class="service-dropdown">
+            <div class="dropdown-inner">
+              <div class="project-gallery">
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Battery Test Procedures</div>
+                  <div class="project-desc">End-to-end test documentation for a 226 kWh marine battery pack. Safety protocols, CAN bus diagnostics.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Firmware Architecture Guide</div>
+                  <div class="project-desc">Internal documentation for an embedded systems team. State machines, interrupt handling, peripheral drivers.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 06 — SPACE & INSTALLATION -->
+        <div class="service-block reveal reveal-delay-1">
+          <div class="service-header">
+            <h3>Space &amp; Installation Design <span class="toggle-icon">+</span></h3>
+            <p>Art installations, furniture design, and spatial experiences that blend engineering precision with artistic vision.</p>
+            <div class="service-tags">
+              <span class="service-tag">Fabrication</span>
+              <span class="service-tag">Installation</span>
+              <span class="service-tag">Furniture</span>
+            </div>
+          </div>
+          <div class="service-dropdown">
+            <div class="dropdown-inner">
+              <div class="project-gallery">
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Light Installation</div>
+                  <div class="project-desc">Responsive LED sculpture controlled by ambient sound. Plywood frame, custom diffusion panels.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Furniture Prototype</div>
+                  <div class="project-desc">Bent plywood desk with integrated cable management and embedded wireless charging.</div>
+                </div>
+                <div class="project-card">
+                  <div class="project-thumb"><span class="placeholder">Image</span></div>
+                  <div class="project-title">Gallery Exhibition</div>
+                  <div class="project-desc">Mixed-media installation exploring the relationship between signal processing and visual form.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="ghost-text">BOSSA</div>
+  </section>
+
+  <!-- PHILOSOPHY -->
+  <section class="philosophy-panel">
+    <div class="philosophy-inner">
+      <div class="philosophy-label reveal">Philosophy</div>
+      <div>
+        <blockquote class="philosophy-quote reveal">
+          The best work happens at the intersection of engineering rigor and creative instinct. I don't separate the two.
+        </blockquote>
+        <p class="philosophy-body reveal">
+          BOSSA is intentionally small. I take on a handful of projects at a time, each one chosen because it's interesting and because I can bring something unique to it. Every engagement is a collaboration — I work closely with clients to understand not just what they want, but why they want it. The result is work that feels personal, precise, and built to last.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-panel">
+    <div class="cta-inner">
+      <h2 class="cta-heading reveal">Let's <span class="gold">work</span><br>together.</h2>
+      <a href="mailto:shilpa.padiki.rao@gmail.com" class="cta-email reveal">shilpa.padiki.rao@gmail.com</a>
+      <p class="cta-note reveal">Currently accepting select projects for 2026. Reach out with your idea and timeline — I'll let you know if it's a fit.</p>
+    </div>
+    <div class="ghost-text" style="left: -1rem; right: auto;">BOSSA</div>
+  </section>
+
+  <div class="site-footer"><span>&copy; 2026 Shilpa Rao</span><span>Made with care</span></div>
+</div>
+
+<script>
+// Reveal on scroll
+const obs = new IntersectionObserver(e => e.forEach(n => {
+  if (n.isIntersecting) n.target.classList.add('visible');
+}), { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Service block expand/collapse
+document.querySelectorAll('.service-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const block = header.parentElement;
+    const wasOpen = block.classList.contains('open');
+
+    // Close all others
+    document.querySelectorAll('.service-block.open').forEach(b => {
+      b.classList.remove('open');
+    });
+
+    // Toggle clicked one (unless it was already open)
+    if (!wasOpen) {
+      block.classList.add('open');
+    }
+  });
+});
+</script>
+</body>
+</html>

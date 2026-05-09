@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Technical Work — Shilpa Rao</title>
+<!-- Site identity -->
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+<link rel="image_src" href="/assets/wood.jpg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Technical Work — Shilpa Rao">
+<meta property="og:image" content="/assets/wood.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1125">
+<meta name="thumbnail" content="/assets/wood.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/wood.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<nav class="nav-dark">
+  <a href="/" class="logo"><img src="/assets/figs.png" alt="Shilpa Rao"></a>
+  <ul class="nav-links">
+    <li><a href="/resume/">Resume</a></li>
+    <li><a href="/technical-work/" class="active">Technical Work</a></li>
+    <li><a href="/old/design/">Design</a></li>
+    <li><a href="/wiki/">Wiki</a></li>
+    <li><a href="/writing/">Writing</a></li>
+    <li><a href="/photography/">Photography</a></li>
+    <li><a href="/old/bossa/">Studio BOSSA</a></li>
+    <li><a href="/contact/">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <span class="section-label">Engineering</span>
+  <h1 class="section-heading">Technical Work</h1>
+  <p class="subtitle">Systems design, test automation, embedded firmware, and hardware — from satellites to electric boats.</p>
+</div>
+
+<section class="content-section bg-off-white">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div class="work-grid">
+      <div class="work-item reveal" onclick="this.classList.toggle('expanded')">
+        <span class="work-category">SpaceX Starshield</span>
+        <span class="work-title">Industrial Automation &amp; Anechoic Chamber</span>
+        <span class="work-meta">2026 — Present</span>
+        <div class="work-detail">
+          Owning the integration and operation of an anechoic chamber and CNC gantry system. Debugging, maintaining, and rebuilding a server rack with Beckhoff TwinCAT motor control code. Designing test procedures around high-level requirements to validate the build performance of satellite components using the anechoic chamber.
+          <div class="work-tags">
+            <span class="work-tag">TwinCAT</span><span class="work-tag">Beckhoff</span><span class="work-tag">Motor Control</span><span class="work-tag">Anechoic Chamber</span><span class="work-tag">CNC Gantry</span><span class="work-tag">Server Rack</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" onclick="this.classList.toggle('expanded')">
+        <span class="work-category">Arc Boat Company</span>
+        <span class="work-title">226 kWh Battery Test System Design</span>
+        <span class="work-meta">2024</span>
+        <div class="work-detail">
+          Collaborated across SWE, Mechanical, and Electrical teams to develop a novel high-voltage test interface for validating Arc's 226 kWh marine battery. Integrated proprietary Python test framework and wrote work instructions for production monitoring. Automated pre-charge, pack charge, and hipot tests using CAN, PLC, and VCU.
+          <br><br>
+          Byte-level data engineering: caught errors in vendor-provided CAN DBC files. Wrote Python driver for company-wide test hardware, saving $10k/unit previously spent on vendor software. Ran high-voltage validation tests and caught a fatal harnessing defect plus a PCB design flaw leading to HVIL signal drop — diagnosed and fixed it in 24 hours, unblocking boat production. Redesigned the central low-voltage PCB in Altium.
+          <div class="work-tags">
+            <span class="work-tag">Python</span><span class="work-tag">CAN Bus</span><span class="work-tag">DBC</span><span class="work-tag">PLC</span><span class="work-tag">VCU</span><span class="work-tag">High Voltage</span><span class="work-tag">Altium</span><span class="work-tag">PCB Design</span><span class="work-tag">HVIL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" onclick="this.classList.toggle('expanded')">
+        <span class="work-category">UCLA Research</span>
+        <span class="work-title">Wireless Biopsy Alternative</span>
+        <span class="work-meta">2023 — 2024</span>
+        <div class="work-detail">
+          Designed and fabricated a wireless, minimally invasive alternative to endoscopic biopsies. Ran iterative, randomly seeded electromagnetic simulation tests plus E&M analysis to specify desired magnet geometry.
+          <br><br>
+          Implemented a feedback control loop integrating camera tracking (Python OpenCV, webcam input), force sensor input (I2C, C++), and current sensor input (custom PCB, SPI, C++). Tested use of inductance to compute position of an electromagnetically attached prosthesis. Poster presentations at SoCal Robotics Symposium (Irvine 2023) and BMES Annual Meeting (Seattle 2023). Designed current and voltage sensing PCB breakout boards to support grad research.
+          <div class="work-tags">
+            <span class="work-tag">Python</span><span class="work-tag">OpenCV</span><span class="work-tag">C++</span><span class="work-tag">I2C</span><span class="work-tag">SPI</span><span class="work-tag">Custom PCB</span><span class="work-tag">Autodesk Eagle</span><span class="work-tag">E&M Simulation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" onclick="this.classList.toggle('expanded')">
+        <span class="work-category">Personal Project</span>
+        <span class="work-title">Speaker Amp + Capacitive Touchscreen Synth</span>
+        <span class="work-meta">April 2025</span>
+        <div class="work-detail">
+          Designed a speaker amplifier around the TPA3128 Class-D chip. Custom PWM frequency selection, custom passive crossover and LC output filter. Debounce circuits on buttons. Built a capacitive touchscreen-driven synthesizer interface.
+          <div class="work-tags">
+            <span class="work-tag">TPA3128</span><span class="work-tag">Class-D Amp</span><span class="work-tag">PWM</span><span class="work-tag">LC Filter</span><span class="work-tag">Passive Crossover</span><span class="work-tag">Debounce</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" onclick="this.classList.toggle('expanded')">
+        <span class="work-category">Course Project</span>
+        <span class="work-title">Digital Low Pass Filter Design</span>
+        <span class="work-meta">December 2025</span>
+        <div class="work-detail">
+          Designed a digital LPF using the Parks-McClellan algorithm. Simulated finite precision effects including coefficient quantization and roundoff noise. Met stop-band attenuation, pass-band ripple, and Signal-to-Noise Ratio requirements despite finite precision constraints.
+          <div class="work-tags">
+            <span class="work-tag">Parks-McClellan</span><span class="work-tag">DSP</span><span class="work-tag">Quantization</span><span class="work-tag">MATLAB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" onclick="this.classList.toggle('expanded')">
+        <span class="work-category">Course Project</span>
+        <span class="work-title">ML Decoding of Neural Signals</span>
+        <span class="work-meta">June 2023</span>
+        <div class="work-detail">
+          Derived probabilistic Machine Learning model parameters (Poisson, Gaussian) to decode real neural data from trials run on a monkey. Built custom ML model for spatial hand detection. Implemented Kalman filter to continuously infer the monkey's hand position from neural activity. Implemented and compared Wiener filter and Optimal Linear Estimator.
+          <div class="work-tags">
+            <span class="work-tag">Python</span><span class="work-tag">Kalman Filter</span><span class="work-tag">Poisson</span><span class="work-tag">Gaussian</span><span class="work-tag">Neural Decoding</span><span class="work-tag">Wiener Filter</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" onclick="this.classList.toggle('expanded')">
+        <span class="work-category">Vena Vitals</span>
+        <span class="work-title">Non-Invasive Blood Pressure Sensor R&D</span>
+        <span class="work-meta">Summer 2022</span>
+        <div class="work-detail">
+          R&D for Vena's continuous, non-invasive blood pressure sensor. Wrote algorithms to clean up data for future ML-based inference. Applied signal processing techniques (wavelet transform, peak detection) to extract physiological features (systolic peak, diastolic peak, dicrotic notch) using MATLAB. Wrote algorithm to filter noise from movement events using accelerometer data. Conducted human tests to quantify the relationship between breathing cycles and blood pressure trends.
+          <div class="work-tags">
+            <span class="work-tag">MATLAB</span><span class="work-tag">Wavelet Transform</span><span class="work-tag">Signal Processing</span><span class="work-tag">Peak Detection</span><span class="work-tag">Accelerometer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><span>© 2026 Shilpa Rao</span><span>Made with care</span></footer>
+<script>
+const obs=new IntersectionObserver(e=>e.forEach(n=>{if(n.isIntersecting)n.target.classList.add('visible')}),{threshold:.1});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+addEventListener('scroll',()=>document.querySelector('nav').classList.toggle('scrolled',scrollY>60));
+</script>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photography — Shilpa Rao</title>
+<!-- Site identity -->
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+<link rel="image_src" href="/assets/wood.jpg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Photography — Shilpa Rao">
+<meta property="og:image" content="/assets/wood.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1125">
+<meta name="thumbnail" content="/assets/wood.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/wood.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+/* ============================================
+   Page-specific palette — preserves the original
+   photography aesthetic (cream/gold) inside the
+   center content block.
+   ============================================ */
+.block-photo {
+  --photo-cream:  #EDDDC5;
+  --photo-gold:   #C8B067;
+  --photo-amber:  #CE9042;
+  --photo-maroon: #7D2027;
+  /* zero internal padding so the editorial fills the block edge-to-edge */
+  padding: 0;
+  color: var(--photo-cream);
+}
+.block-photo > * { position: relative; z-index: 1; }
+
+/* Set this block as a positioning context + container for the editorial */
+.editorial {
+  position: relative;
+  padding: 2rem 0;
+}
+
+/* ============================================
+   SPREADS — flex layout with explicit gaps so
+   photos can never overlap, regardless of viewport.
+   Each spread is a 3-column row; vertical variation
+   comes from per-image align-self / margin-top so
+   the editorial feel is preserved.
+   ============================================ */
+.spread {
+  position: relative;
+  width: 100%;
+  min-height: 88vh;
+  padding: 3rem clamp(0.6rem, 1.2vw, 1.5rem);
+  display: flex;
+  align-items: stretch;
+  gap: clamp(6px, 0.8vw, 14px);
+}
+
+.float-img {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+}
+.float-img:hover { transform: scale(1.015); }
+.float-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Overlay captions — absolutely positioned over the spread row */
+.img-overlay-text {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  color: var(--photo-cream);
+}
+.img-overlay-text h2 {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--photo-cream);
+}
+.img-overlay-text p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 0.5rem;
+  opacity: 0.7;
+  color: var(--photo-cream);
+}
+
+/* ============================================
+   SPREAD VARIANTS
+   ============================================ */
+
+/* S1 — three verticals (gaps guaranteed by flex gap) */
+.s1 .img-a  { aspect-ratio: 3/4; align-self: flex-start; }
+.s1 .img-bc { aspect-ratio: 2/3; align-self: center; }
+.s1 .img-b  { aspect-ratio: 2/3; align-self: flex-end; }
+.s1 .ot1 { top: 8%; right: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
+.s1 .ot1 h2 { font-size: clamp(2rem, 5vw, 5rem); }
+
+/* S2 — heading floats above, three travel images below it */
+.s2 { padding-top: clamp(4.5rem, 9vh, 7rem); }
+.s2 .img-c { flex: 1.25 1 0; aspect-ratio: 3/4; align-self: flex-start; }
+.s2 .img-d { flex: 1 1 0;    aspect-ratio: 4/3; align-self: flex-end; }
+.s2 .img-e { flex: 0.85 1 0; aspect-ratio: 2/3; align-self: center; }
+.s2 .ot2 { top: 1.5rem; right: clamp(0.6rem, 1.2vw, 1.5rem); left: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
+.s2 .ot2 h2 { font-size: clamp(1.4rem, 3.5vw, 3.5rem); }
+
+/* S3 — single hero + huge centered title */
+.s3 { min-height: 78vh; display: block; padding: 2rem clamp(0.6rem, 1.2vw, 1.5rem); }
+.s3 .img-f {
+  position: relative;
+  width: 100%;
+  height: 75vh;
+  max-height: calc(88vh - 4rem);
+  flex: none;
+}
+.s3 .ot3 {
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  /* The ONLY overlay that keeps the negative-color blend */
+  mix-blend-mode: difference;
+  color: #fff;
+}
+.s3 .ot3 h2 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 800;
+  font-style: normal;
+  font-size: clamp(2.4rem, 8vw, 8rem);
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 0.85;
+  color: #fff;
+}
+
+/* S4 — hudson & ari, ot4 in top-left */
+.s4 { min-height: 84vh; padding-top: clamp(4rem, 7vh, 6rem); }
+.s4 .img-g { aspect-ratio: 2/3; align-self: flex-start; margin-top: 4%; }
+.s4 .img-h { aspect-ratio: 3/4; align-self: flex-start; }
+.s4 .img-i { flex: 1.2 1 0; aspect-ratio: 3/2; align-self: flex-end; }
+.s4 .ot4 { top: 1.5rem; left: clamp(0.6rem, 1.2vw, 1.5rem); }
+.s4 .ot4 h2 { font-size: clamp(1.5rem, 3.5vw, 3.5rem); color: var(--photo-gold); }
+
+/* Reflective text below the last spread */
+.ot-reflect {
+  position: relative;
+  z-index: 3;
+  padding: 2rem 1.5rem 4rem;
+  color: var(--photo-cream);
+}
+.ot-reflect h2 {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.8vw, 1.6rem);
+  line-height: 1.55;
+  color: var(--photo-cream);
+  opacity: 0.75;
+}
+
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ============================================
+   TABLET — squeeze a bit
+   ============================================ */
+@media (max-width: 1100px) {
+  .spread { padding: 2rem 1rem; }
+  .s1 .ot1 h2 { font-size: clamp(1.8rem, 5.5vw, 3.5rem); }
+}
+
+/* ============================================
+   MOBILE — vertical stacked editorial inside
+   the (now full-width) center block. No more
+   absolute positioning, no overlap possible.
+   ============================================ */
+@media (max-width: 820px) {
+  .editorial { padding: 0.5rem 0; }
+
+  .spread {
+    min-height: 0 !important;
+    padding: 1rem 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .float-img {
+    position: relative !important;
+    /* Reset desktop flex sizing. In a column flex with no defined height,
+       flex: 1 1 0 inherited from desktop collapses items to zero height,
+       which is why photos weren't visible on mobile. Force natural sizing
+       so aspect-ratio + width: 100% determine each photo box. */
+    flex: 0 0 auto !important;
+    align-self: stretch !important;
+    top: auto !important; right: auto !important;
+    bottom: auto !important; left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    aspect-ratio: 4 / 3;
+    transform: none !important;
+  }
+  .float-img:hover { transform: none !important; }
+  .s3 .img-f {
+    aspect-ratio: 3 / 4;
+    /* Override the desktop fixed height so the image sizes from aspect-ratio */
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .img-overlay-text {
+    position: relative !important;
+    top: auto !important; right: auto !important;
+    bottom: auto !important; left: auto !important;
+    transform: none !important;
+    text-align: left !important;
+    margin: 0.4rem 0;
+    max-width: 100%;
+    /* Drop blend-mode on mobile so plain cream text reads cleanly over black */
+    mix-blend-mode: normal;
+  }
+  .s1 .ot1 h2 { font-size: clamp(2rem, 9vw, 4rem); }
+  .s2 .ot2 h2 { font-size: clamp(1.4rem, 6vw, 2.2rem); }
+  .s3 .ot3 h2 { font-size: clamp(2.4rem, 12vw, 4.5rem); }
+  .s4 .ot4 h2 { font-size: clamp(1.6rem, 7vw, 3rem); }
+  .ot-reflect { padding: 1.5rem 0.4rem 2rem; }
+  .ot-reflect h2 { font-size: clamp(0.9rem, 3.5vw, 1.2rem); }
+}
+</style>
+</head>
+<body>
+
+<div class="wood-bg"></div>
+
+<div class="shell">
+
+  <!-- ===== MENU BLOCK ===== -->
+  <aside class="block block-menu">
+    <a href="/" class="menu-home">
+      <img src="/assets/figs.png" alt="Shilpa Rao home">
+      <span class="home-label">home</span>
+    </a>
+
+    <div class="menu-section">pages</div>
+    <ul class="menu-list">
+      <li><a href="/resume/">Resume</a></li>
+      <li><a href="/wiki/">Wiki</a></li>
+      <li><a href="/writing/">Writing</a></li>
+      <li><a href="/photography/" class="active">Photo</a></li>
+    </ul>
+
+    <div class="menu-socials">
+      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/shxlpa" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener">Substack</a>
+    </div>
+    
+    <p class="menu-foot">Shilpa Rao. Electrical Engineer & Artist.</p>
+    <p class="menu-foot">&copy; 2026</p>
+  </aside>
+
+  <!-- ===== CONTENT BLOCK — photography editorial ===== -->
+  <main class="block block-content block-photo">
+    <div class="editorial">
+
+      <div class="spread s1">
+        <div class="float-img img-a"><img src="/assets/DSCF1042.jpg" alt="ceramic"></div>
+        <div class="float-img img-b"><img src="/assets/DSCF1625.jpg" alt="lantern"></div>
+        <div class="float-img img-bc"><img src="/assets/DSCF1473.jpg" alt="sink"></div>
+        <div class="img-overlay-text ot1 reveal">
+          <h2>photography</h2>
+          <p>fujifilm xt30 | 27mm pancake</p>
+        </div>
+      </div>
+
+      <div class="spread s2">
+        <div class="float-img img-c"><img src="/assets/DSCF8116.jpg" alt="india"></div>
+        <div class="float-img img-d"><img src="/assets/DSCF7264.jpg" alt="vietnam_float"></div>
+        <div class="float-img img-e"><img src="/assets/DSCF8591.jpg" alt="sat"></div>
+        <div class="img-overlay-text ot2 reveal">
+          <h2>selected from chile, vietnam, japan, india, nepal, hong kong, portugal, spain</h2>
+          <p>&amp; joshua tree, colorado, eastern sierras, los angeles</p>
+        </div>
+      </div>
+
+      <div class="spread s3">
+        <div class="float-img img-f"><img src="/assets/DSCF7081.jpg" alt="vietnam_shop"></div>
+        <div class="img-overlay-text ot3">
+          <h2>three<br>continents.<br>eight<br>countries.</h2>
+        </div>
+      </div>
+
+      <div class="spread s4">
+        <div class="float-img img-g"><img src="/assets/DSCF1791.jpg" alt="hudson"></div>
+        <div class="float-img img-h"><img src="/assets/DSCF1907.jpg" alt="recliner"></div>
+        <div class="float-img img-i"><img src="/assets/DSCF6621.jpg" alt="ari"></div>
+        <div class="img-overlay-text ot4 reveal">
+          <h2>hudson &amp; ari</h2>
+        </div>
+      </div>
+
+      <div class="spread s1">
+        <div class="float-img img-a"><img src="/assets/DSCF6921.jpg" alt="ship_friends"></div>
+        <div class="float-img img-b"><img src="/assets/DSCF1478.jpg" alt="japan_hut"></div>
+        <div class="float-img img-bc"><img src="/assets/DSCF8319.jpg" alt="yak"></div>
+        <div class="img-overlay-text ot1 reveal">
+          <p>sometimes an 18-55mm lens too</p>
+        </div>
+      </div>
+
+      <div class="spread s2">
+        <div class="float-img img-c"><img src="/assets/DSCF7078.jpg" alt="vietnam_shop2"></div>
+        <div class="float-img img-d"><img src="/assets/DSCF7129.jpg" alt="tavan"></div>
+        <div class="float-img img-e"><img src="/assets/DSCF7173.jpg" alt="vietnam_bull"></div>
+      </div>
+
+      <div class="spread s4">
+        <div class="float-img img-g"><img src="/assets/DSCF8120.jpg" alt="gastanker"></div>
+        <div class="float-img img-h"><img src="/assets/DSCF1401.jpg" alt="cyclist"></div>
+        <div class="float-img img-i"><img src="/assets/DSCF7853.jpg" alt="crane"></div>
+      </div>
+
+      <div class="ot-reflect reveal">
+        <h2>I find places stripped of filters. <br>What is the world like behind the scenes? <br>Who runs this whole operation? <br>What are they feeling, thinking, doing &mdash; <br>these machines and people?</h2>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ===== CONTACT BLOCK ===== -->
+  <aside class="block block-contact">
+    <div class="contact-block-title">stay for a cup of coffee</div>
+    <div class="contact-block-body">
+      <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+      <span class="row">san francisco</span>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// Reveal-on-scroll. On desktop the .block-photo scrolls internally, so the
+// IntersectionObserver root must be the block (not the window). Falls back to
+// the window automatically on mobile where the page itself scrolls.
+(function () {
+  var bc = document.querySelector('.block-photo');
+  var isDesktop = window.matchMedia('(min-width: 981px)').matches;
+  var opts = (isDesktop && bc) ? { root: bc, threshold: 0.1 } : { threshold: 0.1 };
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, opts);
+  document.querySelectorAll('.reveal').forEach(function (el) { obs.observe(el); });
+})();
+</script>
+</body>
+</html>

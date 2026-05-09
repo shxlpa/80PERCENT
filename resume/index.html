@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume — Shilpa Rao</title>
+<!-- Site identity -->
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+<link rel="image_src" href="/assets/wood.jpg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Resume — Shilpa Rao">
+<meta property="og:image" content="/assets/wood.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1125">
+<meta name="thumbnail" content="/assets/wood.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/wood.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="wood-bg"></div>
+
+<div class="shell">
+
+  <!-- ===== MENU BLOCK ===== -->
+  <aside class="block block-menu">
+    <a href="/" class="menu-home">
+      <img src="/assets/figs.png" alt="Shilpa Rao home">
+      <span class="home-label">home</span>
+    </a>
+
+    <div class="menu-section">pages</div>
+    <ul class="menu-list">
+      <li><a href="/resume/" class="active">Resume</a></li>
+      <li><a href="/wiki/">Wiki</a></li>
+      <li><a href="/writing/">Writing</a></li>
+      <li><a href="/photography/">Photo</a></li>
+    </ul>
+
+    <div class="menu-socials">
+      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/shxlpa" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener">Substack</a>
+    </div>
+
+    <p class="menu-foot">Shilpa Rao. Electrical Engineer & Artist.</p>
+    <p class="menu-foot">&copy; 2026</p>
+  </aside>
+
+  <!-- ===== CONTENT BLOCK ===== -->
+  <main class="block block-content">
+    <div class="page-eyebrow">Curriculum Vitae</div>
+    <h1 class="page-title">Resume</h1>
+
+    <div class="resume-grid">
+      <div class="resume-column reveal">
+        <h3>Experience</h3>
+
+        <div class="resume-entry">
+          <div class="role">Electrical Engineer</div>
+          <div class="company">Opal Electronics</div>
+          <div class="date">April 2026 — Present</div>
+          <div class="desc">I'm working on unreleased human-computer interaction projects at Opal. I spend most of my time on firmware and embedded systems. Specifically, I work with FreeRTOS, C++ for 32-bit Arm cortex MCUs, custom I2C drivers, field-oriented-control for BLDC motors, and PCB layout.<br>I wear many hats here &mdash; I also work on electromechanical integration, part production, design, and R&D for future products.</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="role">Graduate Engineer Intern</div>
+          <div class="company">SpaceX</div>
+          <div class="date">January 2026 — March 2026</div>
+          <div class="desc">TLDR: I built a near field 3 axis chamber. <br>I built the electrical & software side of a chamber to test phased array beamforming accuracy. I wired the CNC electronics and its peripherals (antenna, laser, FPGA, bare metal server setup, beckhoff safety circuit, infrared cameras). To control the system, I repurposed legacy PLC motor control code and set up a Python control interface to enable simple jupyter notebook control of an otherwise complex system. <br> Skills: Beckhoff TwinCAT, PLC code, industrial automation, CI, Linux Autotest, Docker testbed, Python.</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="role">Electrical Systems Engineering Intern</div>
+          <div class="company">Arc Boat Company — Battery HW</div>
+          <div class="date">June 2024 — October 2024</div>
+          <div class="desc">I designed a high-voltage test rack for 226 kWh marine battery. Using Linux and CAN, I automated the pre-charge, pack charge, and hipot tests. I wrote custom Python/OpenHTF drivers and delivered a cohesive product to the software team. I also caught a fatal harnessing defect and PCB design flaw - I diagnosed and fixed it within 24 hours, unblocking boat production. <br>I also redesigned the battery's HVIL PCB in Altium.</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="role">Independent Undergraduate Researcher</div>
+          <div class="company">UCLA — Anatomical Engineering Group</div>
+          <div class="date">January 2023 — June 2024</div>
+          <div class="desc">I designed and fabricated a wireless, minimally invasive alternative to endoscopic biopsies. I proposed an alternative to the capsule endoscopy standard using electromagnets. I implemented a feedback control loop with camera tracking (Python OpenCV), force sensor input (I2C, C++), and current sensor input (custom PCB, SPI). <br>I also spent some time exploring the inductive properties of electromagnets to use induction as a proxy for distance. I then used that signal to find the distance of an electromagnetic prosthetic leg from a bone-anchored implant.<br>Poster presentations at the SoCal Robotics Symposium (Irvine 2023) and BMES Annual Meeting (Seattle 2023).</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="role">Software Engineering Intern</div>
+          <div class="company">Vena Vitals — R&D SWE</div>
+          <div class="date">June 2022 — August 2022</div>
+          <div class="desc">I prototyped signal processing algorithms for a continuous, non-invasive blood pressure sensor. I used signal processing techniques (wavelet transform, peak detection) to extract physiological features (systolic/diastolic peaks) in MATLAB. I also wrote an algorithm to identify movement events from noisy accelerometer data.</div>
+        </div>
+      </div>
+
+      <div class="resume-column reveal reveal-delay-1">
+        <h3>Education</h3>
+
+        <div class="resume-entry">
+          <div class="role">MS Electrical Engineering</div>
+          <div class="company">University of California, Los Angeles</div>
+          <div class="date">Expected December 2026</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="role">BS Electrical Engineering</div>
+          <div class="company">University of California, Los Angeles</div>
+          <div class="date">August 2024 | 3.723/4.00</div>
+          <div class="desc">- Won the UCLA Dean's Prize for Excellence in Research (2.4% award rate)</div>
+          <div class="desc">- Recipient of the SRC Research Scholarship, sponsored by Texas Instruments</div>
+          <div class="desc">- 2 conference presentations at Socal Robotics Symposium (Irvine 2023) and BMES Annual Meeting (Seattle 2023)</div>
+          <div class="desc">- Funded by UCLA Anatomics Lab to conduct independent research</div>
+          <div class="desc">- Courses: AM/FM Wireless Communication, Bionic Systems Engineering, Data Structures & Algorithms, Applied Numerical Computing, Feedback Controls</div>
+        </div>
+
+        <h3>Projects</h3>
+
+        <div class="resume-entry">
+          <div class="role">Digital Low Pass Filter Design</div>
+          <div class="date">December 2025</div>
+          <div class="desc">Designed a digital LPF using Parks-McClellan algorithm. Simulated finite precision effects (coefficient quantization, roundoff noise). Met stop-band attenuation, pass-band ripple, and SNR requirements despite finite effects.</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="role">Custom Speaker Amp + Capacitive Touchscreen Synth</div>
+          <div class="date">April 2025</div>
+          <div class="desc">Designed speaker amplifier based on TPA3128 Class-D chip. Custom PWM frequency selection, custom passive crossover and LC filter. Debounce circuits on buttons.</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="role">ML Discrete & Continuous Decoding of Neural Signals</div>
+          <div class="date">June 2023</div>
+          <div class="desc">Derived probabilistic ML model parameters (Poisson, Gaussian) to decode real neural data. Implemented Kalman filter to continuously infer monkey's hand position from neural activity. Compared Wiener filter and Optimal Linear Estimator performance.</div>
+        </div>
+
+        <h3>Skills</h3>
+        <div class="skills-cloud">
+          <span class="skill-pill">Python</span>
+          <span class="skill-pill">C++</span>
+          <span class="skill-pill">MATLAB</span>
+          <span class="skill-pill">Git</span>
+          <span class="skill-pill">PCB Design</span>
+          <span class="skill-pill">Altium</span>
+          <span class="skill-pill">Autodesk Eagle</span>
+          <span class="skill-pill">I2C / SPI / CAN / GPIO</span>
+          <span class="skill-pill">Embedded Systems</span>
+          <span class="skill-pill">Hardware-in-the-Loop</span>
+          <span class="skill-pill">Digital Filter Design</span>
+          <span class="skill-pill">OpenCV</span>
+          <span class="skill-pill">Machine Learning</span>
+          <span class="skill-pill">Signal Processing</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== CONTACT BLOCK ===== -->
+  <aside class="block block-contact">
+    <div class="contact-block-title">stay for a cup of coffee</div>
+    <div class="contact-block-body">
+      <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+      <span class="row">san francisco</span>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+const obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+</script>
+</body>
+</html>
