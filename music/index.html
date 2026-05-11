@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music — Shilpa Rao</title>
+<!-- Site identity -->
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+<link rel="image_src" href="/assets/wood.jpg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Music — Shilpa Rao">
+<meta property="og:image" content="/assets/wood.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1125">
+<meta name="thumbnail" content="/assets/wood.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/wood.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="wood-bg"></div>
+
+<div class="shell">
+
+  <!-- ===== MENU BLOCK ===== -->
+  <aside class="block block-menu">
+    <a href="/" class="menu-home">
+      <img src="/assets/figs.png" alt="Shilpa Rao home">
+      <span class="home-label">home</span>
+    </a>
+
+    <div class="menu-section">pages</div>
+    <ul class="menu-list">
+      <li><a href="/resume/">Resume</a></li>
+      <li><a href="/design/">Design</a></li>
+      <li><a href="/writing/">Writing</a></li>
+      <li><a href="/photography/">Photo</a></li>
+      <li><a href="/music/" class="active">Music</a></li>
+      <li><a href="/inspiration/">Inspiration</a></li>
+    </ul>
+
+    <div class="menu-socials">
+      <a href="https://www.linkedin.com/in/shxlpashxlpa/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/shxlpa" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://shxlpa.substack.com/" target="_blank" rel="noopener">Substack</a>
+    </div>
+
+    <p class="menu-foot">Shilpa Rao. Electrical Engineer &amp; Artist.</p>
+    <p class="menu-foot">&copy; 2026</p>
+  </aside>
+
+  <!-- ===== CONTENT BLOCK ===== -->
+  <main class="block block-content">
+    <h1 class="page-title">Music</h1>
+    <p class="page-sub">coming soon</p>
+  </main>
+
+  <!-- ===== CONTACT BLOCK ===== -->
+  <aside class="block block-contact">
+    <div class="contact-block-title">stay for a cup of coffee</div>
+    <div class="contact-block-body">
+      <span class="row"><a href="mailto:shilpa.padiki.rao@gmail.com">shilpa.padiki.rao@gmail.com</a></span>
+      <span class="row">san francisco</span>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+const obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+</script>
+</body>
+</html>
