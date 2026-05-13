@@ -22,6 +22,136 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Fraunces:opsz,wght@72,900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
+<style>
+.block-design {
+  --design-cream: #EDDDC5;
+  --design-gold: #C8B067;
+  --design-red: #db281f;
+  padding: 0;
+  color: var(--design-cream);
+}
+.design-page {
+  padding: clamp(1rem, 2vw, 2rem);
+}
+.design-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(10rem, 22rem) minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: start;
+  min-height: min(78vh, 46rem);
+  margin-bottom: clamp(2.5rem, 7vw, 5.5rem);
+  padding-top: clamp(5rem, 12vh, 7rem);
+}
+.design-process {
+  width: 100%;
+}
+.design-process img,
+.design-piece img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.design-process img {
+  max-height: 72vh;
+}
+.design-title {
+  position: relative;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(6rem, 13vw, 15rem);
+  line-height: 0.86;
+  letter-spacing: 0;
+  color: var(--design-cream);
+  text-align: right;
+  z-index: 2;
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: visible;
+  text-shadow: 0.018em 0 0 var(--design-cream);
+}
+.design-section {
+  margin-top: clamp(3rem, 8vw, 6rem);
+}
+.design-section:first-of-type {
+  margin-top: 0;
+}
+.design-section-title {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 0.92;
+  letter-spacing: 0;
+  color: var(--design-gold);
+  margin-bottom: clamp(0.9rem, 2vw, 1.5rem);
+}
+.design-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.9rem, 1.7vw, 1.35rem);
+  width: 100%;
+  align-items: start;
+}
+.design-grid--cutting {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.design-grid--driftwood {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: min(100%, 72rem);
+}
+.design-grid--large {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.9rem, 1.7vw, 1.35rem);
+}
+.design-piece {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.design-process img,
+.design-piece img {
+  border: 3px solid var(--black);
+  box-shadow: 0 0 0 2px var(--design-red);
+  background: rgba(237, 221, 197, 0.04);
+}
+@media (max-width: 1180px) {
+  .design-grid,
+  .design-grid--cutting,
+  .design-grid--large {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 820px) {
+  .design-page {
+    padding: 0.9rem 0.45rem 1.4rem;
+  }
+  .design-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding-top: 0;
+    margin-bottom: 3rem;
+  }
+  .design-title {
+    order: -1;
+    margin-bottom: 1rem;
+    font-size: clamp(4.5rem, 25vw, 8rem);
+    white-space: normal;
+  }
+  .design-process {
+    width: 100%;
+  }
+  .design-process img {
+    max-height: none;
+  }
+  .design-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -57,9 +187,74 @@
   </aside>
 
   <!-- ===== CONTENT BLOCK ===== -->
-  <main class="block block-content">
-    <h1 class="page-title">Design</h1>
-    <p class="page-sub">coming soon</p>
+  <main class="block block-content block-design">
+    <div class="design-page">
+      <header class="design-hero">
+        <div class="design-process">
+          <img src="/assets/design_media/coding-site.gif" width="520" height="924" alt="Looping clip of Shilpa coding this site">
+        </div>
+        <h1 class="design-title" data-fit-title>design</h1>
+      </header>
+
+      <section class="design-section" aria-labelledby="cutting-boards-title">
+        <h2 class="design-section-title" id="cutting-boards-title">cutting boards</h2>
+        <div class="design-grid design-grid--cutting">
+          <figure class="design-piece"><img src="/assets/design_media/web/cuttingboards/IMG_6510.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Cutting board process"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/cuttingboards/IMG_5492.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Cutting board detail"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/cuttingboards/IMG_8473.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Cutting board in progress"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/cuttingboards/IMG_8361.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Finished cutting board"></figure>
+        </div>
+      </section>
+
+      <section class="design-section" aria-labelledby="metalwork-title">
+        <h2 class="design-section-title" id="metalwork-title">metalwork</h2>
+        <div class="design-grid">
+          <figure class="design-piece"><img src="/assets/design_media/web/metalwork/4227216909770987066.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Metalwork piece"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/metalwork/6521405293526843337.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Metalwork form"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/metalwork/IMG_6501.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Metalwork process"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/metalwork/IMG_6640.jpg" width="1600" height="1200" loading="lazy" decoding="async" alt="Metalwork tools and material"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/metalwork/IMG_6514.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Metalwork setup"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/metalwork/IMG_6717.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Finished metalwork"></figure>
+        </div>
+      </section>
+
+      <section class="design-section" aria-labelledby="redwood-desk-title">
+        <h2 class="design-section-title" id="redwood-desk-title">redwood desk</h2>
+        <div class="design-grid design-grid--large">
+          <figure class="design-piece"><img src="/assets/design_media/web/redwooddesk/DSCF1090.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Redwood desk detail"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/redwooddesk/IMG_4526.jpg" width="1600" height="1200" loading="lazy" decoding="async" alt="Redwood desk surface"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/redwooddesk/IMG_5411.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Redwood desk work view"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/redwooddesk/IMG_6103.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Redwood desk with tools"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/redwooddesk/IMG_4525.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Shilpa in a ventilation mask while working"></figure>
+        </div>
+      </section>
+
+      <section class="design-section" aria-labelledby="ceramics-title">
+        <h2 class="design-section-title" id="ceramics-title">ceramics</h2>
+        <div class="design-grid design-grid--large">
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/DSCF0733.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Ceramic vessel"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/DSCF0742.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Ceramic form"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/DSCF0750.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Ceramic detail"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/DSCF0773.jpg" width="1600" height="900" loading="lazy" decoding="async" alt="Ceramic work table"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/DSCF1267.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Ceramic vessel profile"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/IMG_1250.jpg" width="1600" height="1200" loading="lazy" decoding="async" alt="Ceramic piece on table"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/IMG_1267.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Ceramic work in progress"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/IMG_1269.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Ceramic process detail"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/IMG_3328.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Ceramic object"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/IMG_3516.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Ceramic texture"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/IMG_3526.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Ceramic shape"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/ceramics/IMG_5871.jpg" width="1200" height="1600" loading="lazy" decoding="async" alt="Finished ceramic object"></figure>
+        </div>
+      </section>
+
+      <section class="design-section" aria-labelledby="driftwood-lamp-title">
+        <h2 class="design-section-title" id="driftwood-lamp-title">driftwood lamp</h2>
+        <div class="design-grid design-grid--driftwood">
+          <figure class="design-piece"><img src="/assets/design_media/web/driftwoodlamp/DSCF1073.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Driftwood lamp"></figure>
+          <figure class="design-piece"><img src="/assets/design_media/web/driftwoodlamp/DSCF1089.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Driftwood lamp detail"></figure>
+        </div>
+      </section>
+    </div>
   </main>
 
   <!-- ===== CONTACT BLOCK ===== -->
@@ -74,10 +269,53 @@
 </div>
 
 <script>
-const obs = new IntersectionObserver(function(entries) {
-  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+(function() {
+  var title = document.querySelector('[data-fit-title]');
+  if (!title) return;
+
+  function fitTitle() {
+    var hero = title.closest('.design-hero');
+    if (!hero) return;
+
+    var isMobile = window.matchMedia('(max-width: 820px)').matches;
+    var bounds = title.getBoundingClientRect();
+    var maxWidth = bounds.width;
+    var maxHeight = isMobile ? window.innerHeight * 0.26 : hero.getBoundingClientRect().height * 0.6;
+
+    title.style.fontSize = '16px';
+    if (!maxWidth) return;
+
+    var low = 16;
+    var high = isMobile ? 190 : 520;
+
+    for (var i = 0; i < 18; i += 1) {
+      var mid = (low + high) / 2;
+      title.style.fontSize = mid + 'px';
+
+      var fitsWidth = title.scrollWidth <= maxWidth + 1;
+      var fitsHeight = title.getBoundingClientRect().height <= maxHeight + 1;
+
+      if (fitsWidth && fitsHeight) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+
+    title.style.fontSize = Math.floor(low) + 'px';
+  }
+
+  function queueFit() {
+    window.requestAnimationFrame(fitTitle);
+  }
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(queueFit);
+  }
+  window.addEventListener('load', queueFit);
+  window.addEventListener('resize', queueFit);
+  queueFit();
+})();
 </script>
 </body>
 </html>
