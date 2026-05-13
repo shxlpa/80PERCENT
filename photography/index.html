@@ -46,11 +46,10 @@
 }
 
 /* ============================================
-   SPREADS — flex layout with explicit gaps so
+   SPREADS — wrapping flex layout with explicit gaps so
    photos can never overlap, regardless of viewport.
-   Each spread is a 3-column row; vertical variation
-   comes from per-image align-self / margin-top so
-   the editorial feel is preserved.
+   Each image keeps its intrinsic ratio; variation
+   comes from per-image sizing / alignment.
    ============================================ */
 .spread {
   position: relative;
@@ -58,22 +57,24 @@
   min-height: 88vh;
   padding: 3rem clamp(0.6rem, 1.2vw, 1.5rem);
   display: flex;
-  align-items: stretch;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
   gap: clamp(6px, 0.8vw, 14px);
 }
 
 .float-img {
   position: relative;
-  flex: 1 1 0;
+  flex: var(--photo-flex, 1) 1 clamp(13rem, 31%, 22rem);
   min-width: 0;
-  overflow: hidden;
-  transition: transform 0.6s cubic-bezier(0.23,1,0.32,1);
+  max-width: 100%;
+  transition: filter 0.35s ease, opacity 0.35s ease;
 }
-.float-img:hover { transform: scale(1.015); }
+.float-img:hover { filter: brightness(1.06); }
 .float-img img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   display: block;
 }
 
@@ -105,18 +106,18 @@
    SPREAD VARIANTS
    ============================================ */
 
-/* S1 — three verticals (gaps guaranteed by flex gap) */
-.s1 .img-a  { aspect-ratio: 3/4; align-self: flex-start; }
-.s1 .img-bc { aspect-ratio: 2/3; align-self: center; }
-.s1 .img-b  { aspect-ratio: 2/3; align-self: flex-end; }
+/* S1 — three-photo editorial row (gaps guaranteed by flex gap) */
+.s1 .img-a  { align-self: flex-start; }
+.s1 .img-bc { align-self: center; }
+.s1 .img-b  { align-self: flex-end; }
 .s1 .ot1 { top: 8%; right: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
 .s1 .ot1 h2 { font-size: clamp(2rem, 5vw, 5rem); }
 
 /* S2 — heading floats above, three travel images below it */
 .s2 { padding-top: clamp(4.5rem, 9vh, 7rem); }
-.s2 .img-c { flex: 1.25 1 0; aspect-ratio: 3/4; align-self: flex-start; }
-.s2 .img-d { flex: 1 1 0;    aspect-ratio: 4/3; align-self: flex-end; }
-.s2 .img-e { flex: 0.85 1 0; aspect-ratio: 2/3; align-self: center; }
+.s2 .img-c { --photo-flex: 1.25; align-self: flex-start; }
+.s2 .img-d { --photo-flex: 1;    align-self: flex-end; }
+.s2 .img-e { --photo-flex: 0.85; align-self: center; }
 .s2 .ot2 { top: 1.5rem; right: clamp(0.6rem, 1.2vw, 1.5rem); left: clamp(0.6rem, 1.2vw, 1.5rem); text-align: right; }
 .s2 .ot2 h2 { font-size: clamp(1.4rem, 3.5vw, 3.5rem); }
 
@@ -125,9 +126,17 @@
 .s3 .img-f {
   position: relative;
   width: 100%;
-  height: 75vh;
-  max-height: calc(88vh - 4rem);
   flex: none;
+  display: flex;
+  justify-content: center;
+}
+.s3 .img-f img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 75vh;
+  object-fit: contain;
+  object-position: center;
 }
 .s3 .ot3 {
   top: 50%; left: 50%;
@@ -150,9 +159,9 @@
 
 /* S4 — hudson & ari, ot4 in top-left */
 .s4 { min-height: 84vh; padding-top: clamp(4rem, 7vh, 6rem); }
-.s4 .img-g { aspect-ratio: 2/3; align-self: flex-start; margin-top: 4%; }
-.s4 .img-h { aspect-ratio: 3/4; align-self: flex-start; }
-.s4 .img-i { flex: 1.2 1 0; aspect-ratio: 3/2; align-self: flex-end; }
+.s4 .img-g { align-self: flex-start; margin-top: 4%; }
+.s4 .img-h { align-self: flex-start; }
+.s4 .img-i { --photo-flex: 1.2; align-self: flex-end; }
 .s4 .ot4 { top: 1.5rem; left: clamp(0.6rem, 1.2vw, 1.5rem); }
 .s4 .ot4 h2 { font-size: clamp(1.5rem, 3.5vw, 3.5rem); color: var(--photo-gold); }
 
@@ -202,10 +211,6 @@
 
   .float-img {
     position: relative !important;
-    /* Reset desktop flex sizing. In a column flex with no defined height,
-       flex: 1 1 0 inherited from desktop collapses items to zero height,
-       which is why photos weren't visible on mobile. Force natural sizing
-       so aspect-ratio + width: 100% determine each photo box. */
     flex: 0 0 auto !important;
     align-self: stretch !important;
     top: auto !important; right: auto !important;
@@ -213,15 +218,16 @@
     width: 100% !important;
     height: auto !important;
     margin: 0 !important;
-    aspect-ratio: 4 / 3;
-    transform: none !important;
+    filter: none !important;
   }
-  .float-img:hover { transform: none !important; }
+  .float-img:hover { filter: none !important; }
   .s3 .img-f {
-    aspect-ratio: 3 / 4;
-    /* Override the desktop fixed height so the image sizes from aspect-ratio */
     height: auto !important;
     max-height: none !important;
+  }
+  .s3 .img-f img {
+    width: 100%;
+    max-height: none;
   }
 
   .img-overlay-text {
@@ -282,9 +288,9 @@
     <div class="editorial">
 
       <div class="spread s1">
-        <div class="float-img img-a"><img src="/assets/DSCF1042.jpg" alt="ceramic"></div>
-        <div class="float-img img-b"><img src="/assets/DSCF1625.jpg" alt="lantern"></div>
-        <div class="float-img img-bc"><img src="/assets/DSCF1473.jpg" alt="sink"></div>
+        <div class="float-img img-a"><img src="/assets/DSCF1042.jpg" width="1152" height="2048" alt="ceramic"></div>
+        <div class="float-img img-b"><img src="/assets/DSCF1625.jpg" width="1152" height="2048" alt="lantern"></div>
+        <div class="float-img img-bc"><img src="/assets/DSCF1473.jpg" width="1152" height="2048" alt="sink"></div>
         <div class="img-overlay-text ot1 reveal">
           <h2>photography</h2>
           <p>fujifilm xt30 | 27mm pancake</p>
@@ -292,9 +298,9 @@
       </div>
 
       <div class="spread s2">
-        <div class="float-img img-c"><img src="/assets/DSCF8116.jpg" alt="india"></div>
-        <div class="float-img img-d"><img src="/assets/DSCF7264.jpg" alt="vietnam_float"></div>
-        <div class="float-img img-e"><img src="/assets/DSCF8591.jpg" alt="sat"></div>
+        <div class="float-img img-c"><img src="/assets/DSCF8116.jpg" width="1152" height="2048" alt="india"></div>
+        <div class="float-img img-d"><img src="/assets/DSCF7264.jpg" width="1152" height="2048" alt="vietnam_float"></div>
+        <div class="float-img img-e"><img src="/assets/DSCF8591.jpg" width="1152" height="2048" alt="sat"></div>
         <div class="img-overlay-text ot2 reveal">
           <h2>selected from chile, vietnam, japan, india, nepal, hong kong, portugal, spain</h2>
           <p>&amp; joshua tree, colorado, eastern sierras, los angeles</p>
@@ -302,40 +308,40 @@
       </div>
 
       <div class="spread s3">
-        <div class="float-img img-f"><img src="/assets/DSCF7081.jpg" alt="vietnam_shop"></div>
+        <div class="float-img img-f"><img src="/assets/DSCF7081.jpg" width="2048" height="1152" alt="vietnam_shop"></div>
         <div class="img-overlay-text ot3">
           <h2>three<br>continents.<br>eight<br>countries.</h2>
         </div>
       </div>
 
       <div class="spread s4">
-        <div class="float-img img-g"><img src="/assets/DSCF1791.jpg" alt="hudson"></div>
-        <div class="float-img img-h"><img src="/assets/DSCF1907.jpg" alt="recliner"></div>
-        <div class="float-img img-i"><img src="/assets/DSCF6621.jpg" alt="ari"></div>
+        <div class="float-img img-g"><img src="/assets/DSCF1791.jpg" width="1152" height="2048" alt="hudson"></div>
+        <div class="float-img img-h"><img src="/assets/DSCF1907.jpg" width="1152" height="2048" alt="recliner"></div>
+        <div class="float-img img-i"><img src="/assets/DSCF6621.jpg" width="1184" height="1776" alt="ari"></div>
         <div class="img-overlay-text ot4 reveal">
           <h2>hudson &amp; ari</h2>
         </div>
       </div>
 
       <div class="spread s1">
-        <div class="float-img img-a"><img src="/assets/DSCF6921.jpg" alt="ship_friends"></div>
-        <div class="float-img img-b"><img src="/assets/DSCF1478.jpg" alt="japan_hut"></div>
-        <div class="float-img img-bc"><img src="/assets/DSCF8319.jpg" alt="yak"></div>
+        <div class="float-img img-a"><img src="/assets/DSCF6921.jpg" width="1152" height="2048" alt="ship_friends"></div>
+        <div class="float-img img-b"><img src="/assets/DSCF1478.jpg" width="1152" height="2048" alt="japan_hut"></div>
+        <div class="float-img img-bc"><img src="/assets/DSCF8319.jpg" width="1152" height="2048" alt="yak"></div>
         <div class="img-overlay-text ot1 reveal">
           <p>sometimes an 18-55mm lens too</p>
         </div>
       </div>
 
       <div class="spread s2">
-        <div class="float-img img-c"><img src="/assets/DSCF7078.jpg" alt="vietnam_shop2"></div>
-        <div class="float-img img-d"><img src="/assets/DSCF7129.jpg" alt="tavan"></div>
-        <div class="float-img img-e"><img src="/assets/DSCF7173.jpg" alt="vietnam_bull"></div>
+        <div class="float-img img-c"><img src="/assets/DSCF7078.jpg" width="1152" height="2048" alt="vietnam_shop2"></div>
+        <div class="float-img img-d"><img src="/assets/DSCF7129.jpg" width="1152" height="2048" alt="tavan"></div>
+        <div class="float-img img-e"><img src="/assets/DSCF7173.jpg" width="1152" height="2048" alt="vietnam_bull"></div>
       </div>
 
       <div class="spread s4">
-        <div class="float-img img-g"><img src="/assets/DSCF8120.jpg" alt="gastanker"></div>
-        <div class="float-img img-h"><img src="/assets/DSCF1401.jpg" alt="cyclist"></div>
-        <div class="float-img img-i"><img src="/assets/DSCF7853.jpg" alt="crane"></div>
+        <div class="float-img img-g"><img src="/assets/DSCF8120.jpg" width="1152" height="2048" alt="gastanker"></div>
+        <div class="float-img img-h"><img src="/assets/DSCF1401.jpg" width="1152" height="2048" alt="cyclist"></div>
+        <div class="float-img img-i"><img src="/assets/DSCF7853.jpg" width="1152" height="2048" alt="crane"></div>
       </div>
 
       <div class="ot-reflect reveal">
