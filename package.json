@@ -1,0 +1,10 @@
+{
+  "name": "shilpa-mug",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 5188 --bind 127.0.0.1",
+    "check": "node --check app.js && node --check mug-viewer.js"
+  }
+}
