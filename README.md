@@ -1,4 +1,4 @@
-# Objects in progress
+# DAIS — object creation company
 
 A replacement homepage built on the `mug` branch: the Stripe Press composition adapted to Shilpa's scanned mug and three scan photographs.
 
@@ -10,10 +10,10 @@ The site is static HTML, CSS, and browser JavaScript and can use the existing Ve
 
 ## Editing
 
-- `index.html`: identity, object information, photographs, and dialogs.
+- `index.html`: identity, photographs, and photo gallery.
 - `styles.css`: layout, reference typography, responsive rules, and non-destructive photograph crops.
-- `mug-viewer.js`: the complete STL rendered by Three.js. `ELEVATION_DEGREES` fixes the camera to 18°. Only the turntable's Y rotation changes in response to input; there are no zoom, pan, or vertical rotation controls.
-- `app.js`: angle navigation, information dialog, and photo gallery.
+- `mug-viewer.js`: the complete STL rendered by Three.js. `ELEVATION_DEGREES` fixes the camera to 14°. Only the turntable's Y rotation changes in response to input; there are no zoom, pan, or vertical rotation controls.
+- `app.js`: angle navigation and photo gallery.
 - `assets/mug.stl`: the original full 501,912-triangle scan. STL carries geometry; the neutral ceramic material is defined in the viewer. The color photographs are separate original scan images.
 
 The source scan has its opening facing negative Z. The viewer rotates the source geometry 90° around X to stand it upright, keeping its body centered on the rotation axis.
@@ -22,7 +22,7 @@ The images are cropped in CSS to keep the mug against the black scanning platfor
 
 ## Controls
 
-Click and drag the mug horizontally for a full rotation. Moving the cursor without holding the mouse button does not rotate the mug. On touchscreens, drag horizontally; vertical swipes scroll the page. With the canvas focused, use Left/Right or Home. The left rail selects among 18 angles. Select a photograph to enlarge it and use Left/Right to browse. Escape closes either dialog.
+Click and drag the mug horizontally for a full rotation. Moving the cursor without holding the mouse button does not rotate the mug. On touchscreens, drag horizontally; vertical swipes scroll the page. With the canvas focused, use Left/Right or Home. The left rail selects among 18 angles. Select a photograph to enlarge it and use Left/Right to browse. Escape closes the photo gallery.
 
 ## Sources
 

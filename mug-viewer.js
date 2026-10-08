@@ -3,7 +3,7 @@ import { STLLoader } from './vendor/STLLoader.js';
 
 const TAU = Math.PI * 2;
 const INITIAL_YAW = Math.PI / 3;
-const ELEVATION_DEGREES = 18;
+const ELEVATION_DEGREES = 14;
 const ELEVATION = THREE.MathUtils.degToRad(ELEVATION_DEGREES);
 
 // An angle control should take the shortest route across the 0° / 360° seam.
@@ -12,7 +12,7 @@ export function nearestYaw(current, requested) {
 }
 
 /**
- * Mount the original, complete mug scan. The camera is fixed at 18° above the
+ * Mount the original, complete mug scan. The camera is fixed at 14° above the
  * table. Every input changes only the turntable's Y rotation; there is no orbit,
  * vertical drag, zoom, or pan controller.
  */
@@ -54,7 +54,7 @@ export function mountMugViewer(container) {
   canvas.tabIndex = 0;
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-roledescription', 'interactive 3D mug');
-  canvas.setAttribute('aria-label', 'A three-dimensional scan of a ceramic mug. Click and drag left and right, or drag with a finger, to turn it. Use the left and right arrow keys to rotate, or Home to reset. The viewing angle stays fixed at 18 degrees.');
+  canvas.setAttribute('aria-label', 'A three-dimensional scan of a ceramic mug. Click and drag left and right, or drag with a finger, to turn it. Use the left and right arrow keys to rotate, or Home to reset. The viewing angle stays fixed at 14 degrees.');
   canvas.setAttribute('aria-keyshortcuts', 'ArrowLeft ArrowRight Home');
   Object.assign(canvas.style, { display: 'block', width: '100%', height: '100%', touchAction: 'pan-y', cursor: 'grab' });
   container.prepend(canvas);
@@ -187,6 +187,7 @@ export function mountMugViewer(container) {
     canvas.style.cursor = 'grabbing';
     canvas.setPointerCapture(event.pointerId);
     if (event.pointerType === 'mouse') event.preventDefault();
+    canvas.dataset.pointerFocus = 'true';
     canvas.focus({ preventScroll: true });
   }
 
@@ -214,7 +215,12 @@ export function mountMugViewer(container) {
     if (!dragging) lastPointerX = null;
   }
 
+  function onBlur() {
+    delete canvas.dataset.pointerFocus;
+  }
+
   function onKeyDown(event) {
+    delete canvas.dataset.pointerFocus;
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault();
       targetYaw += (event.key === 'ArrowRight' ? 1 : -1) * Math.PI / 12;
@@ -251,7 +257,7 @@ export function mountMugViewer(container) {
     ['pointerdown', onPointerDown], ['pointermove', onPointerMove],
     ['pointerup', onPointerEnd], ['pointercancel', onPointerEnd],
     ['lostpointercapture', onPointerEnd], ['pointerleave', onPointerLeave],
-    ['keydown', onKeyDown], ['webglcontextlost', onContextLost],
+    ['blur', onBlur], ['keydown', onKeyDown], ['webglcontextlost', onContextLost],
     ['webglcontextrestored', onContextRestored],
   ];
   listeners.forEach(([name, listener]) => canvas.addEventListener(name, listener));

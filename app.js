@@ -29,9 +29,6 @@ const angleObserver = new MutationObserver(() => {
 });
 angleObserver.observe(viewerElement, { attributes: true, attributeFilter: ['data-yaw'] });
 
-for (const button of document.querySelectorAll('[data-open]')) {
-  button.addEventListener('click', () => document.getElementById(button.dataset.open).showModal());
-}
 for (const button of document.querySelectorAll('[data-close]')) {
   button.addEventListener('click', () => button.closest('dialog').close());
 }
@@ -54,7 +51,6 @@ function showPhoto(index) {
   large.src = source.src;
   large.alt = source.alt;
   document.querySelector('#large-photo-window').classList.toggle('photo-window--17', photoIndex === 2);
-  document.querySelector('#large-caption').textContent = card.querySelector('.photo-caption').firstChild.textContent.trim();
   document.querySelector('#photo-count').textContent = `0${photoIndex + 1} / 03`;
   photoDialog.setAttribute('aria-label', `Mug photograph ${photoIndex + 1} of 3`);
 }

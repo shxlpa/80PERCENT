@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#201819">
-    <meta name="description" content="An everyday object, from every side. A three-dimensional study of Shilpa's mug.">
-    <title>Shilpa Rao — Objects in progress</title>
+    <meta name="description" content="DAIS — object creation company. A study in objects and form.">
+    <title>DAIS — object creation company</title>
     <link rel="icon" href="./assets/monogram.svg" type="image/svg+xml">
     <link rel="preload" href="./assets/fonts/ivar-headline-semibold.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="./styles.css">
@@ -14,60 +14,38 @@
   <body>
     <a class="skip-link" href="#mug-viewer">Skip to the mug</a>
     <header class="identity">
-      <a href="./" aria-label="Shilpa Rao, home" class="identity-mark"><img src="./assets/monogram.svg" alt="" width="27" height="43"></a>
-      <div class="identity-type"><h1>Shilpa Rao</h1><p>Objects in progress</p></div>
+      <a href="./" aria-label="DAIS, home" class="identity-mark"><img src="./assets/monogram.svg" alt="" width="27" height="43"></a>
+      <div class="identity-type"><h1>DAIS</h1><p>object creation company</p></div>
     </header>
 
     <nav class="angle-rail" aria-label="Mug viewing angles"></nav>
 
     <main id="collection">
-      <section class="object-stage" aria-labelledby="object-title">
+      <section class="object-stage" aria-label="Mug collection">
         <div class="mug-composition">
           <div id="mug-viewer" class="mug-viewer" tabindex="-1" aria-label="Interactive three-dimensional mug" aria-describedby="rotation-instructions">
             <p class="viewer-status" role="status">Loading the mug<span class="loading-dots">…</span></p>
-          </div>
-          <div class="object-caption">
-            <button type="button" class="object-title" id="object-title" aria-haspopup="dialog" data-open="about-dialog">The everyday mug <span aria-hidden="true">↗</span></button>
-            <p>A study in three dimensions</p>
           </div>
         </div>
 
         <aside class="photographs" aria-label="Color photographs of the mug">
           <button class="polaroid polaroid--one" data-photo="0" type="button" aria-label="Enlarge photograph 1, the inside of the mug">
             <span class="photo-window"><img src="./assets/mug-6.png" alt="Brown and cream mug, viewed from above on the black scan platform" width="2048" height="2048" decoding="async"></span>
-            <span class="photo-caption">a familiar shape <span>01</span></span>
           </button>
           <button class="polaroid polaroid--two" data-photo="1" type="button" aria-label="Enlarge photograph 2, the mug handle">
             <span class="photo-window"><img src="./assets/mug-12.png" alt="The mug and its curved handle on the black scan platform" width="2048" height="2048" decoding="async"></span>
-            <span class="photo-caption">another side <span>02</span></span>
           </button>
           <button class="polaroid polaroid--three" data-photo="2" type="button" aria-label="Enlarge photograph 3, the glaze and rim">
             <span class="photo-window photo-window--17"><img src="./assets/mug-17.png" alt="A close view of the mug's glazed surface and rim on the black scan platform" width="2048" height="2048" decoding="async"></span>
-            <span class="photo-caption">in the details <span>03</span></span>
           </button>
         </aside>
-        <p class="rotation-note" id="rotation-instructions">Click &amp; drag to turn <span aria-hidden="true">↔</span></p>
+        <p class="sr-only" id="rotation-instructions">Click &amp; drag to turn <span aria-hidden="true">↔</span></p>
       </section>
     </main>
 
-    <button class="help-button" type="button" aria-label="About this object and how to explore it" aria-haspopup="dialog" data-open="about-dialog">?</button>
-
-    <dialog id="about-dialog" class="about-dialog" aria-labelledby="about-title">
-      <button class="close-button" data-close type="button" aria-label="Close information">×</button>
-      <p class="eyebrow">Object no. 01</p>
-      <h2 id="about-title">The everyday mug</h2>
-      <p class="byline">Shilpa Rao</p>
-      <div class="rule"></div>
-      <p>An everyday object, from every side. A mug captured in three dimensions by Keyence, alongside photographs from the scan.</p>
-      <p>Click and drag from left to right to turn it. On a touchscreen, drag horizontally. On a keyboard, use the left and right arrow keys. Press Home to return to the starting view.</p>
-      <p>The view stays at the same gentle 18° angle, just as if you were turning the mug on a table.</p>
-      <div class="about-links"><a href="./assets/mug.stl" download="shilpa-mug.stl">Download the scan <span aria-hidden="true">↓</span></a><a href="mailto:shilpa.padiki.rao@gmail.com">Get in touch <span aria-hidden="true">↗</span></a></div>
-      <p class="colophon">© 2026 Shilpa Rao</p>
-    </dialog>
-
     <dialog id="photo-dialog" class="photo-dialog" aria-label="Mug photograph">
       <button class="close-button" data-close type="button" aria-label="Close photograph">×</button>
-      <figure class="large-polaroid"><div class="photo-window" id="large-photo-window"><img id="large-photo" alt="" width="2048" height="2048"></div><figcaption id="large-caption"></figcaption></figure>
+      <figure class="large-polaroid"><div class="photo-window" id="large-photo-window"><img id="large-photo" alt="" width="2048" height="2048"></div></figure>
       <div class="photo-controls"><button type="button" id="previous-photo" aria-label="Previous photograph">←</button><span id="photo-count" aria-live="polite">01 / 03</span><button type="button" id="next-photo" aria-label="Next photograph">→</button></div>
     </dialog>
     <noscript><p class="no-script">Enable JavaScript to turn the three-dimensional mug. The scan photographs remain available on this page.</p></noscript>
