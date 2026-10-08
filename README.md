@@ -1,4 +1,4 @@
-# DAIS — object creation company
+# DAIS — OBJECT CREATION COMPANY
 
 A replacement homepage built on the `mug` branch: the Stripe Press composition adapted to Shilpa's scanned mug and three scan photographs.
 
