@@ -141,6 +141,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .doc-chip h1 { font: italic 400 26px/1 var(--display); margin: -2px 8px 0 1px; letter-spacing: -.035em; }
 .v-rule { display: block; flex: 0 0 1px; height: 19px; margin: 0 4px; background: var(--line); }
 .icon-button { display: inline-grid; place-items: center; width: 33px; height: 33px; padding: 0; border-radius: 5px; }
+.clipboard-action { min-width: 44px; min-height: 34px; padding: 0 7px; border-radius: 5px; font: 12px var(--sans); }
 button:hover:not(:disabled), .studio-home:hover { background: #f1eee7; }
 button[aria-expanded="true"]:not(.unlock) { background: #eeeae2; }
 button[aria-pressed="true"]:not(.unlock) { color: #fff; background: var(--active); }
@@ -176,7 +177,7 @@ kbd { font: 10px var(--mono); color: var(--muted); }
 .help-area { position: absolute; left: var(--edge); bottom: max(21px, env(safe-area-inset-bottom)); z-index: 5; }
 #help-toggle { border: 1px solid #d4d1c8; border-radius: 50%; background: var(--surface); width: 34px; height: 34px; }
 #help-toggle .icon { height: 18px; width: 18px; }
-.help-panel { position: absolute; bottom: calc(100% + 9px); left: 0; width: 251px; }
+.help-panel { position: absolute; bottom: calc(100% + 9px); left: 0; width: 251px; max-height: calc(100dvh - 130px); overflow: auto; }
 .help-panel dl { display: grid; grid-template-columns: 1fr auto; gap: 11px; padding: 12px 14px 15px; margin: 0; font-size: 12px; }
 .help-panel dd { text-align: right; color: var(--muted); margin: 0; }
 .layers-panel, .inspector { position: absolute; top: calc(var(--edge) + 54px); }
@@ -228,8 +229,8 @@ kbd { font: 10px var(--mono); color: var(--muted); }
   .gate { grid-template-columns: minmax(0, 47fr) minmax(0, 53fr); }
   .gate-entry { padding: 55px 28px; }
   .gate-copy h1 { font-size: clamp(58px, 9.8vw, 82px); }
-  .zoom-control { bottom: 83px; }
 }
+@media (max-width: 900px) { .zoom-control { bottom: 83px; } }
 @media (max-width: 620px) {
   .gate-header { min-height: 59px; padding-inline: 21px; }
   .gate-home img { width: 26px; height: 26px; }
@@ -266,6 +267,11 @@ kbd { font: 10px var(--mono); color: var(--muted); }
   .layers-panel { z-index: 8; }
   .options { padding: 9px; gap: 7px; }
   .v-rule { margin: 0 3px; }
+}
+@media (max-width: 360px) { .tool-dock .icon-button { width: 32px; } }
+@media (pointer: coarse) { .clipboard-action { min-height: 44px; } }
+@media (pointer: coarse) and (max-width: 620px) {
+  .zoom-control, .help-area { bottom: calc(max(9px, env(safe-area-inset-bottom)) + 64px); }
 }
 @media (max-height: 460px) and (min-width: 621px) {
   .gate-art { min-height: 315px; }
