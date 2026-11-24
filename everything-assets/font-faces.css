@@ -1,0 +1,389 @@
+@font-face {
+  font-family: "Archivo Black";
+  src: url("./fonts/archivoblack.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Archivo Narrow";
+  src: url("./fonts/archivonarrow.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Asul";
+  src: url("./fonts/asul.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("./fonts/atkinsonhyperlegiblenext.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  src: url("./fonts/barlow.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("./fonts/barlowcondensed.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow Semi Condensed";
+  src: url("./fonts/barlowsemicondensed.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Baskervville";
+  src: url("./fonts/baskervville.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bitcount Prop Single";
+  src: url("./fonts/bitcountpropsingle.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("./fonts/bricolagegrotesque.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Castoro";
+  src: url("./fonts/castoro.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chivo";
+  src: url("./fonts/chivo.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cinzel";
+  src: url("./fonts/cinzel.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Climate Crisis";
+  src: url("./fonts/climatecrisis.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("./fonts/cormorantgaramond.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cossette Texte";
+  src: url("./fonts/cossettetexte.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Courier Prime";
+  src: url("./fonts/courierprime.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Crimson Text";
+  src: url("./fonts/crimsontext.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cutive Mono";
+  src: url("./fonts/cutivemono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("./fonts/dmmono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("./fonts/dmsans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Serif Text";
+  src: url("./fonts/dmseriftext.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Explora";
+  src: url("./fonts/explora.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fahkwang";
+  src: url("./fonts/fahkwang.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("./fonts/fraunces.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("./fonts/geist.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Germania One";
+  src: url("./fonts/germaniaone.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gloock";
+  src: url("./fonts/gloock.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hedvig Letters Sans";
+  src: url("./fonts/hedvigletterssans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hedvig Letters Serif";
+  src: url("./fonts/hedviglettersserif.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("./fonts/ibmplexmono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("./fonts/instrumentsans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("./fonts/instrumentserif.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("./fonts/inter.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Jacquard 12";
+  src: url("./fonts/jacquard12.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kantumruy Pro";
+  src: url("./fonts/kantumruypro.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lexend";
+  src: url("./fonts/lexend.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manufacturing Consent";
+  src: url("./fonts/manufacturingconsent.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Martian Mono";
+  src: url("./fonts/martianmono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montagu Slab";
+  src: url("./fonts/montaguslab.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mulish";
+  src: url("./fonts/mulish.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "National Park";
+  src: url("./fonts/nationalpark.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neuton";
+  src: url("./fonts/neuton.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "News Cycle";
+  src: url("./fonts/newscycle.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("./fonts/nunito.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ojuju";
+  src: url("./fonts/ojuju.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Old Standard TT";
+  src: url("./fonts/oldstandardtt.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Overpass";
+  src: url("./fonts/overpass.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("./fonts/playfairdisplay.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PT Serif";
+  src: url("./fonts/ptserif.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Quicksand";
+  src: url("./fonts/quicksand.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Radley";
+  src: url("./fonts/radley.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rethink Sans";
+  src: url("./fonts/rethinksans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("./fonts/roboto.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("./fonts/rubik.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("./fonts/sourcesans3.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Mono";
+  src: url("./fonts/spacemono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Spectral";
+  src: url("./fonts/spectral.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "STIX Two Text";
+  src: url("./fonts/stixtwotext.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UnifrakturMaguntia";
+  src: url("./fonts/unifrakturmaguntia.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("./fonts/worksans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Workbench";
+  src: url("./fonts/workbench.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Xanh Mono";
+  src: url("./fonts/xanhmono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Young Serif";
+  src: url("./fonts/youngserif.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zalando Sans Expanded";
+  src: url("./fonts/zalandosansexpanded.woff2") format("woff2");
+  font-display: swap;
+}

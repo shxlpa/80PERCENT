@@ -1,5 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "trailingSlash": true
+  "trailingSlash": true,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/everything.js": { "includeFiles": "server/views/*.html" }
+  },
+  "rewrites": [
+    { "source": "/everything/", "destination": "/api/everything?action=page" }
+  ]
 }

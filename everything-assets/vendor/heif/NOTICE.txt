@@ -1,0 +1,17 @@
+libheif.js is the unmodified libheif 1.23.7 / libde265 1.0.16 decoder
+from heic-to 1.6.7, src/lib/libheif-without-unsafe-eval.js. SHA-256:
+75aaf03816c22f8cf40dbcaeb22bee83f2e1c5da4b7417577a7883b296348734
+
+libheif and libde265 are copyright their respective authors, including
+Dirk Farin and struktur AG. The libraries and heic-to are licensed under
+the GNU Lesser General Public License version 3 or later. See LICENSE.txt.
+
+Corresponding source and build instructions:
+https://github.com/strukturag/libheif/tree/v1.23.7
+https://github.com/strukturag/libde265/tree/v1.0.16
+https://github.com/hoppergee/heic-to/tree/78345a3fcdb4a1d70d513fce2646aeff0127f7ba
+https://registry.npmjs.org/heic-to/-/heic-to-1.6.7.tgz
+
+To rebuild, use the upstream libheif Emscripten build instructions in the
+heic-to README with LIBDE265_VERSION=1.0.16 USE_UNSAFE_EVAL=0 USE_WASM=0.
+To replace the decoder, replace the JavaScript module in this directory.

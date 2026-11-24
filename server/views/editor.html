@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#eeece6">
+  <title>everything · Canvas</title>
+  <link rel="icon" href="/assets/logo.png">
+  <link rel="stylesheet" href="/everything-assets/style.css">
+  <link rel="stylesheet" href="/everything-assets/canvas.css">
+  <script type="module" src="/everything-assets/app.js"></script>
+</head>
+<body data-page="editor">
+  <main id="viewport" tabindex="0" aria-label="Everything canvas">
+    <div id="world" data-canvas-world></div>
+    <div id="empty-board" hidden>
+      <div class="empty-mark" aria-hidden="true"><span class="empty-sheet"><i></i></span><span class="empty-picture"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#image"/></svg></span></div>
+      <h2>Drop an image here</h2>
+      <p>Or paste, add text, or draw a shape.</p>
+    </div>
+  </main>
+
+  <header class="studio-header">
+    <div class="chrome doc-chip">
+      <a href="/" class="studio-home" title="Back to home"><img src="/assets/logo.png" width="26" height="26" alt=""><span>Home</span></a>
+      <span class="slash" aria-hidden="true">/</span>
+      <h1>everything</h1>
+      <span class="v-rule"></span>
+      <button type="button" class="icon-button" id="layers-toggle" title="Layers" aria-label="Layers" aria-controls="layers-panel" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#layers"/></svg></button>
+    </div>
+    <div class="chrome session-chip">
+      <span class="save-state"><i aria-hidden="true"></i><span id="save-status" role="status">Loading…</span></span>
+      <span class="v-rule"></span>
+      <button type="button" id="logout" class="lock-studio" title="Sign out and lock the workspace"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#lock"/></svg><span>Lock</span></button>
+    </div>
+  </header>
+
+  <aside class="chrome popover layers-panel" id="layers-panel" aria-labelledby="layers-heading" hidden>
+    <div class="panel-head"><h2 id="layers-heading">Layers</h2><button type="button" class="icon-button" id="layers-close" title="Close layers" aria-label="Close layers" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#close"/></svg></button></div>
+    <ul id="layer-list"></ul>
+    <p class="no-layers" id="no-layers">Your layers will appear here.</p>
+  </aside>
+
+  <aside class="chrome inspector" id="inspector" aria-labelledby="object-heading" hidden>
+    <div class="panel-head"><div class="object-title"><span id="object-icon"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#rectangle"/></svg></span><h2 id="object-heading">Rectangle</h2></div><button type="button" class="icon-button" id="clear-selection" title="Deselect layer" aria-label="Deselect layer" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#close"/></svg></button></div>
+    <div class="options">
+      <div class="field-row dimension-row">
+        <label class="number-field"><span aria-hidden="true">W</span><input id="object-width" type="number" step="any" min="1" aria-label="Layer width"></label>
+        <label class="number-field"><span aria-hidden="true">H</span><input id="object-height" type="number" step="any" min="1" aria-label="Layer height"></label>
+      </div>
+      <div id="type-fields" hidden>
+        <label class="property-label" for="font-family">Typeface</label>
+        <select id="font-family"></select>
+        <label class="property-line" for="font-size"><span>Type size</span><span class="number-field size-field"><input id="font-size" type="number" min="1" step="any" aria-label="Font size"><span>px</span></span></label>
+      </div>
+      <div class="property-line" id="fill-field"><label for="object-color">Fill</label><div class="color-field"><input id="object-color" type="color"><span id="hex-value"></span></div></div>
+    </div>
+    <div class="inspector-foot">
+      <div class="stack-actions">
+        <button type="button" class="icon-button" id="layer-back" title="Send to back" aria-label="Send to back" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#back"/></svg></button>
+        <button type="button" class="icon-button" id="layer-front" title="Bring to front" aria-label="Bring to front" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#front"/></svg></button>
+      </div>
+      <button type="button" class="icon-button" id="layer-delete" title="Delete layer" aria-label="Delete layer" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#delete"/></svg></button>
+    </div>
+  </aside>
+
+  <div class="dock-area">
+    <div class="chrome shape-menu popover" id="shape-menu" role="group" aria-label="Shapes" hidden>
+      <button type="button" data-shape="rectangle"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#rectangle"/></svg><span>Rectangle</span><kbd>R</kbd></button>
+      <button type="button" data-shape="ellipse"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#ellipse"/></svg><span>Ellipse</span><kbd>O</kbd></button>
+      <button type="button" data-shape="triangle"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#triangle"/></svg><span>Triangle</span></button>
+    </div>
+    <div class="chrome tool-dock" role="group" aria-label="Canvas tools">
+      <button type="button" class="icon-button" id="tool-select" title="Select (V)" aria-label="Select (V)" data-tool="select" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#select"/></svg></button>
+      <button type="button" class="icon-button" id="tool-hand" title="Hand (H)" aria-label="Hand (H)" data-tool="hand" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#hand"/></svg></button>
+      <span class="v-rule"></span>
+      <div class="shape-tool">
+        <button type="button" class="icon-button" id="tool-shape" title="Rectangle (R)" aria-label="Rectangle (R)" data-tool="rectangle" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#rectangle"/></svg></button>
+        <button type="button" class="icon-button" id="shape-toggle" title="Choose shape" aria-label="Choose shape" aria-controls="shape-menu" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#down"/></svg></button>
+      </div>
+      <button type="button" class="icon-button" id="tool-text" title="Text (T)" aria-label="Text (T)" data-tool="text" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#text"/></svg></button>
+      <button type="button" class="icon-button" id="tool-image" title="Add images" aria-label="Add images" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#image"/></svg></button>
+      <input id="image-picker" type="file" accept="image/*,.heic,.heif" multiple hidden>
+      <span class="v-rule"></span>
+      <button type="button" class="icon-button" id="action-undo" title="Undo" aria-label="Undo" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#undo"/></svg></button>
+      <button type="button" class="icon-button" id="action-redo" title="Redo" aria-label="Redo" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#redo"/></svg></button>
+    </div>
+  </div>
+
+  <div class="chrome zoom-control" role="group" aria-label="Canvas zoom">
+    <button type="button" class="icon-button" id="zoom-out" title="Zoom out" aria-label="Zoom out" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#minus"/></svg></button>
+    <button type="button" id="zoom-value" title="Reset to 100%" aria-label="Reset zoom to 100 percent">100%</button>
+    <button type="button" class="icon-button" id="zoom-in" title="Zoom in" aria-label="Zoom in" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#plus"/></svg></button>
+    <span class="v-rule"></span>
+    <button type="button" id="zoom-fit" title="Re-center on all layers (Shift + 1)" aria-label="Re-center canvas to show all layers"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#fit"/></svg>Re-center</button>
+  </div>
+  <div class="help-area">
+    <button type="button" class="icon-button" id="help-toggle" title="Canvas shortcuts" aria-label="Canvas shortcuts" aria-controls="help-panel" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#help"/></svg></button>
+    <aside class="chrome popover help-panel" id="help-panel" aria-labelledby="help-heading" hidden>
+      <div class="panel-head"><h2 id="help-heading">Canvas shortcuts</h2><button type="button" class="icon-button" id="help-close" title="Close shortcuts" aria-label="Close shortcuts" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#close"/></svg></button></div>
+      <dl><dt>Pan canvas</dt><dd><kbd>Space</kbd> + drag</dd><dt>Zoom</dt><dd>Pinch / Ctrl + scroll</dd><dt>Select / Hand</dt><dd><kbd>V</kbd> / <kbd>H</kbd></dd><dt>Add text</dt><dd><kbd>T</kbd></dd><dt>Rectangle / Ellipse</dt><dd><kbd>R</kbd> / <kbd>O</kbd></dd><dt>Square / Circle</dt><dd><kbd>Shift</kbd> + drag</dd><dt>Edit text</dt><dd>Double-click</dd></dl>
+    </aside>
+  </div>
+  <p id="notice" class="notice" role="status" hidden></p>
+</body>
+</html>
