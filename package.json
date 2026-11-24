@@ -11,7 +11,8 @@
     "test": "node --test server/*.test.js"
   },
   "dependencies": {
-    "@vercel/blob": "2.9.0"
+    "@vercel/blob": "2.9.0",
+    "sax": "1.6.1"
   },
   "overrides": {
     "zod": "4.6.6"

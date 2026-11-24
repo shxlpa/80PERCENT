@@ -6,6 +6,7 @@ import { createHandler } from './everything.js';
 import { localStore } from './local-storage.js';
 import { privateBlobStore } from './storage.js';
 import { isPublicPath, contentType } from './public-files.js';
+import writing from '../api/writing.js';
 
 const root = await realpath('.');
 const store = process.env.BLOB_READ_WRITE_TOKEN ? privateBlobStore(process.env.BLOB_READ_WRITE_TOKEN) :
@@ -19,12 +20,13 @@ const server = createServer(async (incoming, outgoing) => {
       outgoing.writeHead(403).end();
       return;
     }
-    if (/^\/(everything|api\/everything)\/?$/.test(url.pathname)) {
+    const writingFeed = /^\/api\/writing\/?$/.test(url.pathname);
+    if (writingFeed || /^\/(everything|api\/everything)\/?$/.test(url.pathname)) {
       const request = new Request(url, {
         method: incoming.method, headers: incoming.headers,
         ...(!['GET', 'HEAD'].includes(incoming.method) && { body: incoming, duplex: 'half' })
       });
-      const result = await handle(request, incoming.socket.remoteAddress);
+      const result = writingFeed ? await writing.fetch(request) : await handle(request, incoming.socket.remoteAddress);
       outgoing.writeHead(result.status, Object.fromEntries(result.headers));
       outgoing.end(Buffer.from(await result.arrayBuffer()));
       return;
