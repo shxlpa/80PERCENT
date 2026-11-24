@@ -2,7 +2,7 @@ import { extname } from 'node:path';
 
 // These are the only source directories copied to the static deployment.
 export const publicEntries = [
-  'index.html', 'styles.css', 'assets', 'design', 'inspiration', 'music',
+  'index.html', 'styles.css', 'assets', 'design',
   'old', 'photography', 'resume', 'technical-work', 'writing', 'everything-assets'
 ];
 
