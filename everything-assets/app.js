@@ -2,18 +2,24 @@ const byId = id => document.getElementById(id);
 const endpoint = action => '/api/everything?action=' + action;
 
 async function request(action, options = {}) {
-  const response = await fetch(endpoint(action), {cache: 'no-store', credentials: 'same-origin', ...options});
-  const result = await response.json().catch(() => ({}));
+  const signal = action === 'board' ? AbortSignal.timeout?.(30_000) : undefined;
+  const response = await fetch(endpoint(action), {cache: 'no-store', credentials: 'same-origin', signal, ...options});
+  const result = await response.json().catch(() => null);
   if (!response.ok) {
-    const error = new Error(result.error || 'The workspace could not be reached.');
+    const error = new Error(result?.error || 'The workspace could not be reached.');
     error.status = response.status;
     throw error;
   }
+  if (!result) throw new Error('The server response could not be confirmed.');
   return result;
 }
 
-function jsonRequest(action, method, body) {
-  return request(action, {method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+function jsonRequest(action, method, value) {
+  const body = JSON.stringify(value);
+  // A small save already in flight can then finish even if the page closes.
+  // The fetch keepalive budget applies to encoded bytes across pending requests.
+  const keepalive = action === 'board' && body.length <= 65_536 && new Blob([body]).size <= 65_536;
+  return request(action, {method, headers: {'Content-Type': 'application/json'}, body, keepalive});
 }
 
 function bindLogin(form, input, submit, errorBox, success) {
@@ -58,8 +64,11 @@ async function startEditor() {
   let leaving = false;
   let pendingUpload = false;
   let saveTimer;
+  let firstEditAt;
+  let retryTimer;
   let noticeTimer;
   let running;
+  let writing = false;
   let uncertainWrite;
   let lastState;
   const status = byId('save-status');
@@ -124,19 +133,33 @@ async function startEditor() {
     },
     onChange(items) {
       current = items;
-      showStatus('Saving…', 'saving');
-      schedule(250);
+      if (!retryTimer) {
+        showStatus('Saving…', 'saving');
+        scheduleEdit();
+      }
     }
   });
   bindShell(canvas);
   if (lastState) renderShell(lastState);
   if (current.length) canvas.zoomToFit();
-  showStatus('Saved', 'saved');
+  showStatus('Autosaved', 'saved');
 
   const dirty = () => Boolean(uncertainWrite) || !sameScene(current, base.items);
-  function schedule(delay, checkRemote = false) {
+  const hasPendingChanges = () => writing || pendingUpload || dirty();
+  function scheduleEdit() {
+    const now = performance.now();
+    firstEditAt ??= now;
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => { sync(checkRemote).catch(() => {}); }, delay);
+    // Debounce a burst of typing, with a deadline for uninterrupted typing.
+    const delay = Math.min(250, Math.max(0, firstEditAt + 1500 - now));
+    saveTimer = setTimeout(() => sync().catch(() => {}), delay);
+  }
+
+  function retry(delay, checkRemote = false) {
+    clearTimeout(saveTimer);
+    firstEditAt = undefined;
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(() => sync(checkRemote).catch(() => {}), delay);
   }
 
   async function synchronize(checkRemote) {
@@ -159,8 +182,10 @@ async function startEditor() {
     while (dirty()) {
       const sent = current;
       showStatus('Saving…', 'saving');
+      writing = true;
       try {
         const saved = await authenticated(() => jsonRequest('board', 'PUT', {revision: base.revision, items: sent}));
+        if (saved.revision !== base.revision + 1) throw new Error('The save could not be confirmed.');
         base = {revision: saved.revision, items: sent};
       } catch (error) {
         if (error.status !== 409) {
@@ -168,24 +193,30 @@ async function startEditor() {
           throw error;
         }
         const remote = await authenticated(() => request('board'));
-        if (!canvas.canReplaceItems()) { schedule(500); return; }
+        if (!canvas.canReplaceItems()) { retry(750); return; }
         const merged = reconcile(base.items, current, remote.items);
         base = remote;
         current = merged.items;
         canvas.setItems(current);
         if (merged.copies) notify('This layer changed on two devices. Both versions are on your canvas.');
+      } finally {
+        writing = false;
       }
     }
-    showStatus('Saved', 'saved');
+    showStatus('Autosaved', 'saved');
   }
 
   function sync(checkRemote = false) {
+    clearTimeout(saveTimer);
+    firstEditAt = undefined;
     if (running) return running;
+    clearTimeout(retryTimer);
+    retryTimer = undefined;
     running = synchronize(checkRemote).catch(error => {
       const unsaved = dirty();
       showStatus(unsaved ? 'Unsaved' : 'Sync paused', 'error');
       // Apply backoff for connectivity and service failures. Invalid input needs an edit.
-      if (!error.status || error.status >= 500 || error.status === 429) schedule(5000, true);
+      if (!error.status || error.status >= 500 || error.status === 429) retry(5000, true);
       notify(unsaved ? 'Changes are still in this tab. ' + error.message : error.message);
       throw error;
     }).finally(() => { running = null; });
@@ -221,7 +252,7 @@ async function startEditor() {
   authChannel?.addEventListener('message', event => {
     if (event.data !== 'locked') return;
     canvas.finishEditing();
-    if (dirty() || pendingUpload) unlock().then(() => sync()).catch(() => {});
+    if (hasPendingChanges()) unlock().then(() => sync()).catch(() => {});
     else location.replace('/everything/');
   });
   byId('logout').addEventListener('click', () => leave(true));
@@ -232,15 +263,24 @@ async function startEditor() {
       leave(false);
     });
   }
-  addEventListener('beforeunload', event => {
+  function flush() {
     canvas.finishEditing();
-    if (dirty() || pendingUpload) { event.preventDefault(); event.returnValue = ''; }
+    if (dirty()) sync().catch(() => {});
+  }
+  addEventListener('beforeunload', event => {
+    flush();
+    if (hasPendingChanges()) { event.preventDefault(); event.returnValue = ''; }
   });
+  addEventListener('pagehide', flush);
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { canvas.finishEditing(); sync().catch(() => {}); }
+    if (document.hidden) flush();
     else if (canvas.canReplaceItems()) sync(true).catch(() => {});
   });
   addEventListener('online', () => sync(true).catch(() => {}));
   addEventListener('focus', () => { if (canvas.canReplaceItems()) sync(true).catch(() => {}); });
-  addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
+  addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    if (hasPendingChanges()) sync(true).catch(() => {});
+    else location.reload();
+  });
 }

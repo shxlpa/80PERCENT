@@ -1,4 +1,5 @@
 import { FONT_FAMILIES } from './fonts.js';
+import { IMAGE_FILE_ACCEPT } from './images.js';
 
 const el = id => document.getElementById(id);
 const shapeNames = {rectangle: 'Rectangle', ellipse: 'Ellipse', triangle: 'Triangle'};
@@ -151,6 +152,7 @@ export function bindShell(canvas) {
       el('viewport').focus({preventScroll:true});
     });
   }
+  el('image-picker').accept = IMAGE_FILE_ACCEPT;
   el('tool-image').addEventListener('click', () => el('image-picker').click());
   el('image-picker').addEventListener('change', event => {
     const files = Array.from(event.target.files);

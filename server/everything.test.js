@@ -77,6 +77,27 @@ test('two devices share private image bytes and one saved board, including follo
   } finally { disk.close(); }
 });
 
+test('a HEIC photo must reach private storage as browser-readable image bytes', async t => {
+  const { handle, request, login } = fixture(t);
+  const cookie = (await login()).split(';')[0];
+  const original = readFileSync('assets/design_media/IMG_4525.HEIC');
+  const jpeg = readFileSync('assets/design_media/web/redwooddesk/IMG_4525.jpg');
+  async function upload(bytes) {
+    const uploadRequest = request('image', { method: 'POST', cookie, bytes });
+    uploadRequest.headers.set('content-type', 'image/jpeg');
+    return handle(uploadRequest);
+  }
+  assert.equal((await upload(original)).status, 415);
+  const uploaded = await upload(jpeg);
+  assert.equal(uploaded.status, 201);
+  const { id } = await uploaded.json();
+  assert.match(id, /\.jpg$/);
+  assert.equal((await handle(request('image&id=' + id))).status, 401);
+  const result = await handle(request('image&id=' + id, { cookie }));
+  assert.equal(result.headers.get('content-type'), 'image/jpeg');
+  assert.deepEqual(Buffer.from(await result.arrayBuffer()), jpeg);
+});
+
 test('competing edits cannot overwrite the same revision, including the first write', async t => {
   const { call, login } = fixture(t);
   const cookie = (await login()).split(';')[0];

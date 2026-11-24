@@ -11,6 +11,13 @@ const clamp = (value, low, high) => Math.min(high, Math.max(low, value))
 const editable = target => target instanceof Element &&
   !!target.closest('input,textarea,select,[contenteditable="true"],[contenteditable="plaintext-only"]')
 
+function transferFiles(transfer) {
+  const files = Array.from(transfer?.files || [])
+  if (files.length) return files
+  return Array.from(transfer?.items || []).filter(item => item.kind === 'file')
+    .map(item => item.getAsFile()).filter(Boolean)
+}
+
 function box(element, item) {
   element.style.left = item.x + 'px'
   element.style.top = item.y + 'px'
@@ -141,7 +148,10 @@ export function createCanvas({
     drawSelection()
   }
 
-  function camera() {
+  // Keep the last usable transform when a browser supplies incomplete gesture data.
+  function applyView(x, y, zoom) {
+    if (![x, y, zoom].every(Number.isFinite) || zoom < MIN_ZOOM || zoom > MAX_ZOOM) return
+    view = {x, y, zoom}
     world.style.transform = 'translate(' + view.x + 'px,' + view.y + 'px) scale(' + view.zoom + ')'
     world.style.setProperty('--ec-line', 1 / view.zoom + 'px')
     world.style.setProperty('--ec-handle', 8 / view.zoom + 'px')
@@ -216,7 +226,8 @@ export function createCanvas({
     notify()
   }
 
-  function local(event) {
+  function local(event, fallback = null) {
+    if (!Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return fallback
     const rect = viewport.getBoundingClientRect()
     return {x: event.clientX - rect.left, y: event.clientY - rect.top}
   }
@@ -224,16 +235,15 @@ export function createCanvas({
   const center = () => ({x: viewport.clientWidth / 2, y: viewport.clientHeight / 2})
 
   function zoomAt(zoom, point, anchor = at(point)) {
+    if (!Number.isFinite(zoom) || zoom <= 0) return
     zoom = clamp(zoom, MIN_ZOOM, MAX_ZOOM)
-    view = {zoom, x: point.x - anchor.x * zoom, y: point.y - anchor.y * zoom}
-    camera()
+    applyView(point.x - anchor.x * zoom, point.y - anchor.y * zoom, zoom)
     notify()
   }
 
   function zoomToFit() {
     if (!items.length) {
-      view = {x: 0, y: 0, zoom: 1}
-      camera()
+      applyView(0, 0, 1)
       notify()
       return
     }
@@ -446,8 +456,9 @@ export function createCanvas({
     if (event.target.closest('.ec-edit') || event.button > 1) return
     // Native controls can also live inside the viewport (e.g. an empty-state button).
     if (event.target.closest('button,a,input,select,textarea,dialog')) return
-    finishEditing()
     const point = local(event)
+    if (!point) return
+    finishEditing()
     pointers.set(event.pointerId, point)
     viewport.setPointerCapture(event.pointerId)
     viewport.focus({preventScroll: true})
@@ -498,8 +509,7 @@ export function createCanvas({
     const g = gesture
     const dx = point.x - g.start.x, dy = point.y - g.start.y
     if (g.kind === 'pan') {
-      view = {...g.view, x: g.view.x + dx, y: g.view.y + dy}
-      camera()
+      applyView(g.view.x + dx, g.view.y + dy, g.view.zoom)
     } else if (g.kind === 'draw') {
       g.preview = drawDraft(g, point, shift)
       const node = drawNode(g.preview)
@@ -520,6 +530,7 @@ export function createCanvas({
 
   viewport.addEventListener('pointermove', event => {
     const point = local(event)
+    if (!point) return
     rememberedPoint = point
     if (!pointers.has(event.pointerId) || !gesture) return
     pointers.set(event.pointerId, point)
@@ -533,6 +544,7 @@ export function createCanvas({
   viewport.addEventListener('pointerleave', () => { rememberedPoint = null })
 
   function endPointer(event, cancelled) {
+    const lastPoint = pointers.get(event.pointerId)
     if (!pointers.delete(event.pointerId) || !gesture) return
     const g = gesture
     if (g.kind === 'pinch') {
@@ -544,7 +556,7 @@ export function createCanvas({
       return
     }
     if (cancelled) { clearGesture(); return }
-    const point = local(event)
+    const point = local(event, lastPoint)
     if (g.kind === 'draw') {
       const item = drawDraft(g, point, event.shiftKey)
       clearGesture()
@@ -572,15 +584,15 @@ export function createCanvas({
   viewport.addEventListener('wheel', event => {
     if (event.target.closest('textarea') && !event.ctrlKey && !event.metaKey) return
     event.preventDefault()
-    if (gesture || trackpadPinch) return
+    if (gesture || trackpadPinch?.active) return
+    if (!Number.isFinite(event.deltaX) || !Number.isFinite(event.deltaY)) return
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientHeight : 1
     if (event.ctrlKey || event.metaKey) {
-      zoomAt(view.zoom * Math.exp(-event.deltaY * unit * .012), local(event))
+      zoomAt(view.zoom * Math.exp(clamp(-event.deltaY * unit * .012, -10, 10)), local(event, center()))
     } else {
       let dx = event.deltaX * unit, dy = event.deltaY * unit
       if (event.shiftKey && dx === 0) { dx = dy; dy = 0 }
-      view = {...view, x: view.x - dx, y: view.y - dy}
-      camera()
+      applyView(view.x - dx, view.y - dy, view.zoom)
     }
   }, {passive: false})
 
@@ -589,20 +601,24 @@ export function createCanvas({
   viewport.addEventListener('gesturestart', event => {
     event.preventDefault()
     if (!gesture) {
-      const point = Number.isFinite(event.clientX) ? local(event) : center()
-      trackpadPinch = {zoom: view.zoom, anchor: at(point), point}
+      const point = local(event, center())
+      trackpadPinch = {zoom: view.zoom, anchor: at(point), point, active: false}
     }
   })
   viewport.addEventListener('gesturechange', event => {
     event.preventDefault()
     if (!trackpadPinch || pointers.size > 1) return
-    const point = Number.isFinite(event.clientX) ? local(event) : trackpadPinch.point
+    if (!Number.isFinite(event.scale) || event.scale <= 0) return
+    trackpadPinch.active = true
+    const point = local(event, trackpadPinch.point)
     zoomAt(trackpadPinch.zoom * event.scale, point, trackpadPinch.anchor)
   })
   viewport.addEventListener('gestureend', event => { event.preventDefault(); trackpadPinch = null })
 
   viewport.addEventListener('dragover', event => {
-    if (!event.dataTransfer.types.includes('Files')) return
+    const transfer = event.dataTransfer
+    // A drag can expose the file kind before the browser exposes its name or MIME type.
+    if (!transfer || (!transfer.types.includes('Files') && !Array.from(transfer.items).some(item => item.kind === 'file'))) return
     event.preventDefault()
     event.dataTransfer.dropEffect = 'copy'
     viewport.dataset.dragging = 'true'
@@ -612,9 +628,10 @@ export function createCanvas({
   })
   viewport.addEventListener('drop', event => {
     delete viewport.dataset.dragging
-    if (!event.dataTransfer.types.includes('Files')) return
+    const files = transferFiles(event.dataTransfer)
+    if (!files.length) return
     event.preventDefault()
-    addFiles(event.dataTransfer.files, at(local(event)))
+    addFiles(files, at(local(event, center())))
   })
 
   function modalOpen() { return !!document.querySelector('dialog[open],[aria-modal="true"]:not([hidden])') }
@@ -628,11 +645,7 @@ export function createCanvas({
   }
   document.addEventListener('paste', event => {
     if (editable(event.target) || modalOpen() || !event.clipboardData) return
-    let files = Array.from(event.clipboardData.files)
-    if (!files.length) {
-      files = Array.from(event.clipboardData.items).filter(item => item.kind === 'file')
-        .map(item => item.getAsFile()).filter(Boolean)
-    }
+    const files = transferFiles(event.clipboardData)
     const text = event.clipboardData.getData('text/plain')
     if (!files.length && !text) return
     event.preventDefault()
@@ -713,7 +726,7 @@ export function createCanvas({
   })
 
   render()
-  camera()
+  applyView(0, 0, 1)
   notify()
   return {
     setItems, setTool, select, updateSelected, arrange, remove, zoomToFit, addFiles, startTextEdit,
