@@ -1,15 +1,28 @@
 const byId = id => document.getElementById(id);
 const endpoint = action => '/api/everything?action=' + action;
 
-async function request(action, options = {}) {
+// Only this document holds the session. A new navigation starts at the password form.
+let sessionToken;
+let pageExited = false;
+let flushBeforeExit;
+
+async function fetchAction(action, options = {}, token = sessionToken) {
+  const headers = new Headers(options.headers);
+  if (token && action !== 'login') headers.set('Authorization', 'Bearer ' + token);
   const signal = action === 'board' ? AbortSignal.timeout?.(30_000) : undefined;
-  const response = await fetch(endpoint(action), {cache: 'no-store', credentials: 'same-origin', signal, ...options});
-  const result = await response.json().catch(() => null);
+  const response = await fetch(endpoint(action), {cache: 'no-store', signal, ...options, headers});
   if (!response.ok) {
+    const result = await response.json().catch(() => null);
     const error = new Error(result?.error || 'The workspace could not be reached.');
     error.status = response.status;
     throw error;
   }
+  return response;
+}
+
+async function request(action, options = {}) {
+  const response = await fetchAction(action, options);
+  const result = await response.json().catch(() => null);
   if (!result || (action === 'board' && !options.method &&
       (!Number.isSafeInteger(result.revision) || !Array.isArray(result.items)))) {
     throw new Error('The server response could not be confirmed.');
@@ -32,9 +45,12 @@ function bindLogin(form, input, submit, errorBox, success) {
     submit.disabled = true;
     errorBox.hidden = true;
     try {
-      await jsonRequest('login', 'POST', {password: input.value});
+      const {token} = await jsonRequest('login', 'POST', {password: input.value});
+      if (!token) throw new Error('The login could not be confirmed.');
+      sessionToken = token;
+      if (pageExited) { discardSession(); return; }
       input.value = '';
-      success();
+      await success();
     } catch (error) {
       errorBox.textContent = error.status === 401 ? 'That password didn’t work. Try again.' : error.message;
       errorBox.hidden = false;
@@ -45,9 +61,35 @@ function bindLogin(form, input, submit, errorBox, success) {
   });
 }
 
-if (document.body.dataset.page === 'login') {
-  bindLogin(byId('login-form'), byId('password'), byId('unlock'), byId('login-error'), () => location.replace('/everything/'));
-} else {
+function discardSession(finalSave) {
+  const token = sessionToken;
+  sessionToken = undefined;
+  if (!token) return;
+  // Revocation is best effort on tab close. Dropping the in-memory token locks
+  // the next visit even when the browser cannot deliver this last request.
+  const revoke = () => fetchAction('logout', {method: 'POST', keepalive: true}, token).catch(() => {});
+  if (finalSave) finalSave.then(revoke, revoke);
+  else revoke();
+}
+
+addEventListener('pagehide', () => {
+  pageExited = true;
+  document.documentElement.style.visibility = 'hidden';
+  discardSession(flushBeforeExit?.());
+});
+addEventListener('pageshow', event => {
+  // A restored history entry can retain its DOM as well as its JavaScript heap.
+  if (event.persisted) location.reload();
+});
+
+bindLogin(byId('login-form'), byId('password'), byId('unlock'), byId('login-error'), async () => {
+  const response = await fetchAction('page');
+  const editor = new DOMParser().parseFromString(await response.text(), 'text/html');
+  if (pageExited) return;
+  if (editor.body.dataset.page !== 'editor') throw new Error('Please unlock the workspace again.');
+  document.title = editor.title;
+  document.querySelector('meta[name="theme-color"]').content = editor.querySelector('meta[name="theme-color"]').content;
+  document.body.replaceWith(editor.body);
   startEditor().catch(error => {
     byId('save-status').textContent = 'Couldn’t open';
     const notice = byId('notice');
@@ -57,7 +99,7 @@ if (document.body.dataset.page === 'login') {
     notice.replaceChildren(error.message + ' ', retry);
     notice.hidden = false;
   });
-}
+});
 
 async function startEditor() {
   const [{createCanvas}, {bindShell, renderShell}, {sameScene, reconcile}] = await Promise.all([
@@ -111,7 +153,7 @@ async function startEditor() {
   async function authenticated(operation) {
     try { return await operation(); }
     catch (error) {
-      if (error.status !== 401) throw error;
+      if (pageExited || error.status !== 401) throw error;
       await unlock();
       return operation();
     }
@@ -121,7 +163,10 @@ async function startEditor() {
   let current = base.items;
   const canvas = createCanvas({
     viewport: byId('viewport'), world: byId('world'), items: current,
-    imageUrl: id => endpoint('image') + '&id=' + encodeURIComponent(id),
+    loadImage: id => authenticated(async () => {
+      const response = await fetchAction('image&id=' + encodeURIComponent(id));
+      return response.blob();
+    }),
     uploadImage: async file => {
       const image = await authenticated(() => request('image', {
         method: 'POST', headers: {'Content-Type': file.type || 'application/octet-stream'}, body: file
@@ -242,6 +287,7 @@ async function startEditor() {
       if (logout) {
         try { await jsonRequest('logout', 'POST', {}); }
         catch (error) { if (error.status !== 401) throw error; }
+        sessionToken = undefined;
         authChannel?.postMessage('locked');
         location.replace('/everything/');
       } else location.assign('/');
@@ -255,7 +301,8 @@ async function startEditor() {
 
   const authChannel = 'BroadcastChannel' in window ? new BroadcastChannel('everything-session') : null;
   authChannel?.addEventListener('message', event => {
-    if (event.data !== 'locked') return;
+    if (event.data !== 'locked' || pageExited) return;
+    discardSession();
     canvas.finishEditing();
     if (hasPendingChanges()) unlock().then(() => sync()).catch(() => {});
     else location.replace('/everything/');
@@ -270,22 +317,17 @@ async function startEditor() {
   }
   function flush() {
     canvas.finishEditing();
-    if (dirty()) sync().catch(() => {});
+    if (dirty() || running) return sync().catch(() => {});
   }
+  flushBeforeExit = flush;
   addEventListener('beforeunload', event => {
     flush();
     if (hasPendingChanges()) { event.preventDefault(); event.returnValue = ''; }
   });
-  addEventListener('pagehide', flush);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) flush();
     else if (canvas.canReplaceItems()) sync(true).catch(() => {});
   });
   addEventListener('online', () => sync(true).catch(() => {}));
   addEventListener('focus', () => { if (canvas.canReplaceItems()) sync(true).catch(() => {}); });
-  addEventListener('pageshow', event => {
-    if (!event.persisted) return;
-    if (hasPendingChanges()) sync(true).catch(() => {});
-    else location.reload();
-  });
 }

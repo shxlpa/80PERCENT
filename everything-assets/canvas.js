@@ -48,7 +48,7 @@ function resizeBox(original, handle, dx, dy, shift) {
 // immutable, so pointer previews and undo history can share unmodified layers.
 export function createCanvas({
   viewport, world, items: initialItems = [], onChange = () => {}, onState = () => {},
-  uploadImage, imageUrl, onError = () => {},
+  uploadImage, loadImage, onError = () => {},
 }) {
   let items = initialItems.map(item => ({...item}))
   let selectedId = null
@@ -69,6 +69,7 @@ export function createCanvas({
   let lastPlacement = null
   const past = [], future = []
   const nodes = new Map()
+  const images = new Map()
   const pointers = new Map()
   const selection = document.createElement('div')
   selection.className = 'ec-selection'
@@ -99,16 +100,74 @@ export function createCanvas({
     element.style.transform = layout.scale === 1 ? '' : 'scale(' + layout.scale + ')'
   }
 
+  // Copied layers share one private fetch and one object URL for as long as they display the image.
+  async function fetchImage(id, entry) {
+    entry.failed = false
+    try {
+      const blob = await loadImage(id)
+      if (images.get(id) !== entry) return
+      entry.url = URL.createObjectURL(blob)
+      for (const element of entry.elements) element.src = entry.url
+    } catch (error) {
+      if (images.get(id) !== entry) return
+      entry.failed = true
+      onError(error.message || 'The image could not be loaded.')
+    }
+  }
+
+  function releaseImage(element) {
+    const id = element.dataset.imageId
+    const entry = images.get(id)
+    if (!entry) return
+    element.removeAttribute('src')
+    delete element.dataset.imageId
+    entry.elements.delete(element)
+    if (!entry.elements.size) {
+      if (entry.url) URL.revokeObjectURL(entry.url)
+      images.delete(id)
+    }
+  }
+
+  function showImage(element, id) {
+    if (element.dataset.imageId === id) return
+    releaseImage(element)
+    element.dataset.imageId = id
+    let entry = images.get(id)
+    if (!entry) {
+      entry = {elements: new Set(), url: null, failed: false}
+      images.set(id, entry)
+      fetchImage(id, entry)
+    }
+    entry.elements.add(element)
+    if (entry.url) element.src = entry.url
+  }
+
+  function retryImages() {
+    for (const [id, entry] of images) if (entry.failed) fetchImage(id, entry)
+  }
+  window.addEventListener('online', retryImages)
+  window.addEventListener('focus', retryImages)
+  window.addEventListener('pagehide', () => {
+    for (const node of nodes.values()) releaseImage(node.firstElementChild)
+  })
+
   function drawNode(item) {
     let node = nodes.get(item.id)
     if (!node || node.dataset.type !== item.type) {
-      node?.remove()
+      if (node) {
+        releaseImage(node.firstElementChild)
+        node.remove()
+      }
       node = document.createElement('div')
       node.className = 'ec-node'
       node.dataset.id = item.id
       node.dataset.type = item.type
       const content = document.createElement(item.type === 'image' ? 'img' : 'div')
       content.className = 'ec-content'
+      if (item.type === 'image') {
+        content.draggable = false
+        content.decoding = 'async'
+      }
       node.append(content)
       nodes.set(item.id, node)
     }
@@ -117,12 +176,7 @@ export function createCanvas({
     if (item.type === 'image') {
       // An exceptionally large resized image must still fit the browser's CSS layout range.
       content.style.setProperty('--ec-image-limit', CSS_COORDINATE_RANGE / Math.max(item.width, item.height))
-      if (content.dataset.imageId !== item.imageId) {
-        content.dataset.imageId = item.imageId
-        content.src = imageUrl(item.imageId)
-        content.draggable = false
-        content.decoding = 'async'
-      }
+      showImage(content, item.imageId)
       content.alt = item.name || 'Image'
     } else if (item.type === 'shape') {
       content.style.backgroundColor = item.color
@@ -151,6 +205,7 @@ export function createCanvas({
     const ids = new Set(items.map(item => item.id))
     for (const [id, node] of nodes) {
       if (!ids.has(id)) {
+        releaseImage(node.firstElementChild)
         node.remove()
         nodes.delete(id)
       }

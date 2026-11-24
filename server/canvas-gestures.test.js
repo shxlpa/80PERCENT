@@ -18,6 +18,7 @@ class Surface extends EventTarget {
   getBoundingClientRect() { return {left: 0, top: 0} }
   hasAttribute() { return false }
   setAttribute() {}
+  removeAttribute(name) { delete this[name] }
   captures = new Set()
   setPointerCapture(id) { this.captures.add(id) }
   hasPointerCapture(id) { return this.captures.has(id) }
@@ -37,7 +38,7 @@ class Surface extends EventTarget {
   }
 }
 
-function board(t) {
+function board(t, options = {}) {
   globalThis.document = Object.assign(new EventTarget(), {createElement: () => new Surface()})
   globalThis.window = new EventTarget()
   t.after(() => { delete globalThis.document; delete globalThis.window })
@@ -46,7 +47,7 @@ function board(t) {
   const shape = {id: 'a', type: 'shape', shape: 'rectangle', color: '#ffffff', x: 10, y: 20, width: 50, height: 60}
   let state, changes = 0
   const canvas = createCanvas({viewport, world, items: [shape], onState: next => { state = next },
-    onChange: () => { changes++ }})
+    onChange: () => { changes++ }, ...options})
   const shapeNode = world.children.find(node => node.dataset.id === shape.id)
   function emit(type, properties = {}, target = viewport) {
     const {timeStamp, ...fields} = properties
@@ -78,7 +79,7 @@ function board(t) {
       width: zoom * localScale * parseFloat(style.width), height: zoom * localScale * parseFloat(style.height),
     }
   }
-  return {canvas, camera, emit, shapeNode, viewport, screenBox, zoom: () => state.zoom, changes: () => changes}
+  return {canvas, camera, emit, shapeNode, viewport, world, screenBox, zoom: () => state.zoom, changes: () => changes}
 }
 
 test('a malformed Safari pinch cannot poison later pinch, wheel, or fit zooms', t => {
@@ -324,4 +325,50 @@ test('clipboard layers retain known fields and validate private image references
   assert.equal(parseLayer(JSON.stringify({...image, imageId: 'https://example.com/image.png'})), null)
   assert.equal(parseLayer(JSON.stringify({...image, width: -3})), null)
   assert.equal(parseLayer('ordinary text'), null)
+})
+
+test('private images share one fetch, ignore replaced loads and release their object URLs', async t => {
+  const requests = []
+  const errors = []
+  const {canvas, world} = board(t, {
+    loadImage(id) {
+      const request = Promise.withResolvers()
+      requests.push({id, ...request})
+      return request.promise
+    },
+    onError: error => errors.push(error),
+  })
+  const revoke = t.mock.method(URL, 'revokeObjectURL')
+  const image = {id: 'layer', type: 'image', imageId: 'first.png', name: 'one', x: 0, y: 0, width: 10, height: 10}
+  const copy = {...image, id: 'copy'}
+  const blob = new Blob(['image data'], {type: 'image/png'})
+  const element = id => world.children.find(node => node.dataset.id === id).firstElementChild
+  canvas.setItems([image, copy])
+  assert.deepEqual(requests.map(r => r.id), ['first.png'])
+  requests[0].resolve(blob)
+  await requests[0].promise
+  const firstUrl = element('layer').src
+  assert.match(firstUrl, /^blob:/)
+  assert.equal(element('copy').src, firstUrl)
+  const changed = {...image, imageId: 'second.png'}
+  canvas.setItems([changed, copy])
+  assert.equal(element('layer').src, undefined)
+  assert.equal(revoke.mock.callCount(), 0)
+  canvas.setItems([{...changed, imageId: 'third.png'}])
+  assert.equal(revoke.mock.calls[0].arguments[0], firstUrl)
+  requests[1].resolve(blob)
+  await requests[1].promise
+  assert.equal(element('layer').src, undefined)
+  requests[2].reject(new Error('offline'))
+  await assert.rejects(requests[2].promise)
+  assert.deepEqual(errors, ['offline'])
+  window.dispatchEvent(new Event('online'))
+  assert.deepEqual(requests.map(r => r.id), ['first.png', 'second.png', 'third.png', 'third.png'])
+  requests[3].resolve(blob)
+  await requests[3].promise
+  const lastUrl = element('layer').src
+  assert.match(lastUrl, /^blob:/)
+  window.dispatchEvent(new Event('pagehide'))
+  assert.equal(revoke.mock.calls[1].arguments[0], lastUrl)
+  assert.equal(element('layer').src, undefined)
 })

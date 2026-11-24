@@ -11,7 +11,7 @@ const privateHeaders = {
   'cache-control': 'private, no-store, max-age=0',
   'cdn-cache-control': 'no-store',
   'vercel-cdn-cache-control': 'no-store',
-  'vary': 'Cookie',
+  'vary': 'Authorization',
   'referrer-policy': 'no-referrer',
   'x-content-type-options': 'nosniff',
   'x-frame-options': 'DENY',
@@ -53,6 +53,7 @@ async function jsonBody(request, max) {
 
 const digest = value => createHash('sha256').update(value).digest();
 const privateKey = (password, label, value) => createHmac('sha256', password).update(label + ':' + value).digest('hex');
+const bearerSessionKey = (password, token) => 'bearer-sessions/' + privateKey(password, 'bearer', token);
 
 async function reserveLogin(store, key) {
   for (let attempt = 0; attempt < 8; attempt++) {
@@ -70,12 +71,7 @@ function requireMethod(request, ...methods) {
   if (!methods.includes(request.method)) throw new HttpError(405, 'Method not allowed.');
 }
 
-export function createHandler({ store, password, local = false }) {
-  const cookieName = local ? 'everything_dev' : '__Host-everything';
-  function cookie(value, maxAge) {
-    return cookieName + '=' + value + '; Path=/; SameSite=Strict; HttpOnly; Max-Age=' + maxAge + (local ? '' : '; Secure');
-  }
-
+export function createHandler({ store, password }) {
   return async function handle(request, clientAddress = 'local') {
     try {
       const url = new URL(request.url);
@@ -96,16 +92,16 @@ export function createHandler({ store, password, local = false }) {
           throw new HttpError(401, 'Incorrect password.');
         }
         const token = randomBytes(32).toString('base64url');
-        const sessionKey = 'sessions/' + privateKey(password, 'session', token);
+        const sessionKey = bearerSessionKey(password, token);
         const expires = Date.now() + sessionSeconds * 1000;
         if (!await store.write(sessionKey, String(expires), null, 7)) throw new Error('Session creation failed');
         await store.remove(key);
-        return json({ ok: true }, 200, { 'set-cookie': cookie(token, sessionSeconds) });
+        return json({ token });
       }
 
-      const raw = request.headers.get('cookie') || '';
-      const token = raw.split(/;\s*/).find(pair => pair.startsWith(cookieName + '='))?.slice(cookieName.length + 1);
-      const sessionKey = password && /^[\w-]{43}$/.test(token || '') ? 'sessions/' + privateKey(password, 'session', token) : null;
+      const authorization = request.headers.get('authorization') || '';
+      const token = /^Bearer ([\w-]{43})$/i.exec(authorization)?.[1];
+      const sessionKey = password && token ? bearerSessionKey(password, token) : null;
       const session = store && sessionKey ? await store.read(sessionKey) : null;
       const authenticated = Boolean(session && Number(session.data.toString()) > Date.now());
 
@@ -123,7 +119,7 @@ export function createHandler({ store, password, local = false }) {
       if (action === 'logout') {
         requireMethod(request, 'POST');
         await store.remove(sessionKey);
-        return json({ ok: true }, 200, { 'set-cookie': cookie('', 0) });
+        return json({ ok: true });
       }
 
       if (action === 'board') {

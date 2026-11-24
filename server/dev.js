@@ -11,7 +11,7 @@ import writing from '../api/writing.js';
 const root = await realpath('.');
 const store = process.env.BLOB_READ_WRITE_TOKEN ? privateBlobStore(process.env.BLOB_READ_WRITE_TOKEN) :
   localStore(process.env.EVERYTHING_DATA_DIR || '.everything-data');
-const handle = createHandler({ store, password: process.env.EVERYTHING_PASSWORD, local: true });
+const handle = createHandler({ store, password: process.env.EVERYTHING_PASSWORD });
 const server = createServer(async (incoming, outgoing) => {
   try {
     // Bind to loopback and reject unrelated hostnames (including DNS rebinding).
