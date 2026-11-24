@@ -83,7 +83,7 @@ export function renderShell(state) {
   el('action-undo').disabled = !state.canUndo;
   el('action-redo').disabled = !state.canRedo;
   el('tool-image').setAttribute('aria-busy', String(state.busy));
-  el('zoom-value').textContent = Math.round(zoom * 100) + '%';
+  el('zoom-value').textContent = zoom < 0.01 ? '<1%' : Math.round(zoom * 100) + '%';
   el('inspector').hidden = !selected;
   if (selected) {
     el('object-heading').textContent = selected.type === 'shape' ? itemName(selected) : selected.type === 'image' ? 'Image' : 'Text';

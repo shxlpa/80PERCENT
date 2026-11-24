@@ -170,7 +170,8 @@ button[aria-pressed="true"]:not(.unlock) { color: #fff; background: var(--active
 kbd { font: 10px var(--mono); color: var(--muted); }
 .zoom-control { position: absolute; right: var(--edge); bottom: max(21px, env(safe-area-inset-bottom)); z-index: 4; padding: 3px; }
 .zoom-control .icon-button { width: 31px; height: 31px; }
-.zoom-control .icon-button .icon { width: 16px; height: 16px; }
+.zoom-control .icon { width: 16px; height: 16px; }
+#zoom-fit { display: flex; align-items: center; gap: 5px; padding: 0 8px; min-height: 31px; border-radius: 5px; font-size: 12px; white-space: nowrap; }
 #zoom-value { min-width: 43px; height: 30px; font: 11px var(--mono); border-radius: 4px; }
 .help-area { position: absolute; left: var(--edge); bottom: max(21px, env(safe-area-inset-bottom)); z-index: 5; }
 #help-toggle { border: 1px solid #d4d1c8; border-radius: 50%; background: var(--surface); width: 34px; height: 34px; }

@@ -17,9 +17,16 @@ class Surface extends EventTarget {
   getBoundingClientRect() { return {left: 0, top: 0} }
   hasAttribute() { return false }
   setAttribute() {}
-  setPointerCapture() {}
+  captures = new Set()
+  setPointerCapture(id) { this.captures.add(id) }
+  hasPointerCapture(id) { return this.captures.has(id) }
+  releasePointerCapture(id) { this.captures.delete(id) }
   focus() {}
   closest(selector) { return selector === '.ec-node' && this.className === 'ec-node' ? this : null }
+  remove() {
+    if (this.parent) this.parent.children.splice(this.parent.children.indexOf(this), 1)
+    this.parent = null
+  }
   append(child) { this.insertBefore(child, null) }
   insertBefore(child, next) {
     if (child.parent) child.parent.children.splice(child.parent.children.indexOf(child), 1)
@@ -36,8 +43,9 @@ function board(t) {
   const viewport = new Surface()
   const world = new Surface()
   const shape = {id: 'a', type: 'shape', shape: 'rectangle', color: '#ffffff', x: 10, y: 20, width: 50, height: 60}
-  let state
-  const canvas = createCanvas({viewport, world, items: [shape], onState: next => { state = next }})
+  let state, changes = 0
+  const canvas = createCanvas({viewport, world, items: [shape], onState: next => { state = next },
+    onChange: () => { changes++ }})
   const shapeNode = world.children.find(node => node.dataset.id === shape.id)
   function emit(type, properties = {}, target = viewport) {
     const event = Object.assign(new Event(type, {cancelable: true}), properties)
@@ -45,16 +53,30 @@ function board(t) {
     Object.defineProperty(event, 'target', {value: target})
     viewport.dispatchEvent(event)
   }
-  function camera() {
+  function transform() {
     const match = world.style.transform.match(/^translate\(([^,]+)px,\s*([^)]+)px\) scale\(([^)]+)\)$/)
     assert.ok(match, world.style.transform)
     const [x, y, zoom] = match.slice(1).map(Number)
     assert.ok([x, y, zoom, state.zoom].every(Number.isFinite), 'Nonfinite camera: ' + world.style.transform)
     assert.ok(zoom > 0)
-    assert.equal(state.zoom, zoom)
     return {x, y, zoom}
   }
-  return {canvas, camera, emit, shapeNode}
+  function camera() {
+    const value = transform()
+    assert.equal(state.zoom, value.zoom)
+    return value
+  }
+  function screenBox(id) {
+    const {x, y, zoom} = transform()
+    const {style} = world.children.find(node => node.dataset.id === id)
+    const localScale = style.transform ? Number(style.transform.slice(6, -1)) : 1
+    return {
+      left: x + zoom * parseFloat(style.left), top: y + zoom * parseFloat(style.top),
+      width: zoom * localScale * parseFloat(style.width), height: zoom * localScale * parseFloat(style.height),
+    }
+  }
+  return {canvas, camera, emit, shapeNode, viewport, screenBox, zoom: () => state.zoom, changes: () => changes}
+
 }
 
 test('a malformed Safari pinch cannot poison later pinch, wheel, or fit zooms', t => {
@@ -120,4 +142,66 @@ test('lost pointer capture cancels the draft so the next pointer can move a laye
   emit('pointerup', {...start, pointerId: 7, clientX: 42, clientY: 65})
   const [item] = canvas.getItems()
   assert.deepEqual([item.x, item.y], [32, 60])
+})
+
+test('fit shows far-scattered layers in a narrow viewport without changing the scene', t => {
+  const {canvas, viewport, screenBox, zoom, changes} = board(t)
+  viewport.clientWidth = 280
+  viewport.clientHeight = 180
+  const shape = canvas.getItems()[0]
+  canvas.setItems([
+    {...shape, id: 'west', x: -1e9, y: 1e9, width: 1e7, height: 100},
+    {...shape, id: 'east', x: 1e9, y: -1e9, width: 500, height: 1e7},
+  ])
+  const saved = structuredClone(canvas.getItems())
+  canvas.zoomToFit()
+  const fit = zoom()
+  assert.ok(fit > 0 && fit < .02)
+  for (const item of saved) {
+    const box = screenBox(item.id)
+    assert.ok(box.left >= 0 && box.left + box.width <= viewport.clientWidth)
+    assert.ok(box.top >= 0 && box.top + box.height <= viewport.clientHeight)
+    assert.ok(Math.abs(box.width - item.width * fit) < 1e-6)
+  }
+  assert.ok(screenBox('east').left - screenBox('west').left > 110)
+  canvas.zoomBy(1.25)
+  assert.equal(zoom(), fit * 1.25)
+  canvas.zoomBy(.5)
+  assert.equal(zoom(), fit)
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(changes(), 0)
+})
+
+test('fit brings a small cluster at a remote coordinate back to readable size', t => {
+  const {canvas, viewport, screenBox, zoom} = board(t)
+  const shape = {...canvas.getItems()[0], x: 999999990, y: -999999990}
+  canvas.setItems([shape])
+  canvas.zoomToFit()
+  const box = screenBox(shape.id)
+  assert.equal(zoom(), 1.5)
+  assert.equal(box.left + box.width / 2, viewport.clientWidth / 2)
+  assert.equal(box.top + box.height / 2, viewport.clientHeight / 2)
+})
+
+test('fit clears interrupted pointer and trackpad gestures without committing the preview', t => {
+  const {canvas, camera, emit, viewport, shapeNode, changes} = board(t)
+  const saved = structuredClone(canvas.getItems())
+  const point = {button: 0, pointerId: 17, clientX: 30, clientY: 45}
+  emit('pointerdown', point, shapeNode)
+  emit('pointermove', {...point, clientX: 90})
+  assert.equal(canvas.canReplaceItems(), false)
+  canvas.zoomToFit()
+  const fit = camera()
+  assert.equal(canvas.canReplaceItems(), true)
+  assert.equal(viewport.hasPointerCapture(point.pointerId), false)
+  emit('pointerup', {...point, clientX: 180})
+  emit('gesturestart')
+  emit('gesturechange', {scale: 2})
+  canvas.zoomToFit()
+  emit('gesturechange', {scale: 4})
+  assert.deepEqual(camera(), fit)
+  emit('wheel', {deltaX: 20, deltaY: 30})
+  assert.deepEqual(camera(), {...fit, x: fit.x - 20, y: fit.y - 30})
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(changes(), 0)
 })

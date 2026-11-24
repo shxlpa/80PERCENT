@@ -10,7 +10,10 @@ async function request(action, options = {}) {
     error.status = response.status;
     throw error;
   }
-  if (!result) throw new Error('The server response could not be confirmed.');
+  if (!result || (action === 'board' && !options.method &&
+      (!Number.isSafeInteger(result.revision) || !Array.isArray(result.items)))) {
+    throw new Error('The server response could not be confirmed.');
+  }
   return result;
 }
 
@@ -74,7 +77,7 @@ async function startEditor() {
   const status = byId('save-status');
   const notice = byId('notice');
   function showStatus(label, state) {
-    status.textContent = label;
+    if (status.textContent !== label) status.textContent = label;
     status.dataset.state = state;
   }
 
@@ -173,10 +176,12 @@ async function startEditor() {
     if (checkRemote && !dirty()) {
       const remote = await authenticated(() => request('board'));
       // An edit may have started while this read was in flight.
-      if (remote.revision !== base.revision && !dirty() && canvas.canReplaceItems()) {
+      if (remote.revision > base.revision && !dirty() && canvas.canReplaceItems()) {
+        const wasEmpty = current.length === 0;
         base = remote;
         current = remote.items;
         canvas.setItems(current);
+        if (wasEmpty && current.length) canvas.zoomToFit();
       }
     }
     while (dirty()) {

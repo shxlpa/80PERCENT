@@ -3,6 +3,7 @@ import { prepareImage } from './images.js'
 
 const MIN_ZOOM = .02
 const MAX_ZOOM = 16
+const CSS_COORDINATE_RANGE = 8_000_000
 const MAX_TEXT = 200_000
 const MAX_ITEMS = 10_000
 const SHAPES = ['rectangle', 'ellipse', 'triangle']
@@ -16,13 +17,6 @@ function transferFiles(transfer) {
   if (files.length) return files
   return Array.from(transfer?.items || []).filter(item => item.kind === 'file')
     .map(item => item.getAsFile()).filter(Boolean)
-}
-
-function box(element, item) {
-  element.style.left = item.x + 'px'
-  element.style.top = item.y + 'px'
-  element.style.width = item.width + 'px'
-  element.style.height = item.height + 'px'
 }
 
 function newText(x, y, text = '') {
@@ -60,6 +54,8 @@ export function createCanvas({
   let trackpadPinch = null
   let uploadCount = 0
   let view = {x: 0, y: 0, zoom: 1}
+  let minZoom = MIN_ZOOM
+  let layout = {x: 0, y: 0, scale: 1}
   let rememberedPoint = null
   const past = [], future = []
   const nodes = new Map()
@@ -82,6 +78,15 @@ export function createCanvas({
   function notify() {
     onState({tool, selected: selected(), items, zoom: view.zoom, canUndo: !!past.length,
       canRedo: !!future.length, busy: uploadCount > 0})
+  }
+
+  function box(element, item) {
+    element.style.left = (item.x - layout.x) * layout.scale + 'px'
+    element.style.top = (item.y - layout.y) * layout.scale + 'px'
+    element.style.width = item.width + 'px'
+    element.style.height = item.height + 'px'
+    element.style.transformOrigin = '0 0'
+    element.style.transform = layout.scale === 1 ? '' : 'scale(' + layout.scale + ')'
   }
 
   function drawNode(item) {
@@ -150,9 +155,10 @@ export function createCanvas({
 
   // Keep the last usable transform when a browser supplies incomplete gesture data.
   function applyView(x, y, zoom) {
-    if (![x, y, zoom].every(Number.isFinite) || zoom < MIN_ZOOM || zoom > MAX_ZOOM) return
+    if (![x, y, zoom].every(Number.isFinite) || zoom < minZoom || zoom > MAX_ZOOM) return
     view = {x, y, zoom}
-    world.style.transform = 'translate(' + view.x + 'px,' + view.y + 'px) scale(' + view.zoom + ')'
+    const tx = x + layout.x * zoom, ty = y + layout.y * zoom
+    world.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + zoom / layout.scale + ')'
     world.style.setProperty('--ec-line', 1 / view.zoom + 'px')
     world.style.setProperty('--ec-handle', 8 / view.zoom + 'px')
     let gridSize = 22 * view.zoom
@@ -236,13 +242,22 @@ export function createCanvas({
 
   function zoomAt(zoom, point, anchor = at(point)) {
     if (!Number.isFinite(zoom) || zoom <= 0) return
-    zoom = clamp(zoom, MIN_ZOOM, MAX_ZOOM)
+    zoom = clamp(zoom, minZoom, MAX_ZOOM)
     applyView(point.x - anchor.x * zoom, point.y - anchor.y * zoom, zoom)
     notify()
   }
 
   function zoomToFit() {
+    // A late pointer-up or Safari gesturechange must not overwrite the recovered view.
+    trackpadPinch = null
+    for (const id of pointers.keys()) {
+      if (viewport.hasPointerCapture?.(id)) viewport.releasePointerCapture(id)
+    }
+    pointers.clear()
+    clearGesture()
     if (!items.length) {
+      minZoom = MIN_ZOOM
+      layout = {x: 0, y: 0, scale: 1}
       applyView(0, 0, 1)
       notify()
       return
@@ -254,9 +269,22 @@ export function createCanvas({
       top = Math.min(top, item.y)
       bottom = Math.max(bottom, item.y + item.height)
     }
-    const zoom = Math.min(1.5, viewport.clientWidth * .72 / Math.max(1, right - left),
-      viewport.clientHeight * .68 / Math.max(1, bottom - top))
-    zoomAt(zoom, center(), {x: (left + right) / 2, y: (top + bottom) / 2})
+    if (!viewport.clientWidth || !viewport.clientHeight) return
+    const width = Math.max(1, right - left), height = Math.max(1, bottom - top)
+    const middle = {x: (left + right) / 2, y: (top + bottom) / 2}
+    const zoom = Math.min(1.5, viewport.clientWidth * .72 / width, viewport.clientHeight * .68 / height)
+    minZoom = Math.min(MIN_ZOOM, zoom)
+    // Browsers clamp CSS layout coordinates well before the board's storage bounds.
+    // Keep extreme layouts near zero and let the camera restore their true scale.
+    const extreme = Math.max(Math.abs(left), Math.abs(right), Math.abs(top), Math.abs(bottom)) > CSS_COORDINATE_RANGE
+    const next = extreme
+      ? {...middle, scale: Math.min(1, CSS_COORDINATE_RANGE / Math.max(width, height))}
+      : {x: 0, y: 0, scale: 1}
+    if (next.x !== layout.x || next.y !== layout.y || next.scale !== layout.scale) {
+      layout = next
+      render()
+    }
+    zoomAt(zoom, center(), middle)
   }
 
   function finishEditing() {
@@ -665,6 +693,11 @@ export function createCanvas({
       select(null)
       return
     }
+    if (!cmd && !event.altKey && event.shiftKey && (key === '1' || key === '!')) {
+      event.preventDefault()
+      zoomToFit()
+      return
+    }
     if (gesture) return
     if (cmd && key === 'z') {
       event.preventDefault()
@@ -684,9 +717,6 @@ export function createCanvas({
     } else if (shortcuts[key]) {
       event.preventDefault()
       setTool(shortcuts[key])
-    } else if (event.shiftKey && (key === '1' || key === '!')) {
-      event.preventDefault()
-      zoomToFit()
     } else if (event.code === 'Space' && !event.target.closest('button,a')) {
       event.preventDefault()
       spaceDown = true
