@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#f6f3ec">
+  <title>everything · Shilpa Rao</title>
+  <link rel="icon" href="/assets/logo.png">
+  <link rel="stylesheet" href="/everything-assets/font-faces.css">
+  <link rel="stylesheet" href="/everything-assets/style.css">
+  <script type="module" src="/everything-assets/app.js"></script>
+</head>
+<body data-page="login">
+  <header class="gate-header">
+    <a class="gate-home" href="/"><img src="/assets/logo.png" alt="Shilpa Rao" width="32" height="32"><span>Home</span></a>
+    <span class="gate-privacy"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#lock"/></svg> Private workspace</span>
+  </header>
+  <main class="gate">
+    <section class="gate-entry" aria-labelledby="gate-title">
+      <div class="gate-copy">
+        <h1 id="gate-title">everything</h1>
+        <p>Enter your password to open the canvas.</p>
+        <form id="login-form" method="post" action="/api/everything?action=login">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required spellcheck="false" aria-describedby="login-error">
+          <button class="unlock" type="submit" id="unlock">Open canvas <svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#arrow-right"/></svg></button>
+          <p class="login-error" id="login-error" role="alert"></p>
+          <noscript><p>Enable JavaScript to use the canvas.</p></noscript>
+        </form>
+      </div>
+    </section>
+    <figure class="gate-art" aria-label="Two overlapping photographs by Shilpa Rao">
+      <div class="photo-composition">
+        <div class="paper-disc" aria-hidden="true"></div>
+        <div class="photo-landscape"><img src="/assets/DSCF8337.jpg" alt="A red dusk sky over dark mountain peaks" width="2048" height="1152"></div>
+        <div class="photo-portrait">
+          <img src="/assets/DSCF1625.jpg" alt="Sunlight shining through the ribs of a lantern" width="1152" height="2048">
+          <i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i>
+        </div>
+      </div>
+      <figcaption>Photographs by Shilpa Rao</figcaption>
+    </figure>
+  </main>
+</body>
+</html>

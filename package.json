@@ -1,0 +1,19 @@
+{
+  "name": "80percent",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local server/dev.js",
+    "build": "node server/build.js",
+    "test": "node --test server/*.test.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.9.0"
+  },
+  "overrides": {
+    "zod": "4.6.6"
+  }
+}
