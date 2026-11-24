@@ -1,5 +1,6 @@
 import { FONT_FAMILIES } from './fonts.js'
 import { prepareImage } from './images.js'
+import { copyLayerToEvent, readLayerFromEvent, readSystemClipboard, writeSystemLayer } from './clipboard.js'
 
 const MIN_ZOOM = .02
 const MAX_ZOOM = 16
@@ -63,6 +64,9 @@ export function createCanvas({
   let minZoom = MIN_ZOOM
   let layout = {x: 0, y: 0, scale: 1}
   let rememberedPoint = null
+  let copiedLayer = null
+  let localCopyOnly = false
+  let lastPlacement = null
   const past = [], future = []
   const nodes = new Map()
   const pointers = new Map()
@@ -443,26 +447,26 @@ export function createCanvas({
     return false
   }
 
-  function insert(item) {
+  function insert(item, {fitText = true} = {}) {
     if (!hasRoom()) return
     finishEditing()
     const before = items
     items = [...items, item]
     selectedId = item.id
     tool = 'select'
-    if (item.type === 'text' && !item.text) {
+    if (fitText && item.type === 'text' && !item.text) {
       render()
       editText(before)
       notify()
       return
     }
-    if (item.type === 'text') {
+    if (fitText && item.type === 'text') {
       render()
       const height = nodes.get(item.id).firstElementChild.scrollHeight
       if (height > item.height) patch(item.id, {height: height + 1})
     }
     commit(before)
-    growForLoadedFont(item.id)
+    if (fitText) growForLoadedFont(item.id)
   }
 
   async function addFiles(files, point = at(center())) {
@@ -718,6 +722,49 @@ export function createCanvas({
   })
 
   function modalOpen() { return !!document.querySelector('dialog[open],[aria-modal="true"]:not([hidden])') }
+  function clipboardBusy() { return editing || gesture || modalOpen() }
+
+  function pasteLayer(item, point) {
+    const offset = 16 / view.zoom
+    const onSource = point.x >= item.x && point.x <= item.x + item.width &&
+      point.y >= item.y && point.y <= item.y + item.height
+    let x = onSource ? item.x + offset : point.x - item.width / 2
+    let y = onSource ? item.y + offset : point.y - item.height / 2
+    if (lastPlacement?.source === item.id && selectedId === lastPlacement.id &&
+        Math.hypot(point.x - lastPlacement.point.x, point.y - lastPlacement.point.y) < 3 / view.zoom) {
+      const previous = selected()
+      if (previous) { x = previous.x + offset; y = previous.y + offset }
+    }
+    const id = crypto.randomUUID()
+    insert({...item, id, x: clamp(x, -1e9, 1e9), y: clamp(y, -1e9, 1e9)}, {fitText: false})
+    if (selectedId === id) lastPlacement = {source: item.id, id, point}
+  }
+
+  document.addEventListener('copy', event => {
+    const item = selected()
+    if (!item || !event.clipboardData || event.defaultPrevented || editable(event.target) ||
+        clipboardBusy() || document.getSelection()?.toString()) return
+    copyLayerToEvent(item, event.clipboardData)
+    event.preventDefault()
+    copiedLayer = item
+    localCopyOnly = false
+  })
+
+  async function copySelected() {
+    const item = selected()
+    if (!item || clipboardBusy()) return
+    copiedLayer = item
+    localCopyOnly = false
+    try {
+      await writeSystemLayer(item)
+    } catch {
+      if (!document.execCommand?.('copy')) {
+        localCopyOnly = true
+        onError('Copied inside Everything. Use Paste in this tab.')
+      }
+    }
+  }
+
   function pasteText(text, point) {
     if (!text) return
     if (text.length > MAX_TEXT) {
@@ -727,15 +774,46 @@ export function createCanvas({
     insert({...newText(point.x, point.y, text), width: 320})
   }
   document.addEventListener('paste', event => {
-    if (editable(event.target) || modalOpen() || !event.clipboardData) return
+    if (editable(event.target) || clipboardBusy() || event.defaultPrevented || !event.clipboardData) return
+    const layer = readLayerFromEvent(event.clipboardData)
     const files = transferFiles(event.clipboardData)
     const text = event.clipboardData.getData('text/plain')
-    if (!files.length && !text) return
+    if (!layer && !files.length && !text) return
     event.preventDefault()
+    localCopyOnly = false
+    copiedLayer = layer
     const point = at(rememberedPoint || center())
-    if (files.length) addFiles(files, point)
+    if (layer) pasteLayer(layer, point)
+    else if (files.length) addFiles(files, point)
     else pasteText(text, point)
   })
+
+  async function pasteClipboard() {
+    if (clipboardBusy()) return
+    const point = at(rememberedPoint || center())
+    if (copiedLayer && (localCopyOnly || !navigator.clipboard?.read)) {
+      pasteLayer(copiedLayer, point)
+      return
+    }
+    let contents
+    try {
+      contents = await readSystemClipboard()
+    } catch {
+      if (clipboardBusy()) return
+      if (copiedLayer) {
+        pasteLayer(copiedLayer, point)
+        onError('Pasted the layer last copied in Everything.')
+      } else onError('Use your device’s Paste command or allow clipboard access.')
+      return
+    }
+    if (clipboardBusy()) return
+    const {layer, files, text} = contents
+    copiedLayer = layer || null
+    if (layer) pasteLayer(layer, point)
+    else if (files?.length) await addFiles(files, point)
+    else if (text) pasteText(text, point)
+    else onError('Copy a layer, image, or text first.')
+  }
 
   const shortcuts = {v: 'select', h: 'hand', t: 'text', r: 'rectangle', o: 'ellipse'}
   document.addEventListener('keydown', event => {
@@ -815,7 +893,7 @@ export function createCanvas({
   notify()
   return {
     setItems, setTool, select, updateSelected, arrange, remove, zoomToFit, addFiles, startTextEdit,
-    finishEditing, canReplaceItems: () => !editing && !gesture && !uploadCount,
+    finishEditing, copySelected, pasteClipboard, canReplaceItems: () => !editing && !gesture && !uploadCount,
     getItems: () => items, undo: () => restore(past, future), redo: () => restore(future, past),
     zoomBy: factor => manualZoom(view.zoom * factor), zoomToActual: () => manualZoom(1),
   }

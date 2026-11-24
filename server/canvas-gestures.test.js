@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createCanvas } from '../everything-assets/canvas.js'
+import { parseLayer } from '../everything-assets/clipboard.js'
 
 // A DOM surface for the actual canvas listeners. All input handling, geometry and
 // object updates run through createCanvas; the fixture supplies only the browser APIs it touches.
@@ -276,4 +277,51 @@ test('native WebKit pinch quantizes cumulative scale and suppresses duplicate wh
     wheel(20, 109)
     assert.ok(camera().zoom < after.zoom, 'opposite input should take effect immediately')
   }
+})
+
+test('pasting a layer creates an independent, undoable copy with the same appearance', t => {
+  const {canvas, viewport, changes} = board(t)
+  const previousElement = globalThis.Element
+  globalThis.Element = Surface
+  t.after(() => { if (previousElement) globalThis.Element = previousElement; else delete globalThis.Element })
+  document.querySelector = () => null
+  document.getSelection = () => null
+  const shape = {...canvas.getItems()[0], id: crypto.randomUUID(), color: '#674123'}
+  canvas.setItems([shape])
+  canvas.select(shape.id)
+  const data = new Map()
+  const clipboardData = {setData: (type, value) => data.set(type, value), getData: type => data.get(type) || ''}
+  function clipboard(type) {
+    const event = Object.assign(new Event(type, {cancelable: true}), {clipboardData})
+    Object.defineProperty(event, 'target', {value: viewport})
+    document.dispatchEvent(event)
+    return event.defaultPrevented
+  }
+  assert.ok(clipboard('copy'))
+  assert.equal(data.get('text/plain'), 'rectangle')
+  assert.ok(clipboard('paste'))
+  assert.equal(changes(), 1)
+  const copy = canvas.getItems()[1]
+  assert.notEqual(copy.id, shape.id)
+  assert.deepEqual({...copy, id: shape.id, x: shape.x, y: shape.y}, shape)
+  assert.ok(clipboard('paste'))
+  const next = canvas.getItems()[2]
+  assert.notEqual(next.id, copy.id)
+  assert.ok(next.x > copy.x && next.y > copy.y)
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [shape, copy])
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [shape])
+  document.getSelection = () => 'a selected phrase'
+  canvas.select(shape.id)
+  assert.equal(clipboard('copy'), false)
+})
+
+test('clipboard layers retain known fields and validate private image references', () => {
+  const image = {id: crypto.randomUUID(), type: 'image', imageId: crypto.randomUUID()+'.png',
+    x: 0, y: -20, width: 250, height: 193, name: 'Photo.png'}
+  assert.deepEqual(parseLayer(JSON.stringify({...image, other: {nested: true}})), image)
+  assert.equal(parseLayer(JSON.stringify({...image, imageId: 'https://example.com/image.png'})), null)
+  assert.equal(parseLayer(JSON.stringify({...image, width: -3})), null)
+  assert.equal(parseLayer('ordinary text'), null)
 })

@@ -57,6 +57,7 @@
       <div class="property-line" id="fill-field"><label for="object-color">Fill</label><div class="color-field"><input id="object-color" type="color"><span id="hex-value"></span></div></div>
     </div>
     <div class="inspector-foot">
+      <button type="button" class="clipboard-action" id="layer-copy" title="Copy selected layer (Ctrl+C or ⌘C)" aria-label="Copy selected layer" aria-keyshortcuts="Control+c Meta+c">Copy</button>
       <div class="stack-actions">
         <button type="button" class="icon-button" id="layer-back" title="Send to back" aria-label="Send to back" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#back"/></svg></button>
         <button type="button" class="icon-button" id="layer-front" title="Bring to front" aria-label="Bring to front" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#front"/></svg></button>
@@ -81,6 +82,7 @@
       </div>
       <button type="button" class="icon-button" id="tool-text" title="Text (T)" aria-label="Text (T)" data-tool="text" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#text"/></svg></button>
       <button type="button" class="icon-button" id="tool-image" title="Add images" aria-label="Add images" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#image"/></svg></button>
+      <button type="button" class="clipboard-action" id="action-paste" title="Paste from clipboard (Ctrl+V or ⌘V)" aria-label="Paste from clipboard" aria-keyshortcuts="Control+v Meta+v">Paste</button>
       <input id="image-picker" type="file" accept="image/*,.heic,.heif" multiple hidden>
       <span class="v-rule"></span>
       <button type="button" class="icon-button" id="action-undo" title="Undo" aria-label="Undo" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#undo"/></svg></button>
@@ -99,7 +101,7 @@
     <button type="button" class="icon-button" id="help-toggle" title="Canvas shortcuts" aria-label="Canvas shortcuts" aria-controls="help-panel" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#help"/></svg></button>
     <aside class="chrome popover help-panel" id="help-panel" aria-labelledby="help-heading" hidden>
       <div class="panel-head"><h2 id="help-heading">Canvas shortcuts</h2><button type="button" class="icon-button" id="help-close" title="Close shortcuts" aria-label="Close shortcuts" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#close"/></svg></button></div>
-      <dl><dt>Pan canvas</dt><dd><kbd>Space</kbd> + drag</dd><dt>Zoom</dt><dd>Pinch / Ctrl + scroll</dd><dt>Select / Hand</dt><dd><kbd>V</kbd> / <kbd>H</kbd></dd><dt>Add text</dt><dd><kbd>T</kbd></dd><dt>Rectangle / Ellipse</dt><dd><kbd>R</kbd> / <kbd>O</kbd></dd><dt>Square / Circle</dt><dd><kbd>Shift</kbd> + drag</dd><dt>Edit text</dt><dd>Double-click</dd></dl>
+      <dl><dt>Pan canvas</dt><dd><kbd>Space</kbd> + drag</dd><dt>Zoom</dt><dd>Pinch / Ctrl + scroll</dd><dt>Select / Hand</dt><dd><kbd>V</kbd> / <kbd>H</kbd></dd><dt>Add text</dt><dd><kbd>T</kbd></dd><dt>Rectangle / Ellipse</dt><dd><kbd>R</kbd> / <kbd>O</kbd></dd><dt>Square / Circle</dt><dd><kbd>Shift</kbd> + drag</dd><dt>Edit text</dt><dd>Double-click</dd><dt>Copy layer</dt><dd><kbd>Ctrl / ⌘</kbd> + <kbd>C</kbd></dd><dt>Paste</dt><dd><kbd>Ctrl / ⌘</kbd> + <kbd>V</kbd></dd></dl>
     </aside>
   </div>
   <p id="notice" class="notice" role="status" hidden></p>
