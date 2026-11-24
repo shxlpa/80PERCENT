@@ -48,7 +48,9 @@ function board(t) {
     onChange: () => { changes++ }})
   const shapeNode = world.children.find(node => node.dataset.id === shape.id)
   function emit(type, properties = {}, target = viewport) {
-    const event = Object.assign(new Event(type, {cancelable: true}), properties)
+    const {timeStamp, ...fields} = properties
+    const event = Object.assign(new Event(type, {cancelable: true}), fields)
+    if (timeStamp !== undefined) Object.defineProperty(event, 'timeStamp', {value: timeStamp})
     // Browser pointer events with a layer as their target bubble to the viewport listener.
     Object.defineProperty(event, 'target', {value: target})
     viewport.dispatchEvent(event)
@@ -76,7 +78,6 @@ function board(t) {
     }
   }
   return {canvas, camera, emit, shapeNode, viewport, screenBox, zoom: () => state.zoom, changes: () => changes}
-
 }
 
 test('a malformed Safari pinch cannot poison later pinch, wheel, or fit zooms', t => {
@@ -86,12 +87,12 @@ test('a malformed Safari pinch cannot poison later pinch, wheel, or fit zooms', 
     emit('gesturechange', {scale, clientX: 160, clientY: 140})
     assert.equal(camera().zoom, 1)
   }
-  emit('gesturechange', {scale: 2, clientX: 160, clientY: 140})
-  assert.equal(camera().zoom, 2)
+  emit('gesturechange', {scale: 2, clientX: 160, clientY: 140, timeStamp: 20})
+  assert.equal(camera().zoom, 1.04 ** 2)
   emit('gestureend')
 
-  emit('wheel', {ctrlKey: true, deltaX: 0, deltaY: -10, clientX: 160, clientY: 140})
-  assert.ok(camera().zoom > 2)
+  emit('wheel', {ctrlKey: true, deltaX: 0, deltaY: -20, clientX: 160, clientY: 140, timeStamp: 300})
+  assert.ok(camera().zoom > 1.04 ** 2)
   canvas.zoomToFit()
   assert.equal(camera().zoom, 1.5)
   canvas.zoomToActual()
@@ -204,4 +205,75 @@ test('fit clears interrupted pointer and trackpad gestures without committing th
   assert.deepEqual(camera(), {...fit, x: fit.x - 20, y: fit.y - 30})
   assert.deepEqual(canvas.getItems(), saved)
   assert.equal(changes(), 0)
+})
+
+test('wheel zoom quantizes finger travel independently of fine event sampling', t => {
+  const {camera, canvas, emit, changes} = board(t)
+  const wheel = (deltaY, timeStamp, fields = {}) => emit('wheel', {
+    ctrlKey: true, clientX: 175, clientY: 90, deltaX: 0, deltaY, timeStamp, ...fields,
+  })
+  const samples = [1, 4, 40].map(count => {
+    canvas.zoomToActual()
+    const before = camera()
+    for (let i = 0; i < count; i++) wheel(-40 / count, i * 100 / count)
+    const after = camera()
+    assert.ok(Math.abs((175 - after.x) / after.zoom - (175 - before.x) / before.zoom) < 1e-8)
+    assert.ok(Math.abs((90 - after.y) / after.zoom - (90 - before.y) / before.zoom) < 1e-8)
+    return after.zoom
+  })
+  for (const zoom of samples) assert.ok(Math.abs(zoom - 1.04 ** 2) < 1e-8)
+  canvas.zoomToActual()
+  wheel(-19, 500)
+  assert.equal(camera().zoom, 1)
+  wheel(12, 505)
+  wheel(8, 510)
+  assert.equal(camera().zoom, 1 / 1.04)
+  const beforePan = camera()
+  wheel(30, 511, {ctrlKey: false, deltaX: 24})
+  assert.deepEqual(camera(), {...beforePan, x: beforePan.x - 24, y: beforePan.y - 30})
+  assert.equal(changes(), 0)
+})
+
+test('an anomalous wheel event stops immediately and leaves later input responsive', t => {
+  t.mock.timers.enable({apis: ['setTimeout', 'setInterval']})
+  const {canvas, camera, emit} = board(t)
+  const wheel = deltaY => emit('wheel', {ctrlKey: true, deltaX: 0, deltaY, clientX: 160, clientY: 210})
+  wheel(-10000)
+  assert.equal(camera().zoom, 1.04 ** 2)
+  const stopped = camera()
+  t.mock.timers.tick(2000)
+  assert.deepEqual(camera(), stopped)
+  for (let i = 0; i < 10; i++) wheel(-20)
+  assert.ok(Math.abs(camera().zoom - 1.04 ** 12) < 1e-8)
+  canvas.zoomBy(100)
+  wheel(-10000)
+  wheel(20)
+  assert.equal(camera().zoom, 16 / 1.04)
+})
+
+test('native WebKit pinch quantizes cumulative scale and suppresses duplicate wheel events', t => {
+  const {canvas, camera, emit} = board(t)
+  const point = {clientX: 142, clientY: 86}
+  const wheel = (deltaY, timeStamp) =>
+    emit('wheel', {...point, ctrlKey: true, deltaX: 0, deltaY, timeStamp})
+  for (const samples of [1, 7, 50]) {
+    canvas.zoomToActual()
+    const before = camera()
+    emit('gesturestart', {...point, timeStamp: 0})
+    wheel(-200, 2)
+    emit('wheel', {...point, deltaX: 5, deltaY: 12, timeStamp: 3})
+    assert.deepEqual(camera(), before)
+    for (let i = 1; i <= samples; i++) {
+      emit('gesturechange', {...point, scale: 1.35 ** (i / samples), timeStamp: i * 100 / samples})
+    }
+    const after = camera()
+    assert.ok(Math.abs(after.zoom - 1.04 ** 2) < 1e-8)
+    assert.ok(Math.abs((point.clientX - before.x) / before.zoom - (point.clientX - after.x) / after.zoom) < 1e-8)
+    emit('gesturechange', {...point, scale: 1.35, timeStamp: 101})
+    emit('gestureend', {timeStamp: 102})
+    wheel(-200, 105)
+    assert.deepEqual(camera(), after)
+    wheel(20, 109)
+    assert.ok(camera().zoom < after.zoom, 'opposite input should take effect immediately')
+  }
 })

@@ -28,7 +28,17 @@
   box-sizing: border-box;
   pointer-events: none;
 }
-img.ec-content { object-fit: fill; -webkit-user-drag: none; }
+img.ec-content {
+  object-fit: fill;
+  -webkit-user-drag: none;
+  /* Paint at display size so magnification cannot expose seams between raster tiles.
+     The inverse transform keeps the photo inside its original world-space layer. */
+  --paint-scale: min(var(--ec-image-zoom, 1), var(--ec-image-limit, 16));
+  width: calc(100% * var(--paint-scale));
+  height: calc(100% * var(--paint-scale));
+  transform-origin: 0 0;
+  transform: scale(calc(1 / var(--paint-scale)));
+}
 .ec-text, .ec-edit {
   font: inherit;
   color: inherit;

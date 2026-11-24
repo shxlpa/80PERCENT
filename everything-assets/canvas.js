@@ -3,6 +3,10 @@ import { prepareImage } from './images.js'
 
 const MIN_ZOOM = .02
 const MAX_ZOOM = 16
+const TRACKPAD_STEP = 1.04
+const WHEEL_PIXELS_PER_STEP = 20
+const PINCH_LOG_PER_STEP = Math.log(1.14)
+const WHEEL_GESTURE_GAP_MS = 180
 const CSS_COORDINATE_RANGE = 8_000_000
 const MAX_TEXT = 200_000
 const MAX_ITEMS = 10_000
@@ -52,6 +56,8 @@ export function createCanvas({
   let gesture = null
   let spaceDown = false
   let trackpadPinch = null
+  let wheelPinch = null
+  let nativeWheelGuard = null
   let uploadCount = 0
   let view = {x: 0, y: 0, zoom: 1}
   let minZoom = MIN_ZOOM
@@ -105,6 +111,8 @@ export function createCanvas({
     box(node, item)
     const content = node.firstElementChild
     if (item.type === 'image') {
+      // An exceptionally large resized image must still fit the browser's CSS layout range.
+      content.style.setProperty('--ec-image-limit', CSS_COORDINATE_RANGE / Math.max(item.width, item.height))
       if (content.dataset.imageId !== item.imageId) {
         content.dataset.imageId = item.imageId
         content.src = imageUrl(item.imageId)
@@ -159,6 +167,7 @@ export function createCanvas({
     view = {x, y, zoom}
     const tx = x + layout.x * zoom, ty = y + layout.y * zoom
     world.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + zoom / layout.scale + ')'
+    world.style.setProperty('--ec-image-zoom', Math.max(MIN_ZOOM, zoom))
     world.style.setProperty('--ec-line', 1 / view.zoom + 'px')
     world.style.setProperty('--ec-handle', 8 / view.zoom + 'px')
     let gridSize = 22 * view.zoom
@@ -247,9 +256,34 @@ export function createCanvas({
     notify()
   }
 
+  function resetTrackpad() {
+    trackpadPinch = wheelPinch = nativeWheelGuard = null
+  }
+
+  // Carry fractional travel between samples. A very large sample can move two
+  // stops; excess whole stops are discarded, so nothing runs after release.
+  function trackpadStep(state, delta, point, anchor) {
+    if (delta * state.remainder < 0) state.remainder = 0
+    const total = state.remainder + delta
+    const stops = Math.sign(total) * Math.floor(Math.abs(total) + 1e-9)
+    state.remainder = total - stops
+    if (stops) {
+      const next = view.zoom * TRACKPAD_STEP ** clamp(stops, -2, 2)
+      if (next >= MAX_ZOOM || next <= minZoom) state.remainder = 0
+      zoomAt(next, point, anchor)
+    } else if (anchor) {
+      applyView(point.x - anchor.x * view.zoom, point.y - anchor.y * view.zoom, view.zoom)
+    }
+  }
+
+  function manualZoom(zoom) {
+    resetTrackpad()
+    zoomAt(zoom, center())
+  }
+
   function zoomToFit() {
     // A late pointer-up or Safari gesturechange must not overwrite the recovered view.
-    trackpadPinch = null
+    resetTrackpad()
     for (const id of pointers.keys()) {
       if (viewport.hasPointerCapture?.(id)) viewport.releasePointerCapture(id)
     }
@@ -486,6 +520,7 @@ export function createCanvas({
     if (event.target.closest('button,a,input,select,textarea,dialog')) return
     const point = local(event)
     if (!point) return
+    resetTrackpad()
     finishEditing()
     pointers.set(event.pointerId, point)
     viewport.setPointerCapture(event.pointerId)
@@ -612,12 +647,23 @@ export function createCanvas({
   viewport.addEventListener('wheel', event => {
     if (event.target.closest('textarea') && !event.ctrlKey && !event.metaKey) return
     event.preventDefault()
-    if (gesture || trackpadPinch?.active) return
+    if (gesture) return
+    // WebKit can deliver wheel samples alongside a native pinch. Its midpoint
+    // already accounts for any pan during the gesture.
+    if (trackpadPinch && event.timeStamp - trackpadPinch.last < WHEEL_GESTURE_GAP_MS) return
     if (!Number.isFinite(event.deltaX) || !Number.isFinite(event.deltaY)) return
     const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientHeight : 1
     if (event.ctrlKey || event.metaKey) {
-      zoomAt(view.zoom * Math.exp(clamp(-event.deltaY * unit * .012, -10, 10)), local(event, center()))
+      const delta = -event.deltaY * unit
+      if (!Number.isFinite(delta) || !delta) return
+      if (nativeWheelGuard && event.timeStamp <= nativeWheelGuard.until &&
+          Math.sign(delta) === nativeWheelGuard.direction) return
+      trackpadPinch = null
+      if (!wheelPinch || event.timeStamp - wheelPinch.last > WHEEL_GESTURE_GAP_MS) wheelPinch = {remainder: 0}
+      wheelPinch.last = event.timeStamp
+      trackpadStep(wheelPinch, delta / WHEEL_PIXELS_PER_STEP, local(event, center()))
     } else {
+      resetTrackpad()
       let dx = event.deltaX * unit, dy = event.deltaY * unit
       if (event.shiftKey && dx === 0) { dx = dy; dy = 0 }
       applyView(view.x - dx, view.y - dy, view.zoom)
@@ -630,18 +676,27 @@ export function createCanvas({
     event.preventDefault()
     if (!gesture) {
       const point = local(event, center())
-      trackpadPinch = {zoom: view.zoom, anchor: at(point), point, active: false}
+      resetTrackpad()
+      trackpadPinch = {anchor: at(point), point, remainder: 0, lastScale: 1, last: event.timeStamp}
     }
   })
   viewport.addEventListener('gesturechange', event => {
     event.preventDefault()
     if (!trackpadPinch || pointers.size > 1) return
     if (!Number.isFinite(event.scale) || event.scale <= 0) return
-    trackpadPinch.active = true
-    const point = local(event, trackpadPinch.point)
-    zoomAt(trackpadPinch.zoom * event.scale, point, trackpadPinch.anchor)
+    const delta = Math.log(event.scale) - Math.log(trackpadPinch.lastScale)
+    trackpadPinch.lastScale = event.scale
+    trackpadPinch.last = event.timeStamp
+    if (delta) nativeWheelGuard = {until: event.timeStamp + 90, direction: Math.sign(delta)}
+    wheelPinch = null
+    trackpadPinch.point = local(event, trackpadPinch.point)
+    trackpadStep(trackpadPinch, delta / PINCH_LOG_PER_STEP, trackpadPinch.point, trackpadPinch.anchor)
   })
-  viewport.addEventListener('gestureend', event => { event.preventDefault(); trackpadPinch = null })
+  viewport.addEventListener('gestureend', event => {
+    event.preventDefault()
+    if (trackpadPinch && nativeWheelGuard) nativeWheelGuard.until = event.timeStamp + 90
+    trackpadPinch = null
+  })
 
   viewport.addEventListener('dragover', event => {
     const transfer = event.dataTransfer
@@ -708,10 +763,10 @@ export function createCanvas({
       restore(future, past)
     } else if (cmd && ['-', '=', '+'].includes(key)) {
       event.preventDefault()
-      zoomAt(view.zoom * (key === '-' ? .8 : 1.25), center())
+      manualZoom(view.zoom * (key === '-' ? .8 : 1.25))
     } else if (cmd && key === '0') {
       event.preventDefault()
-      zoomAt(1, center())
+      manualZoom(1)
     } else if (cmd || event.altKey) {
       return
     } else if (shortcuts[key]) {
@@ -750,7 +805,7 @@ export function createCanvas({
   document.addEventListener('keyup', event => { if (event.code === 'Space') releaseSpace() })
   window.addEventListener('blur', () => {
     releaseSpace()
-    trackpadPinch = null
+    resetTrackpad()
     clearGesture()
     pointers.clear()
   })
@@ -762,6 +817,6 @@ export function createCanvas({
     setItems, setTool, select, updateSelected, arrange, remove, zoomToFit, addFiles, startTextEdit,
     finishEditing, canReplaceItems: () => !editing && !gesture && !uploadCount,
     getItems: () => items, undo: () => restore(past, future), redo: () => restore(future, past),
-    zoomBy: factor => zoomAt(view.zoom * factor, center()), zoomToActual: () => zoomAt(1, center()),
+    zoomBy: factor => manualZoom(view.zoom * factor), zoomToActual: () => manualZoom(1),
   }
 }
