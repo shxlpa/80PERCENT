@@ -4,12 +4,31 @@ import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomBytes, randomUUID } from 'node:crypto';
+import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici';
 import { createHandler } from './everything.js';
 import { localStore } from './local-storage.js';
+import { privateBlobStore } from './storage.js';
 import { isPublicPath } from './public-files.js';
 
 const origin = 'https://everything.example';
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/V6sAAAAASUVORK5CYII=', 'base64');
+
+test('private board reads retain the strong storage ETag used by conditional saves', async t => {
+  const board = JSON.stringify({ revision: 1, items: [], padding: 'x'.repeat(1200) });
+  const previous = getGlobalDispatcher();
+  const agent = new MockAgent();
+  agent.disableNetConnect();
+  setGlobalDispatcher(agent);
+  t.after(async () => { setGlobalDispatcher(previous); await agent.close(); });
+  agent.get('https://test.private.blob.vercel-storage.com')
+    .intercept({ path: '/everything/board.json?cache=0', headers: { 'accept-encoding': 'identity' } })
+    .reply(200, board, { headers: { etag: '"version-1"' } });
+  const store = privateBlobStore('vercel_blob_rw_test_fixture');
+  const stored = await store.read('board.json');
+  assert.equal(stored.data.toString(), board);
+  assert.equal(stored.etag, '"version-1"');
+  await assert.rejects(store.write('board.json', board, 'W/"version-1"'), /strong storage ETag/);
+});
 
 function fixture(t) {
   const directory = mkdtempSync(join(tmpdir(), 'everything-test-'));

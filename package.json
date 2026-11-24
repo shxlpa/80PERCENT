@@ -15,5 +15,8 @@
   },
   "overrides": {
     "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "undici": "6.29.1"
   }
 }

@@ -8,11 +8,18 @@ export function privateBlobStore(token) {
   const privateOptions = { token, access: 'private' };
   return {
     async read(key) {
-      const result = await get(prefix + key, { ...privateOptions, useCache: false });
+      // Compressed responses carry weak ETags. Conditional writes need the strong
+      // ETag of the stored bytes, including when a board grows past the compression threshold.
+      const result = await get(prefix + key, {
+        ...privateOptions, useCache: false, headers: { 'Accept-Encoding': 'identity' }
+      });
       if (!result) return null;
       return { data: Buffer.from(await new Response(result.stream).arrayBuffer()), etag: result.blob.etag };
     },
     async write(key, data, etag = null, ttlDays) {
+      if (etag !== null && (!etag || etag.startsWith('W/'))) {
+        throw new Error('A conditional write requires a strong storage ETag.');
+      }
       try {
         await put(prefix + key, data, {
           ...privateOptions, addRandomSuffix: false, contentType: 'application/octet-stream',
