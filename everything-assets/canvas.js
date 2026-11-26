@@ -1,6 +1,7 @@
 import { FONT_FAMILIES } from './fonts.js'
 import { prepareImage } from './images.js'
 import { copyLayerToEvent, readLayerFromEvent, readSystemClipboard, writeSystemLayer } from './clipboard.js'
+import { snapMove, snapResize } from './snapping.js'
 
 const MIN_ZOOM = .02
 const MAX_ZOOM = 16
@@ -100,6 +101,11 @@ export function createCanvas({
   marquee.setAttribute('aria-hidden', 'true')
   marquee.hidden = true
   viewport.append(marquee)
+  const snapGuides = document.createElement('div')
+  snapGuides.className = 'ec-snap-guides'
+  snapGuides.setAttribute('aria-hidden', 'true')
+  snapGuides.hidden = true
+  viewport.append(snapGuides)
   for (const corner of ['nw', 'ne', 'sw', 'se']) {
     const handle = document.createElement('i')
     handle.className = 'ec-handle'
@@ -127,6 +133,33 @@ export function createCanvas({
     element.style.height = item.height + 'px'
     element.style.transformOrigin = '0 0'
     element.style.transform = layout.scale === 1 ? '' : 'scale(' + layout.scale + ')'
+  }
+
+  function drawSnapGuides(guides = []) {
+    while (snapGuides.firstElementChild) snapGuides.firstElementChild.remove()
+    for (const guide of guides) {
+      const vertical = guide.axis === 'x'
+      const value = guide.value * view.zoom + (vertical ? view.x : view.y)
+      const start = Math.max(0, guide.from * view.zoom + (vertical ? view.y : view.x) - 8)
+      const end = Math.min(vertical ? viewport.clientHeight : viewport.clientWidth,
+        guide.to * view.zoom + (vertical ? view.y : view.x) + 8)
+      if (value < 0 || value > (vertical ? viewport.clientWidth : viewport.clientHeight) || end <= start) continue
+      const line = document.createElement('div')
+      line.className = 'ec-snap-guide'
+      line.dataset.axis = guide.axis
+      line.style.left = (vertical ? value : start) + 'px'
+      line.style.top = (vertical ? start : value) + 'px'
+      line.style.width = (vertical ? 0 : end - start) + 'px'
+      line.style.height = (vertical ? end - start : 0) + 'px'
+      if (guide.label) {
+        const label = document.createElement('span')
+        label.className = 'ec-snap-label'
+        label.textContent = guide.label
+        line.append(label)
+      }
+      snapGuides.append(line)
+    }
+    snapGuides.hidden = !snapGuides.firstElementChild
   }
 
   // Copied layers share one private fetch and one object URL for as long as they display the image.
@@ -617,6 +650,7 @@ export function createCanvas({
 
   function clearGesture() {
     if (!gesture) return
+    drawSnapGuides()
     if (gesture.kind === 'marquee') selectedIds = gesture.selectionBefore
     if (gesture.preview && gesture.kind === 'draw') {
       nodes.get(gesture.preview.id)?.remove()
@@ -664,7 +698,8 @@ export function createCanvas({
     }
     const handle = event.target.closest('[data-handle]')?.dataset.handle
     if (handle && selected()) {
-      gesture = {kind: 'resize', start: point, original: selected(), handle}
+      gesture = {kind: 'resize', start: point, original: selected(), handle,
+        targets: items.filter(item => !selectedIds.has(item.id))}
       return
     }
     if (tool !== 'select') {
@@ -678,7 +713,8 @@ export function createCanvas({
         if (selectedIds.has(id)) selectedIds.delete(id)
         else selectedIds.add(id)
       } else if (!selectedIds.has(id)) selectedIds = new Set([id])
-      if (selectedIds.has(id)) gesture = {kind: 'move', start: point, originals: selectedItems()}
+      if (selectedIds.has(id)) gesture = {kind: 'move', start: point, originals: selectedItems(),
+        targets: items.filter(item => !selectedIds.has(item.id))}
     } else {
       const selectionBefore = new Set(selectedIds)
       if (!event.shiftKey) selectedIds.clear()
@@ -704,7 +740,7 @@ export function createCanvas({
     return {...item, id: g.id, x, y, width: w, height: h}
   }
 
-  function preview(point, shift) {
+  function preview(point, shift, unsnapped = false) {
     const g = gesture
     const dx = point.x - g.start.x, dy = point.y - g.start.y
     if (g.kind === 'pan') {
@@ -736,14 +772,25 @@ export function createCanvas({
       notify()
     } else if (g.kind === 'move') {
       if (!g.preview && Math.hypot(dx, dy) < 2) return
-      g.preview = translated(g.originals, dx / view.zoom, dy / view.zoom)
+      const raw = translated(g.originals, dx / view.zoom, dy / view.zoom)
+      const snap = unsnapped ? {dx: 0, dy: 0, guides: []} : snapMove(raw, g.targets, view.zoom)
+      g.preview = translated(raw, snap.dx, snap.dy)
+      // A storage-boundary clamp must not display a guide that was not reached.
+      drawSnapGuides(snap.guides.filter(guide => {
+        const axis = guide.axis
+        return Math.abs(g.preview[0][axis] - raw[0][axis] - (axis === 'x' ? snap.dx : snap.dy)) < 1e-6
+      }))
       for (const item of g.preview) drawNode(item)
       drawSelection(g.preview)
     } else if (g.kind === 'resize') {
       if (!g.preview && Math.hypot(dx, dy) < 2) return
       const source = g.original
       const dimensions = resizeBox(source, g.handle, dx / view.zoom, dy / view.zoom, shift)
-      g.preview = {...source, ...dimensions}
+      const raw = {...source, ...dimensions}
+      const preserveRatio = source.type === 'image' ? !shift : shift
+      const snap = unsnapped ? {item: raw, guides: []} : snapResize(source, raw, g.handle, g.targets, view.zoom, preserveRatio)
+      g.preview = snap.item
+      drawSnapGuides(snap.guides)
       drawNode(g.preview)
       box(selection, g.preview)
     }
@@ -760,7 +807,7 @@ export function createCanvas({
       zoomAt(gesture.zoom * distance / gesture.distance, middle, gesture.anchor)
       return
     }
-    preview(point, event.shiftKey)
+    preview(point, event.shiftKey, event.altKey)
   })
   viewport.addEventListener('pointerleave', () => { rememberedPoint = null })
 
@@ -783,7 +830,7 @@ export function createCanvas({
       clearGesture()
       insert(item)
     } else if (g.kind === 'move' || g.kind === 'resize') {
-      preview(point, event.shiftKey)
+      preview(point, event.shiftKey, event.altKey)
       const before = items
       if (g.preview) {
         const previews = new Map((g.kind === 'move' ? g.preview : [g.preview]).map(item => [item.id, item]))
@@ -794,6 +841,7 @@ export function createCanvas({
         if (changed) items = items.map(item => previews.get(item.id) || item)
       }
       gesture = null
+      drawSnapGuides()
       commit(before)
     } else if (g.kind === 'marquee') {
       preview(point, event.shiftKey)
@@ -998,7 +1046,13 @@ export function createCanvas({
       zoomToFit()
       return
     }
-    if (gesture) return
+    if (gesture) {
+      if (event.key === 'Alt' && ['move', 'resize'].includes(gesture.kind)) {
+        const point = pointers.values().next().value
+        if (point) preview(point, event.shiftKey, true)
+      }
+      return
+    }
     if (cmd && key === 'a') {
       event.preventDefault()
       selectedIds = new Set(items.map(item => item.id))
@@ -1052,7 +1106,13 @@ export function createCanvas({
     }
   })
   const releaseSpace = () => { spaceDown = false; viewport.dataset.ecTool = tool }
-  document.addEventListener('keyup', event => { if (event.code === 'Space') releaseSpace() })
+  document.addEventListener('keyup', event => {
+    if (event.code === 'Space') releaseSpace()
+    if (event.key === 'Alt' && gesture && ['move', 'resize'].includes(gesture.kind)) {
+      const point = pointers.values().next().value
+      if (point) preview(point, event.shiftKey, false)
+    }
+  })
   window.addEventListener('blur', () => {
     releaseSpace()
     resetTrackpad()

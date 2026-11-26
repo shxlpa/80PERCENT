@@ -12,6 +12,8 @@ The image picker, clipboard, and drag-and-drop accept HEIC and HEIF photos. Your
 
 For text layers, use **Italic** in the inspector to toggle italics. Fill colors update live while you adjust the picker; Undo restores the color from before that adjustment.
 
+Drag layers near matching edges or centers to snap into alignment. Text snaps to an image’s horizontal and vertical centers and to matching placements on aligned neighboring images. Move images edge-to-edge, then resize near a neighbor’s height or width to match it while preserving the photo’s proportions. Pink guides show the match; hold **Alt / Option** to move or resize freely.
+
 ### Run locally
 
 Use Node.js 22.13 or later. Install dependencies with `npm ci`. The owner password comes from `EVERYTHING_PASSWORD` in the gitignored `.env.local`. On a fresh checkout, generate the file once with the following command. It creates an owner-readable file and stops if one already exists.

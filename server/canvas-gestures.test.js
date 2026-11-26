@@ -46,7 +46,11 @@ class Surface extends EventTarget {
     if (this.parent) this.parent.children.splice(this.parent.children.indexOf(this), 1)
     this.parent = null
   }
-  append(child) { this.insertBefore(child, null) }
+  append(...children) { for (const child of children) this.insertBefore(child, null) }
+  replaceChildren(...children) {
+    for (const child of [...this.children]) child.remove()
+    this.append(...children)
+  }
   insertBefore(child, next) {
     if (child.parent) child.parent.children.splice(child.parent.children.indexOf(child), 1)
     const index = this.children.indexOf(next)
@@ -128,6 +132,113 @@ function addSelectionLayers(canvas) {
 }
 
 const selectedIds = state => [...state().selectedIds].sort()
+
+function visibleSnapGuides(...roots) {
+  const found = new Set()
+  function visit(node, hidden = false) {
+    hidden ||= node.hidden || node.style.display === 'none' || node.style.visibility === 'hidden'
+    if (!hidden && node.classList.contains('ec-snap-guide')) found.add(node)
+    for (const child of node.children) visit(child, hidden)
+  }
+  roots.forEach(root => visit(root))
+  return [...found]
+}
+
+function snappingBoard(t) {
+  const fixture = board(t, {loadImage: () => new Promise(() => {})})
+  const items = [
+    {id: 'text', type: 'text', text: 'Caption', font: 'DM Sans', fontSize: 24,
+      color: '#252724', x: 0, y: 0, width: 40, height: 20},
+    {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo', x: 100, y: 20, width: 100, height: 100},
+  ]
+  fixture.canvas.setItems(items)
+  const textNode = fixture.world.children.find(node => node.dataset.id === 'text')
+  return {...fixture, textNode, saved: structuredClone(items)}
+}
+
+test('dragging text previews alignment guides and commits its snapped position once', t => {
+  const {canvas, emit, textNode, viewport, world, screenBox, saved, state, changes} = snappingBoard(t)
+  const start = {button: 0, pointerId: 51, clientX: 10, clientY: 10}
+  const end = {...start, clientX: 142, clientY: 72}
+  emit('pointerdown', start, textNode)
+  emit('pointermove', end)
+  assert.deepEqual([screenBox('text').left, screenBox('text').top], [130, 60])
+  assert.ok(visibleSnapGuides(viewport, world).length >= 2)
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(changes(), 0)
+  emit('pointerup', end)
+  assert.deepEqual(canvas.getItems()[0], {...saved[0], x: 130, y: 60})
+  assert.deepEqual(canvas.getItems()[1], saved[1])
+  assert.equal(changes(), 1)
+  assert.equal(visibleSnapGuides(viewport, world).length, 0)
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(state().canUndo, false)
+})
+
+test('Alt bypasses live snapping and cancelled alignment leaves no guides or saved edits', t => {
+  const {canvas, emit, textNode, viewport, world, screenBox, saved, changes} = snappingBoard(t)
+  const start = {button: 0, pointerId: 52, clientX: 10, clientY: 10}
+  const end = {...start, clientX: 142, clientY: 72}
+  emit('pointerdown', start, textNode)
+  emit('pointermove', end)
+  assert.ok(visibleSnapGuides(viewport, world).length >= 2)
+  emit('pointermove', {...end, altKey: true})
+  assert.deepEqual([screenBox('text').left, screenBox('text').top], [132, 62])
+  assert.equal(visibleSnapGuides(viewport, world).length, 0)
+  emit('pointermove', end)
+  assert.deepEqual([screenBox('text').left, screenBox('text').top], [130, 60])
+  emit('pointercancel', {pointerId: 52})
+  assert.deepEqual([screenBox('text').left, screenBox('text').top], [0, 0])
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(visibleSnapGuides(viewport, world).length, 0)
+  assert.equal(changes(), 0)
+  emit('pointerdown', {...start, pointerId: 53}, textNode)
+  emit('pointermove', {...end, pointerId: 53})
+  emit('pointerup', {...end, pointerId: 53, altKey: true})
+  assert.deepEqual(canvas.getItems()[0], {...saved[0], x: 132, y: 62})
+  assert.equal(visibleSnapGuides(viewport, world).length, 0)
+  assert.equal(changes(), 1)
+})
+
+test('group movement excludes every selected layer from snap targets', t => {
+  const {canvas, drag, shapeNode, viewport, world} = board(t)
+  const shape = canvas.getItems()[0]
+  canvas.setItems([shape, {...shape, id: 'b', x: 100, y: 120}])
+  canvas.select('a')
+  canvas.select('b', {toggle: true})
+  drag([20, 25], [24, 29], {target: shapeNode})
+  assert.deepEqual(canvas.getItems().map(({x, y}) => [x, y]), [[14, 24], [104, 124]])
+  assert.equal(visibleSnapGuides(viewport, world).length, 0)
+})
+
+test('image resize previews matching height with its aspect ratio and supports Alt bypass', t => {
+  const {canvas, emit, world, viewport, screenBox, changes, state} = board(t, {loadImage: () => new Promise(() => {})})
+  const original = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo', x: 10, y: 20, width: 200, height: 100}
+  const target = {...original, id: 'target', x: 350, y: 25, width: 180, height: 150}
+  canvas.setItems([original, target])
+  canvas.select(original.id)
+  const handle = world.children.find(node => node.classList.contains('ec-selection')).children
+    .find(node => node.dataset.handle === 'se')
+  const start = {button: 0, pointerId: 54, clientX: 210, clientY: 120}
+  const end = {...start, clientX: 304, clientY: 167}
+  emit('pointerdown', start, handle)
+  emit('pointermove', end)
+  assert.deepEqual(screenBox('photo'), {left: 10, top: 20, width: 300, height: 150})
+  assert.ok(visibleSnapGuides(viewport, world).length > 0)
+  assert.deepEqual(canvas.getItems(), [original, target])
+  assert.equal(changes(), 0)
+  emit('pointermove', {...end, altKey: true})
+  assert.deepEqual(screenBox('photo'), {left: 10, top: 20, width: 294, height: 147})
+  assert.equal(visibleSnapGuides(viewport, world).length, 0)
+  emit('pointerup', end)
+  assert.deepEqual(canvas.getItems(), [{...original, width: 300, height: 150}, target])
+  assert.equal(changes(), 1)
+  assert.equal(visibleSnapGuides(viewport, world).length, 0)
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [original, target])
+  assert.equal(state().canUndo, false)
+})
 
 test('italic text updates its rendered style, saves, and restores through undo and redo', t => {
   const {canvas, world, state, changes} = board(t)

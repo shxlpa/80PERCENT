@@ -86,6 +86,22 @@ img.ec-content {
   background: rgb(71 114 213 / 12%);
   pointer-events: none;
 }
+.ec-snap-guides { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.ec-snap-guide { position: absolute; border: 0 solid #c44889; }
+.ec-snap-guide[data-axis="x"] { border-left-width: 1px; }
+.ec-snap-guide[data-axis="y"] { border-top-width: 1px; }
+.ec-snap-label {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: #a82f6c;
+  color: #fff;
+  font: 10px "DM Sans", sans-serif;
+  white-space: nowrap;
+}
+.ec-snap-guides[hidden] { display: none; }
 .ec-handle {
   display: block;
   position: absolute;
