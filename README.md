@@ -14,6 +14,8 @@ For text layers, use **Italic** in the inspector to toggle italics. Fill colors 
 
 Drag layers near matching edges or centers to snap into alignment. Text snaps to an image’s horizontal and vertical centers and to matching placements on aligned neighboring images. Move images edge-to-edge, then resize near a neighbor’s height or width to match it while preserving the photo’s proportions. Pink guides show the match; hold **Alt / Option** to move or resize freely.
 
+Select a photo and choose **Save photo + overlays** to download a lossless PNG with the text, shapes, and images above it, clipped to the photo’s edges. Exports use the saved photo’s full resolution, regardless of canvas zoom. Selecting one photo together with text also works. JPEGs up to 4 MB are stored unchanged; larger uploads are reduced before storage, and exporting cannot recover detail removed during an earlier upload.
+
 ### Run locally
 
 Use Node.js 22.13 or later. Install dependencies with `npm ci`. The owner password comes from `EVERYTHING_PASSWORD` in the gitignored `.env.local`. On a fresh checkout, generate the file once with the following command. It creates an owner-readable file and stops if one already exists.

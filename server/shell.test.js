@@ -36,25 +36,57 @@ function inspector(t) {
   const layer = {id: 'text-a', type: 'text', text: 'Choose a color', font: 'DM Sans', fontSize: 24,
     color: '#252724', x: 10, y: 20, width: 240, height: 32}
   let selected = layer
-  const show = item => {
+  const show = (item, extra = {}) => {
     selected = item
     renderShell({tool: 'select', items: [item], selected: item, selectedItems: [item], selectedIds: [item.id],
-      zoom: 1, busy: false, canUndo: false, canRedo: false})
+      zoom: 1, busy: false, canUndo: false, canRedo: false, canExportPhoto: false, exporting: false, ...extra})
   }
   show(layer)
   const calls = []
-  bindShell({updateSelected(props, options) {
-    calls.push({props, options})
-    show({...selected, ...props})
-  }})
+  let exportCalls = 0
+  bindShell({
+    updateSelected(props, options) {
+      calls.push({props, options})
+      show({...selected, ...props})
+    },
+    exportSelectedPhoto() { exportCalls++ },
+  })
   const picker = control('object-color')
   const emit = (type, color) => {
     if (color) picker.value = color
     picker.dispatchEvent(new Event(type))
     return calls.at(-1)
   }
-  return {calls, control, emit, show, layer}
+  return {calls, control, emit, show, layer, exportCalls: () => exportCalls}
 }
+
+test('photo export control follows selection eligibility, invokes export, and reports preparation', t => {
+  const {control, show, layer, exportCalls} = inspector(t)
+  const section = control('photo-export'), button = control('export-photo')
+  assert.equal(section.hidden, true, 'text-only selection has no photo export action')
+  const photo = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo',
+    x: 100, y: 20, width: 300, height: 200}
+  show(photo, {canExportPhoto: true})
+  assert.equal(section.hidden, false)
+  assert.equal(button.disabled, false)
+  assert.equal(button.attributes.get('aria-busy'), 'false')
+  assert.equal(button.textContent, 'Save photo + overlays')
+  button.dispatchEvent(new Event('click'))
+  assert.equal(exportCalls(), 1)
+  show(photo, {items: [photo, layer], selected: null, selectedItems: [photo, layer],
+    selectedIds: [photo.id, layer.id], canExportPhoto: true})
+  assert.equal(section.hidden, false, 'selected text overlays do not hide the export action')
+  show(photo, {canExportPhoto: true, exporting: true})
+  assert.equal(button.disabled, true)
+  assert.equal(button.attributes.get('aria-busy'), 'true')
+  assert.equal(button.textContent, 'Preparing PNG…')
+  show(photo, {canExportPhoto: true})
+  assert.equal(button.disabled, false)
+  assert.equal(button.attributes.get('aria-busy'), 'false')
+  assert.equal(button.textContent, 'Save photo + overlays')
+  show(photo, {canExportPhoto: false})
+  assert.equal(section.hidden, true)
+})
 
 test('italic control reflects selected text and toggles emphasis on each click', t => {
   const {calls, control, show, layer} = inspector(t)

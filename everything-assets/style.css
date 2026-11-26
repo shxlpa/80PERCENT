@@ -219,6 +219,10 @@ kbd { font: 10px var(--mono); color: var(--muted); }
 #object-color::-webkit-color-swatch { border-radius: 3px; border: 1px solid #0002; }
 #hex-value { font: 10px var(--mono); text-transform: uppercase; }
 .inspector-foot { justify-content: space-between; border-top: 1px solid var(--line); padding: 3px 8px; }
+.photo-export { padding: 10px 13px 13px; border-top: 1px solid var(--line); }
+.photo-export button { width: 100%; padding: 9px 8px; border-radius: 5px; background: var(--active); color: #fff; font-size: 12px; }
+.photo-export button:hover { background: #982619; }
+.photo-export p { margin: 7px 0 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
 .inspector-foot .icon-button { width: 31px; height: 31px; }
 .inspector-foot .icon { width: 16px; height: 16px; }
 #layer-delete:hover { color: var(--red); background: #f8e6df; }

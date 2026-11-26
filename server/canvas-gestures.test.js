@@ -133,6 +133,81 @@ function addSelectionLayers(canvas) {
 
 const selectedIds = state => [...state().selectedIds].sort()
 
+test('photo export eligibility requires exactly one selected image and permits selected overlays', async t => {
+  const {canvas, state, changes} = board(t, {loadImage: () => new Promise(() => {})})
+  const shape = canvas.getItems()[0]
+  const photo = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo',
+    x: 100, y: 20, width: 300, height: 200}
+  const text = {id: 'text', type: 'text', text: 'Caption', font: 'DM Sans', fontSize: 24,
+    color: '#252724', x: 120, y: 40, width: 160, height: 32}
+  const saved = [shape, photo, text, {...photo, id: 'other-photo', imageId: 'other.png', x: 450}]
+  canvas.setItems(saved)
+  assert.equal(state().canExportPhoto, false)
+  assert.equal(state().exporting, false)
+  for (const id of ['a', 'text']) {
+    canvas.select(id)
+    assert.equal(state().canExportPhoto, false)
+    await canvas.exportSelectedPhoto()
+    assert.equal(state().exporting, false)
+  }
+  canvas.select('photo')
+  assert.equal(state().canExportPhoto, true)
+  canvas.select('text', {toggle: true})
+  canvas.select('a', {toggle: true})
+  assert.equal(state().selected, null)
+  assert.equal(state().canExportPhoto, true)
+  canvas.select('other-photo', {toggle: true})
+  assert.equal(state().canExportPhoto, false)
+  await canvas.exportSelectedPhoto()
+  canvas.select('other-photo', {toggle: true})
+  assert.equal(state().canExportPhoto, true)
+  canvas.select(null)
+  assert.equal(state().canExportPhoto, false)
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(changes(), 0)
+  assert.equal(state().canUndo, false)
+})
+
+test('failed photo export resets its busy state without modifying selection or saved history', async t => {
+  const requests = [], errors = []
+  const {canvas, state, changes} = board(t, {
+    loadImage(id) {
+      const pending = Promise.withResolvers()
+      requests.push({id, ...pending})
+      return pending.promise
+    },
+    onError: error => errors.push(error),
+  })
+  const photo = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo',
+    x: 100, y: 20, width: 300, height: 200}
+  canvas.setItems([photo])
+  canvas.select(photo.id)
+  assert.equal(requests.length, 1, 'board rendering starts its own image request')
+  const exporting = canvas.exportSelectedPhoto()
+  assert.equal(state().exporting, true)
+  await Promise.resolve()
+  assert.equal(requests.length, 2)
+  await canvas.exportSelectedPhoto()
+  assert.equal(requests.length, 2, 'a second export cannot start while one is pending')
+  requests[1].reject(new Error('Photo download failed.'))
+  await exporting
+  assert.deepEqual(errors, ['Photo download failed.'])
+  assert.equal(state().exporting, false)
+  assert.equal(state().canExportPhoto, true)
+  assert.deepEqual(selectedIds(state), ['photo'])
+  assert.deepEqual(canvas.getItems(), [photo])
+  assert.equal(changes(), 0)
+  assert.equal(state().canUndo, false)
+  const retry = canvas.exportSelectedPhoto()
+  assert.equal(state().exporting, true)
+  await Promise.resolve()
+  assert.equal(requests.length, 3, 'a failed export can be retried')
+  requests[2].reject(new Error('Still offline.'))
+  await retry
+  assert.equal(state().exporting, false)
+  assert.equal(changes(), 0)
+})
+
 function visibleSnapGuides(...roots) {
   const found = new Set()
   function visit(node, hidden = false) {

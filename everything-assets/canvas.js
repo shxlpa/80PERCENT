@@ -2,6 +2,7 @@ import { FONT_FAMILIES } from './fonts.js'
 import { prepareImage } from './images.js'
 import { copyLayerToEvent, readLayerFromEvent, readSystemClipboard, writeSystemLayer } from './clipboard.js'
 import { snapMove, snapResize } from './snapping.js'
+import { exportPhoto } from './export.js'
 
 const MIN_ZOOM = .02
 const MAX_ZOOM = 16
@@ -69,7 +70,7 @@ function translated(items, dx, dy) {
 // immutable, so pointer previews and undo history can share unmodified layers.
 export function createCanvas({
   viewport, world, items: initialItems = [], onChange = () => {}, onState = () => {},
-  uploadImage, loadImage, onError = () => {},
+  uploadImage, loadImage, onError = () => {}, onNotice = () => {},
 }) {
   let items = initialItems.map(item => ({...item}))
   let selectedIds = new Set()
@@ -81,6 +82,7 @@ export function createCanvas({
   let wheelPinch = null
   let nativeWheelGuard = null
   let uploadCount = 0
+  let exporting = false
   let view = {x: 0, y: 0, zoom: 1}
   let minZoom = MIN_ZOOM
   let layout = {x: 0, y: 0, scale: 1}
@@ -118,12 +120,16 @@ export function createCanvas({
   world.append(selection)
   const selectedItems = () => items.filter(item => selectedIds.has(item.id))
   const selected = () => selectedIds.size === 1 ? selectedItems()[0] ?? null : null
+  const selectedPhoto = () => {
+    const photos = selectedItems().filter(item => item.type === 'image')
+    return photos.length === 1 ? photos[0] : null
+  }
   const pruneSelection = () => { selectedIds = new Set(selectedItems().map(item => item.id)) }
 
   function notify() {
     onState({tool, selected: selected(), selectedItems: selectedItems(), selectedIds: [...selectedIds],
       items, zoom: view.zoom, canUndo: !!past.length,
-      canRedo: !!future.length, busy: uploadCount > 0})
+      canRedo: !!future.length, busy: uploadCount > 0, exporting, canExportPhoto: !!selectedPhoto()})
   }
 
   function box(element, item) {
@@ -648,6 +654,36 @@ export function createCanvas({
     }
   }
 
+  async function exportSelectedPhoto() {
+    if (exporting || gesture) return
+    finishEditing()
+    const photo = selectedPhoto()
+    if (!photo) return
+    const scene = items
+    exporting = true
+    notify()
+    try {
+      const {blob, width, height, filename} = await exportPhoto({photo, items: scene, loadImage})
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.append(link)
+      try { link.click() }
+      finally {
+        link.remove()
+        // Leave the download URL alive long enough for the browser to consume it.
+        setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      }
+      onNotice('Downloading PNG: ' + width + ' × ' + height + ' pixels.')
+    } catch (error) {
+      onError(error.message || 'The photo could not be exported.')
+    } finally {
+      exporting = false
+      notify()
+    }
+  }
+
   function clearGesture() {
     if (!gesture) return
     drawSnapGuides()
@@ -1125,7 +1161,7 @@ export function createCanvas({
   notify()
   return {
     setItems, setTool, select, updateSelected, arrange, remove, zoomToFit, addFiles, startTextEdit,
-    finishEditing, copySelected, pasteClipboard, canReplaceItems: () => !editing && !gesture && !uploadCount,
+    finishEditing, copySelected, pasteClipboard, exportSelectedPhoto, canReplaceItems: () => !editing && !gesture && !uploadCount,
     getItems: () => items, undo: () => restore(past, future), redo: () => restore(future, past),
     zoomBy: factor => manualZoom(view.zoom * factor), zoomToActual: () => manualZoom(1),
   }

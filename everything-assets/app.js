@@ -174,6 +174,7 @@ async function startEditor() {
       return image.id;
     },
     onError: error => notify(error.message || String(error)),
+    onNotice: message => notify(message),
     onState(state) {
       lastState = state;
       pendingUpload = Boolean(state.busy);

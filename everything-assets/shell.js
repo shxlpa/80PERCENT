@@ -93,6 +93,10 @@ export function renderShell(state) {
   el('layer-copy').disabled = !selected;
   el('type-fields').hidden = selected?.type !== 'text';
   el('fill-field').hidden = !selected || selected.type === 'image';
+  el('photo-export').hidden = !state.canExportPhoto;
+  el('export-photo').disabled = !!state.exporting;
+  el('export-photo').setAttribute('aria-busy', String(!!state.exporting));
+  el('export-photo').textContent = state.exporting ? 'Preparing PNG…' : 'Save photo + overlays';
   if (count) {
     const selectedSet = new Set(selectedIds);
     el('layer-back').disabled = items.slice(0, count).every(item => selectedSet.has(item.id));
@@ -189,6 +193,7 @@ export function bindShell(canvas) {
   for (const [id, action] of Object.entries({
     'clear-selection': () => { canvas.select(null); el('viewport').focus({preventScroll:true}); },
     'layer-copy': () => canvas.copySelected(), 'action-paste': () => canvas.pasteClipboard(),
+    'export-photo': () => canvas.exportSelectedPhoto(),
     'action-undo': () => canvas.undo(), 'action-redo': () => canvas.redo(),
     'layer-back': () => canvas.arrange('back'), 'layer-front': () => canvas.arrange('front'),
     'layer-delete': () => { canvas.remove(); el('viewport').focus({preventScroll:true}); },
