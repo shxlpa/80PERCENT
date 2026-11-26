@@ -9,7 +9,17 @@ class Surface extends EventTarget {
   children = []
   dataset = {}
   style = {setProperty(name, value) { this[name] = value }}
-  classList = {add() {}}
+  className = ''
+  classList = {
+    add: (...names) => { this.className = [...new Set([...this.className.split(/\s+/).filter(Boolean), ...names])].join(' ') },
+    remove: (...names) => { this.className = this.className.split(/\s+/).filter(name => !names.includes(name)).join(' ') },
+    contains: name => this.className.split(/\s+/).includes(name),
+    toggle: (name, force) => {
+      const include = force ?? !this.classList.contains(name)
+      this.classList[include ? 'add' : 'remove'](name)
+      return include
+    },
+  }
   clientWidth = 800
   clientHeight = 600
 
@@ -23,8 +33,15 @@ class Surface extends EventTarget {
   setPointerCapture(id) { this.captures.add(id) }
   hasPointerCapture(id) { return this.captures.has(id) }
   releasePointerCapture(id) { this.captures.delete(id) }
-  focus() {}
-  closest(selector) { return selector === '.ec-node' && this.className === 'ec-node' ? this : null }
+  focus() { document.activeElement = this }
+  closest(selector) {
+    for (const part of selector.split(',')) {
+      if (part.startsWith('.') && this.classList.contains(part.slice(1))) return this
+      if (part === '[data-handle]' && this.dataset.handle) return this
+      if (part.toUpperCase() === this.tagName) return this
+    }
+    return this.parent?.closest(selector) ?? null
+  }
   remove() {
     if (this.parent) this.parent.children.splice(this.parent.children.indexOf(this), 1)
     this.parent = null
@@ -39,9 +56,21 @@ class Surface extends EventTarget {
 }
 
 function board(t, options = {}) {
-  globalThis.document = Object.assign(new EventTarget(), {createElement: () => new Surface()})
+  const previousElement = globalThis.Element
+  globalThis.Element = Surface
+  globalThis.document = Object.assign(new EventTarget(), {
+    createElement: tag => Object.assign(new Surface(), {tagName: tag.toUpperCase()}),
+    querySelector: () => null,
+    getSelection: () => null,
+    fonts: {check: () => true},
+  })
   globalThis.window = new EventTarget()
-  t.after(() => { delete globalThis.document; delete globalThis.window })
+  t.after(() => {
+    delete globalThis.document
+    delete globalThis.window
+    if (previousElement) globalThis.Element = previousElement
+    else delete globalThis.Element
+  })
   const viewport = new Surface()
   const world = new Surface()
   const shape = {id: 'a', type: 'shape', shape: 'rectangle', color: '#ffffff', x: 10, y: 20, width: 50, height: 60}
@@ -49,13 +78,21 @@ function board(t, options = {}) {
   const canvas = createCanvas({viewport, world, items: [shape], onState: next => { state = next },
     onChange: () => { changes++ }, ...options})
   const shapeNode = world.children.find(node => node.dataset.id === shape.id)
-  function emit(type, properties = {}, target = viewport) {
+  function dispatch(surface, type, properties, target) {
     const {timeStamp, ...fields} = properties
     const event = Object.assign(new Event(type, {cancelable: true}), fields)
     if (timeStamp !== undefined) Object.defineProperty(event, 'timeStamp', {value: timeStamp})
     // Browser pointer events with a layer as their target bubble to the viewport listener.
     Object.defineProperty(event, 'target', {value: target})
-    viewport.dispatchEvent(event)
+    surface.dispatchEvent(event)
+    return event
+  }
+  const emit = (type, properties = {}, target = viewport) => dispatch(viewport, type, properties, target)
+  const key = (key, properties = {}, target = viewport) => dispatch(document, 'keydown', {key, ...properties}, target)
+  function drag(from, to, {target = viewport, pointerId = 1, ...properties} = {}) {
+    emit('pointerdown', {button: 0, pointerId, clientX: from[0], clientY: from[1], ...properties}, target)
+    emit('pointermove', {pointerId, clientX: to[0], clientY: to[1], ...properties})
+    emit('pointerup', {pointerId, clientX: to[0], clientY: to[1], ...properties})
   }
   function transform() {
     const match = world.style.transform.match(/^translate\(([^,]+)px,\s*([^)]+)px\) scale\(([^)]+)\)$/)
@@ -79,8 +116,363 @@ function board(t, options = {}) {
       width: zoom * localScale * parseFloat(style.width), height: zoom * localScale * parseFloat(style.height),
     }
   }
-  return {canvas, camera, emit, shapeNode, viewport, world, screenBox, zoom: () => state.zoom, changes: () => changes}
+  return {canvas, camera, emit, key, drag, shapeNode, viewport, world, screenBox,
+    state: () => state, zoom: () => state.zoom, changes: () => changes}
 }
+
+function addSelectionLayers(canvas) {
+  const shape = canvas.getItems()[0]
+  const items = [shape, {...shape, id: 'b', x: 100, y: 120}, {...shape, id: 'c', x: 400, y: 300}]
+  canvas.setItems(items)
+  return structuredClone(items)
+}
+
+const selectedIds = state => [...state().selectedIds].sort()
+
+test('italic text updates its rendered style, saves, and restores through undo and redo', t => {
+  const {canvas, world, state, changes} = board(t)
+  const text = {id: 'text', type: 'text', text: 'Emphasis', font: 'DM Sans', fontSize: 24,
+    color: '#252724', x: 10, y: 20, width: 240, height: 32}
+  canvas.setItems([text])
+  canvas.select(text.id)
+  const node = world.children.find(node => node.dataset.id === text.id)
+  assert.equal(node.style.fontStyle, 'normal', 'older text layers default to regular type')
+  canvas.updateSelected({italic: true})
+  assert.equal(node.style.fontStyle, 'italic')
+  assert.equal(state().selected.italic, true)
+  assert.equal(changes(), 1)
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [text])
+  assert.equal(node.style.fontStyle, 'normal')
+  canvas.redo()
+  assert.equal(node.style.fontStyle, 'italic')
+  canvas.updateSelected({italic: false})
+  assert.equal(node.style.fontStyle, 'normal')
+  assert.equal(canvas.getItems()[0].italic, false)
+  canvas.undo()
+  assert.equal(node.style.fontStyle, 'italic')
+  const beforeInvalid = changes()
+  canvas.updateSelected({italic: 'false'})
+  assert.equal(canvas.getItems()[0].italic, true)
+  assert.equal(changes(), beforeInvalid, 'nonboolean italic updates are ignored')
+})
+
+test('live text color changes paint and save immediately while one picker session has one undo', t => {
+  const {canvas, world, state, changes} = board(t)
+  const text = {id: 'text', type: 'text', text: 'Live color', font: 'DM Sans', fontSize: 24,
+    color: '#252724', x: 10, y: 20, width: 240, height: 32}
+  canvas.setItems([text])
+  canvas.select(text.id)
+  const historyGroup = {}
+  const node = world.children.find(node => node.dataset.id === text.id)
+  for (let i = 1; i <= 100; i++) {
+    const color = '#' + i.toString(16).padStart(6, '0')
+    canvas.updateSelected({color}, {historyGroup})
+    assert.equal(node.style.color, color)
+    assert.equal(canvas.getItems()[0].color, color)
+    assert.equal(changes(), i, 'each live input must be published for autosave')
+  }
+  canvas.updateSelected({color: '#000064'}, {historyGroup})
+  assert.equal(changes(), 100, 'final change event with the same color must be a no-op')
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [text])
+  assert.equal(node.style.color, text.color)
+  assert.equal(state().canUndo, false, '100 color inputs must occupy one undo entry')
+  canvas.redo()
+  assert.equal(node.style.color, '#000064')
+  assert.equal(canvas.getItems()[0].color, '#000064')
+})
+
+test('color undo groups stay separate across picker sessions, edits, and history resets', t => {
+  const {canvas, state} = board(t)
+  const original = {...canvas.getItems()[0]}
+  canvas.select(original.id)
+  const first = {}, second = {}
+  canvas.updateSelected({color: '#111111'}, {historyGroup: first})
+  canvas.updateSelected({color: '#222222'}, {historyGroup: first})
+  canvas.updateSelected({color: '#333333'}, {historyGroup: second})
+  canvas.updateSelected({color: '#444444'}, {historyGroup: second})
+  canvas.undo()
+  assert.equal(canvas.getItems()[0].color, '#222222')
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [original])
+  assert.equal(state().canUndo, false)
+
+  canvas.setItems([original])
+  canvas.updateSelected({color: '#111111'}, {historyGroup: first})
+  canvas.updateSelected({width: 70})
+  canvas.updateSelected({color: '#222222'}, {historyGroup: first})
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [{...original, color: '#111111', width: 70}])
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [{...original, color: '#111111'}])
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [original])
+
+  canvas.updateSelected({color: '#111111'}, {historyGroup: first})
+  canvas.undo()
+  canvas.updateSelected({color: '#222222'}, {historyGroup: first})
+  assert.equal(state().canRedo, false)
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [original])
+  canvas.redo()
+  canvas.updateSelected({color: '#333333'}, {historyGroup: first})
+  canvas.undo()
+  assert.equal(canvas.getItems()[0].color, '#222222', 'redo must end a previous color group')
+
+  canvas.updateSelected({color: '#444444'}, {historyGroup: first})
+  canvas.setItems([original])
+  canvas.updateSelected({color: '#555555'}, {historyGroup: first})
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), [original], 'scene replacement must start fresh history')
+  assert.equal(state().canUndo, false)
+})
+
+test('marquee selects intersecting layers in either direction without saving the scene', t => {
+  const {canvas, drag, state, changes} = board(t)
+  const saved = addSelectionLayers(canvas)
+  for (const [from, to] of [[[0, 0], [170, 200]], [[170, 200], [40, 50]]]) {
+    drag(from, to)
+    assert.deepEqual(selectedIds(state), ['a', 'b'])
+    assert.deepEqual(state().selectedItems.map(item => item.id).sort(), ['a', 'b'])
+    assert.equal(state().selected, null)
+    assert.deepEqual(canvas.getItems(), saved)
+    assert.equal(changes(), 0)
+  }
+  drag([200, 210], [200, 210])
+  assert.deepEqual(selectedIds(state), [])
+  assert.equal(state().selected, null)
+  assert.equal(changes(), 0)
+})
+
+test('marquee follows world geometry after zoom and pan', t => {
+  const {canvas, drag, state, camera, changes} = board(t)
+  addSelectionLayers(canvas)
+  canvas.zoomBy(2)
+  canvas.setTool('hand')
+  drag([20, 20], [470, 370])
+  canvas.setTool('select')
+  const {x, y, zoom} = camera()
+  const screen = (wx, wy) => [x + wx * zoom, y + wy * zoom]
+  drag(screen(170, 200), screen(0, 0))
+  assert.deepEqual(selectedIds(state), ['a', 'b'])
+  assert.equal(changes(), 0)
+})
+
+test('marquee still finds layers after recentering extreme world coordinates', t => {
+  const {canvas, drag, state, screenBox, changes} = board(t)
+  const shape = canvas.getItems()[0]
+  canvas.setItems([
+    {...shape, id: 'west', x: -1e9, y: 0},
+    {...shape, id: 'east', x: 1e9, y: 0},
+  ])
+  canvas.zoomToFit()
+  const west = screenBox('west'), east = screenBox('east')
+  drag([west.left - 10, west.top - 10], [east.left + east.width + 10, east.top + east.height + 10])
+  assert.deepEqual(selectedIds(state), ['east', 'west'])
+  assert.equal(changes(), 0)
+})
+
+test('Shift marquee adds layers and Shift click toggles membership', t => {
+  const {canvas, drag, state, world, changes} = board(t)
+  addSelectionLayers(canvas)
+  canvas.select('c')
+  drag([0, 0], [170, 200], {shiftKey: true})
+  assert.deepEqual(selectedIds(state), ['a', 'b', 'c'])
+  const a = world.children.find(node => node.dataset.id === 'a')
+  drag([20, 25], [20, 25], {target: a, shiftKey: true})
+  assert.deepEqual(selectedIds(state), ['b', 'c'])
+  drag([20, 25], [20, 25], {target: a, shiftKey: true})
+  assert.deepEqual(selectedIds(state), ['a', 'b', 'c'])
+  canvas.select('c', {toggle: true})
+  canvas.select('b', {toggle: true})
+  assert.deepEqual(selectedIds(state), ['a'])
+  assert.equal(state().selected.id, 'a')
+  const c = world.children.find(node => node.dataset.id === 'c')
+  drag([410, 310], [410, 310], {target: c})
+  assert.deepEqual(selectedIds(state), ['c'])
+  assert.equal(state().selected.id, 'c')
+  assert.equal(changes(), 0)
+})
+
+test('dragging a selected layer moves the group in one undoable change', t => {
+  const {canvas, emit, shapeNode, state, changes, screenBox} = board(t)
+  const saved = addSelectionLayers(canvas)
+  canvas.select('a')
+  canvas.select('b', {toggle: true})
+  canvas.zoomBy(2)
+  const beforeA = screenBox('a'), beforeB = screenBox('b')
+  const start = {button: 0, pointerId: 12, clientX: beforeA.left + 10, clientY: beforeA.top + 10}
+  const end = {...start, clientX: start.clientX + 60, clientY: start.clientY + 80}
+  emit('pointerdown', start, shapeNode)
+  emit('pointermove', end)
+  assert.deepEqual(selectedIds(state), ['a', 'b'])
+  assert.equal(screenBox('a').left, beforeA.left + 60)
+  assert.equal(screenBox('b').left, beforeB.left + 60)
+  assert.deepEqual(canvas.getItems(), saved, 'movement is a preview until release')
+  assert.equal(changes(), 0)
+  emit('pointerup', end)
+  const moved = canvas.getItems()
+  assert.deepEqual(moved.map(({x, y}) => [x, y]), [[40, 60], [130, 160], [400, 300]])
+  assert.equal(changes(), 1)
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(state().canUndo, false)
+  canvas.redo()
+  assert.deepEqual(canvas.getItems(), moved)
+})
+
+test('group movement clamps a shared offset at world limits without saving outward nudges', t => {
+  const {canvas, drag, key, shapeNode, screenBox, state, changes} = board(t)
+  const shape = canvas.getItems()[0]
+  for (const sign of [-1, 1]) {
+    const saved = [
+      {...shape, x: sign * (1e9 - 5), y: sign * (1e9 - 10)},
+      {...shape, id: 'b', x: sign * (1e9 - 20), y: sign * (1e9 - 30)},
+    ]
+    canvas.setItems(saved)
+    canvas.select('a')
+    canvas.select('b', {toggle: true})
+    canvas.zoomToFit()
+    const box = screenBox('a')
+    const start = [box.left + 10, box.top + 10]
+    const beforeChanges = changes()
+    drag(start, [start[0] + sign * 100, start[1] + sign * 100], {target: shapeNode})
+    const atLimit = canvas.getItems()
+    assert.deepEqual(atLimit.map(({x, y}) => [x, y]), [
+      [sign * 1e9, sign * 1e9],
+      [sign * (1e9 - 15), sign * (1e9 - 20)],
+    ])
+    assert.equal(changes(), beforeChanges + 1)
+    key(sign > 0 ? 'ArrowRight' : 'ArrowLeft', {shiftKey: true})
+    key(sign > 0 ? 'ArrowDown' : 'ArrowUp', {shiftKey: true})
+    assert.deepEqual(canvas.getItems(), atLimit)
+    assert.equal(changes(), beforeChanges + 1, 'outward nudges must not autosave')
+    canvas.undo()
+    assert.deepEqual(canvas.getItems(), saved, 'one undo restores the whole drag')
+    assert.equal(state().canUndo, false, 'outward nudges must not create undo entries')
+  }
+})
+
+test('cancelled marquee restores its starting selection and releases the gesture', t => {
+  const {canvas, emit, state, changes} = board(t)
+  const saved = addSelectionLayers(canvas)
+  for (const reason of ['pointercancel', 'lostpointercapture', 'blur', 'pinch']) {
+    canvas.select('a')
+    emit('pointerdown', {button: 0, pointerId: 20, clientX: 80, clientY: 100})
+    emit('pointermove', {pointerId: 20, clientX: 180, clientY: 200})
+    assert.deepEqual(selectedIds(state), ['b'])
+    if (reason === 'blur') window.dispatchEvent(new Event('blur'))
+    else if (reason === 'pinch') {
+      emit('pointerdown', {button: 0, pointerId: 21, clientX: 220, clientY: 250})
+      assert.deepEqual(selectedIds(state), ['a'])
+      emit('pointerup', {pointerId: 21, clientX: 220, clientY: 250})
+      emit('pointerup', {pointerId: 20, clientX: 180, clientY: 200})
+    } else emit(reason, {pointerId: 20})
+    assert.deepEqual(selectedIds(state), ['a'], reason)
+    assert.equal(canvas.canReplaceItems(), true, reason)
+    assert.deepEqual(canvas.getItems(), saved)
+    assert.equal(changes(), 0)
+  }
+})
+
+test('cancelled group movement restores every previewed layer', t => {
+  const {canvas, emit, shapeNode, screenBox, state, changes} = board(t)
+  const saved = addSelectionLayers(canvas)
+  canvas.select('a')
+  canvas.select('b', {toggle: true})
+  const before = ['a', 'b'].map(screenBox)
+  emit('pointerdown', {button: 0, pointerId: 22, clientX: 20, clientY: 25}, shapeNode)
+  emit('pointermove', {pointerId: 22, clientX: 70, clientY: 90})
+  emit('pointercancel', {pointerId: 22})
+  assert.deepEqual(['a', 'b'].map(screenBox), before)
+  assert.deepEqual(selectedIds(state), ['a', 'b'])
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(changes(), 0)
+})
+
+test('select all, group nudge, delete, and undo operate on the entire selection', t => {
+  const {canvas, key, state, changes} = board(t)
+  const saved = addSelectionLayers(canvas)
+  canvas.select('a')
+  canvas.select('b', {toggle: true})
+  assert.equal(key('ArrowRight', {shiftKey: true}).defaultPrevented, true)
+  assert.deepEqual(canvas.getItems().map(({x, y}) => [x, y]), [[20, 20], [110, 120], [400, 300]])
+  assert.equal(changes(), 1)
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(state().canUndo, false)
+  key('Delete')
+  assert.deepEqual(canvas.getItems().map(item => item.id), ['c'])
+  assert.deepEqual(selectedIds(state), [])
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), saved)
+  for (const modifier of ['ctrlKey', 'metaKey']) {
+    canvas.select(null)
+    assert.equal(key('a', {[modifier]: true}).defaultPrevented, true)
+    assert.deepEqual(selectedIds(state), ['a', 'b', 'c'])
+  }
+})
+
+test('group arrangement preserves relative layer order and is atomic', t => {
+  const {canvas, state} = board(t)
+  const saved = addSelectionLayers(canvas)
+  canvas.select('a')
+  canvas.select('c', {toggle: true})
+  canvas.arrange('front')
+  assert.deepEqual(canvas.getItems().map(item => item.id), ['b', 'a', 'c'])
+  assert.deepEqual(selectedIds(state), ['a', 'c'])
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), saved)
+  assert.equal(state().canUndo, false)
+  canvas.arrange('back')
+  assert.deepEqual(canvas.getItems().map(item => item.id), ['a', 'c', 'b'])
+  canvas.undo()
+  assert.deepEqual(canvas.getItems(), saved)
+})
+
+test('replaced scenes prune stale selection without losing selected surviving layers', t => {
+  const {canvas, state} = board(t)
+  const saved = addSelectionLayers(canvas)
+  canvas.select('a')
+  canvas.select('b', {toggle: true})
+  canvas.setItems(saved.filter(item => item.id !== 'a'))
+  assert.deepEqual(selectedIds(state), ['b'])
+  assert.equal(state().selected.id, 'b')
+  canvas.setItems([])
+  assert.deepEqual(selectedIds(state), [])
+  assert.equal(state().selected, null)
+})
+
+test('selection retains single resize, explicit pan, and shape drawing gestures', t => {
+  const {canvas, drag, emit, key, state, world, camera} = board(t)
+  canvas.select('a')
+  const selection = world.children.find(node => node.classList.contains('ec-selection'))
+  const handle = selection.children.find(node => node.dataset.handle === 'se')
+  drag([60, 80], [80, 100], {target: handle})
+  assert.deepEqual(canvas.getItems().map(({x, y, width, height}) => [x, y, width, height]), [[10, 20, 70, 80]])
+  const beforePan = camera()
+  drag([200, 200], [220, 230], {button: 1})
+  assert.deepEqual(camera(), {...beforePan, x: beforePan.x + 20, y: beforePan.y + 30})
+  assert.deepEqual(selectedIds(state), ['a'])
+  key(' ', {code: 'Space'})
+  const beforeSpace = camera()
+  drag([200, 200], [240, 250])
+  assert.deepEqual(camera(), {...beforeSpace, x: beforeSpace.x + 40, y: beforeSpace.y + 50})
+  document.dispatchEvent(Object.assign(new Event('keyup'), {code: 'Space'}))
+  canvas.setTool('rectangle')
+  drag([300, 300], [360, 340], {shiftKey: true})
+  const created = canvas.getItems()[1]
+  assert.equal(created.type, 'shape')
+  assert.equal(created.width, 60)
+  assert.equal(created.height, 60)
+  assert.equal(state().selected.id, created.id)
+  // An ordinary select click after drawing must no longer pan or create a shape.
+  emit('pointerdown', {button: 0, pointerId: 33, clientX: 0, clientY: 0})
+  emit('pointerup', {pointerId: 33, clientX: 0, clientY: 0})
+  assert.deepEqual(selectedIds(state), [])
+  assert.equal(canvas.getItems().length, 2)
+})
 
 test('a malformed Safari pinch cannot poison later pinch, wheel, or fit zooms', t => {
   const {canvas, camera, emit} = board(t)
@@ -282,11 +674,6 @@ test('native WebKit pinch quantizes cumulative scale and suppresses duplicate wh
 
 test('pasting a layer creates an independent, undoable copy with the same appearance', t => {
   const {canvas, viewport, changes} = board(t)
-  const previousElement = globalThis.Element
-  globalThis.Element = Surface
-  t.after(() => { if (previousElement) globalThis.Element = previousElement; else delete globalThis.Element })
-  document.querySelector = () => null
-  document.getSelection = () => null
   const shape = {...canvas.getItems()[0], id: crypto.randomUUID(), color: '#674123'}
   canvas.setItems([shape])
   canvas.select(shape.id)
@@ -325,6 +712,17 @@ test('clipboard layers retain known fields and validate private image references
   assert.equal(parseLayer(JSON.stringify({...image, imageId: 'https://example.com/image.png'})), null)
   assert.equal(parseLayer(JSON.stringify({...image, width: -3})), null)
   assert.equal(parseLayer('ordinary text'), null)
+})
+
+test('clipboard text preserves optional italic styling and rejects invalid values', () => {
+  const text = {id: crypto.randomUUID(), type: 'text', text: 'Emphasis', font: 'DM Sans', fontSize: 24,
+    color: '#252724', x: 10, y: 20, width: 240, height: 32}
+  for (const item of [text, {...text, italic: true}, {...text, italic: false}]) {
+    assert.deepEqual(parseLayer(JSON.stringify(item)), item)
+  }
+  for (const italic of ['true', 'false', 1, 0, null, {}]) {
+    assert.equal(parseLayer(JSON.stringify({...text, italic})), null)
+  }
 })
 
 test('private images share one fetch, ignore replaced loads and release their object URLs', async t => {

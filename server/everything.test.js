@@ -123,6 +123,23 @@ test('two devices share private image bytes and one saved board, including follo
   } finally { disk.close(); }
 });
 
+test('saved text retains optional italic styling and invalid values cannot replace the board', async t => {
+  const { call, login } = fixture(t);
+  const token = await login();
+  const text = { id: randomUUID(), type: 'text', text: 'Emphasis', font: 'DM Sans', fontSize: 24,
+    color: '#252724', x: 10, y: 20, width: 240, height: 32 };
+  const items = [text, {...text, id: randomUUID(), italic: true}, {...text, id: randomUUID(), italic: false}];
+  const saved = await call('board', { method: 'PUT', token, value: { revision: 0, items } });
+  assert.equal(saved.status, 200);
+  assert.deepEqual(await (await call('board', { token })).json(), { revision: 1, items });
+  for (const italic of ['true', 'false', 1, 0, null, {}]) {
+    const rejected = await call('board', { method: 'PUT', token,
+      value: { revision: 1, items: [{...text, italic}] } });
+    assert.equal(rejected.status, 400);
+  }
+  assert.deepEqual(await (await call('board', { token })).json(), { revision: 1, items });
+});
+
 test('a HEIC photo must reach private storage as browser-readable image bytes', async t => {
   const { handle, request, login } = fixture(t);
   const token = await login();

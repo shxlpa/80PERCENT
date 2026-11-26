@@ -11,7 +11,8 @@ export function validItem(item) {
   switch (item.type) {
     case 'shape': return ['rectangle', 'ellipse', 'triangle'].includes(item.shape) && color(item.color);
     case 'text': return typeof item.text === 'string' && item.text.length <= 200000 &&
-      typeof item.font === 'string' && item.font.length <= 100 && between(item.fontSize, 1, 2048) && color(item.color);
+      typeof item.font === 'string' && item.font.length <= 100 && between(item.fontSize, 1, 2048) && color(item.color) &&
+      (!('italic' in item) || typeof item.italic === 'boolean');
     case 'image': return typeof item.imageId === 'string' && imageId.test(item.imageId) && typeof item.name === 'string' && item.name.length <= 1024;
     default: return false;
   }

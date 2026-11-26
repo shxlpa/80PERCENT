@@ -78,6 +78,14 @@ img.ec-content {
   outline: var(--ec-line, 1px) solid #4772d5;
   pointer-events: none;
 }
+.ec-node[data-ec-selected="true"] { outline: var(--ec-line, 1px) solid #4772d5; }
+.ec-marquee {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid #4772d5;
+  background: rgb(71 114 213 / 12%);
+  pointer-events: none;
+}
 .ec-handle {
   display: block;
   position: absolute;
@@ -94,7 +102,7 @@ img.ec-content {
 .ec-handle[data-handle="ne"] { left: 100%; top: 0; cursor: nesw-resize; }
 .ec-handle[data-handle="sw"] { left: 0; top: 100%; cursor: nesw-resize; }
 .ec-handle[data-handle="se"] { left: 100%; top: 100%; cursor: nwse-resize; }
-.ec-selection[hidden] { display: none; }
+.ec-selection[hidden], .ec-marquee[hidden], .ec-selection[data-multiple="true"] .ec-handle { display: none; }
 .ec-viewport[data-ec-tool="hand"], .ec-viewport[data-ec-tool="hand"] * { cursor: grab; }
 .ec-viewport[data-ec-panning="true"], .ec-viewport[data-ec-panning="true"] * { cursor: grabbing; }
 .ec-viewport[data-ec-tool="text"], .ec-viewport[data-ec-tool="text"] .ec-node { cursor: text; }

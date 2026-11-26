@@ -44,6 +44,26 @@ function resizeBox(original, handle, dx, dy, shift) {
     y: top ? original.y + original.height - height : original.y}
 }
 
+function bounds(items) {
+  if (!items.length) return null
+  let x = Infinity, y = Infinity, right = -Infinity, bottom = -Infinity
+  for (const item of items) {
+    x = Math.min(x, item.x)
+    y = Math.min(y, item.y)
+    right = Math.max(right, item.x + item.width)
+    bottom = Math.max(bottom, item.y + item.height)
+  }
+  return {x, y, width: right - x, height: bottom - y}
+}
+
+function translated(items, dx, dy) {
+  const area = bounds(items)
+  // Clamp the shared offset so layers at the storage boundary stay together.
+  dx = clamp(dx, -1e9 - area.x, 1e9 - Math.max(...items.map(item => item.x)))
+  dy = clamp(dy, -1e9 - area.y, 1e9 - Math.max(...items.map(item => item.y)))
+  return items.map(item => ({...item, x: item.x + dx, y: item.y + dy}))
+}
+
 // Revisions, credentials, and uploads are handled by the caller. Scene snapshots are
 // immutable, so pointer previews and undo history can share unmodified layers.
 export function createCanvas({
@@ -51,7 +71,7 @@ export function createCanvas({
   uploadImage, loadImage, onError = () => {},
 }) {
   let items = initialItems.map(item => ({...item}))
-  let selectedId = null
+  let selectedIds = new Set()
   let tool = 'select'
   let editing = null
   let gesture = null
@@ -67,6 +87,7 @@ export function createCanvas({
   let copiedLayer = null
   let localCopyOnly = false
   let lastPlacement = null
+  let lastHistoryGroup = null
   const past = [], future = []
   const nodes = new Map()
   const images = new Map()
@@ -74,6 +95,11 @@ export function createCanvas({
   const selection = document.createElement('div')
   selection.className = 'ec-selection'
   selection.setAttribute('aria-hidden', 'true')
+  const marquee = document.createElement('div')
+  marquee.className = 'ec-marquee'
+  marquee.setAttribute('aria-hidden', 'true')
+  marquee.hidden = true
+  viewport.append(marquee)
   for (const corner of ['nw', 'ne', 'sw', 'se']) {
     const handle = document.createElement('i')
     handle.className = 'ec-handle'
@@ -84,10 +110,13 @@ export function createCanvas({
   if (!viewport.hasAttribute('tabindex')) viewport.tabIndex = 0
   world.classList.add('ec-world')
   world.append(selection)
-  const selected = () => items.find(item => item.id === selectedId) ?? null
+  const selectedItems = () => items.filter(item => selectedIds.has(item.id))
+  const selected = () => selectedIds.size === 1 ? selectedItems()[0] ?? null : null
+  const pruneSelection = () => { selectedIds = new Set(selectedItems().map(item => item.id)) }
 
   function notify() {
-    onState({tool, selected: selected(), items, zoom: view.zoom, canUndo: !!past.length,
+    onState({tool, selected: selected(), selectedItems: selectedItems(), selectedIds: [...selectedIds],
+      items, zoom: view.zoom, canUndo: !!past.length,
       canRedo: !!future.length, busy: uploadCount > 0})
   }
 
@@ -187,6 +216,7 @@ export function createCanvas({
     } else {
       node.style.fontFamily = '"' + item.font + '", sans-serif'
       node.style.fontSize = item.fontSize + 'px'
+      node.style.fontStyle = item.italic ? 'italic' : 'normal'
       node.style.color = item.color
       content.classList.add('ec-text')
       if (content.textContent !== item.text) content.textContent = item.text
@@ -194,11 +224,15 @@ export function createCanvas({
     return node
   }
 
-  function drawSelection() {
-    const item = selected()
-    selection.hidden = !item || tool !== 'select'
-    if (item) box(selection, item)
+  function drawSelection(chosen = selectedItems()) {
+    const area = bounds(chosen)
+    selection.hidden = !area || tool !== 'select'
+    selection.dataset.multiple = String(chosen.length > 1)
+    if (area) box(selection, area)
     selection.style.visibility = editing ? 'hidden' : ''
+    for (const [id, node] of nodes) {
+      node.dataset.ecSelected = String(selectedIds.has(id) && chosen.length > 1 && tool === 'select' && !editing)
+    }
   }
 
   function render() {
@@ -237,15 +271,18 @@ export function createCanvas({
     viewport.style.setProperty('--grid-y', view.y % gridSize + 'px')
   }
 
-  function remember(before) {
-    past.push(before)
-    if (past.length > 80) past.shift()
+  function remember(before, historyGroup = null) {
+    if (!historyGroup || lastHistoryGroup?.key !== historyGroup || lastHistoryGroup.items !== before) {
+      past.push(before)
+      if (past.length > 80) past.shift()
+    }
+    lastHistoryGroup = historyGroup ? {key: historyGroup, items} : null
     future.length = 0
   }
 
-  function commit(before) {
+  function commit(before, historyGroup = null) {
     if (items !== before) {
-      remember(before)
+      remember(before, historyGroup)
       onChange(items)
     }
     render()
@@ -261,7 +298,7 @@ export function createCanvas({
   function growForLoadedFont(id) {
     const original = items.find(item => item.id === id)
     if (!original || original.type !== 'text') return
-    const descriptor = original.fontSize + 'px "' + original.font + '"'
+    const descriptor = (original.italic ? 'italic ' : '') + original.fontSize + 'px "' + original.font + '"'
     if (document.fonts.check(descriptor)) return
     document.fonts.load(descriptor).then(() => {
       if (items.find(item => item.id === id) !== original || gesture || editing) return
@@ -277,16 +314,21 @@ export function createCanvas({
   function setItems(next) {
     if (editing || gesture) return
     items = next.map(item => ({...item}))
-    if (!selected()) selectedId = null
+    pruneSelection()
     past.length = future.length = 0
+    lastHistoryGroup = null
     render()
     notify()
   }
 
-  function select(id) {
+  function select(id, {toggle = false} = {}) {
     finishEditing()
-    selectedId = items.some(item => item.id === id) ? id : null
-    if (selectedId) tool = 'select'
+    if (items.some(item => item.id === id)) {
+      if (!toggle) selectedIds = new Set([id])
+      else if (selectedIds.has(id)) selectedIds.delete(id)
+      else selectedIds.add(id)
+      tool = 'select'
+    } else selectedIds.clear()
     render()
     notify()
   }
@@ -295,7 +337,7 @@ export function createCanvas({
     if (!['select', 'hand', 'text', ...SHAPES].includes(next)) return
     finishEditing()
     tool = next
-    if (next !== 'select') selectedId = null
+    if (next !== 'select') selectedIds.clear()
     render()
     notify()
   }
@@ -388,7 +430,7 @@ export function createCanvas({
     const item = items.find(entry => entry.id === id)
     if (item && !item.text.length) {
       items = items.filter(entry => entry.id !== id)
-      selectedId = null
+      selectedIds.delete(id)
       if (savedDraft || before.some(entry => entry.id === id)) {
         remember(before)
         onChange(items)
@@ -439,7 +481,7 @@ export function createCanvas({
 
   function startTextEdit() { editText(items) }
 
-  function updateSelected(props) {
+  function updateSelected(props, {historyGroup = null} = {}) {
     finishEditing()
     const item = selected()
     if (!item) return
@@ -452,6 +494,7 @@ export function createCanvas({
     }
     if (item.type !== 'image' && /^#[a-f0-9]{6}$/i.test(props.color)) value.color = props.color
     if (item.type === 'text' && FONT_FAMILIES.includes(props.font)) value.font = props.font
+    if (item.type === 'text' && typeof props.italic === 'boolean') value.italic = props.italic
     if (Object.keys(value).every(key => value[key] === item[key])) return
     const before = items
     patch(item.id, value)
@@ -459,38 +502,59 @@ export function createCanvas({
       const content = drawNode(selected()).firstElementChild
       if (content.scrollHeight > selected().height) patch(item.id, {height: content.scrollHeight + 1})
     }
-    commit(before)
+    commit(before, historyGroup)
     if (!('height' in value)) growForLoadedFont(item.id)
   }
 
   function remove() {
     finishEditing()
-    if (!selected()) return
+    if (!selectedIds.size) return
     const before = items
-    items = items.filter(item => item.id !== selectedId)
-    selectedId = null
+    items = items.filter(item => !selectedIds.has(item.id))
+    selectedIds.clear()
     commit(before)
   }
 
   function arrange(direction) {
     finishEditing()
-    const from = items.findIndex(item => item.id === selectedId)
-    if (from < 0) return
-    const to = {front: items.length - 1, back: 0, forward: Math.min(items.length - 1, from + 1),
-      backward: Math.max(0, from - 1)}[direction]
-    if (to == null || to === from) return
+    if (!selectedIds.size) return
     const before = items
-    items = [...items]
-    items.splice(to, 0, items.splice(from, 1)[0])
+    const chosen = selectedItems(), others = items.filter(item => !selectedIds.has(item.id))
+    let next
+    if (direction === 'front') next = [...others, ...chosen]
+    else if (direction === 'back') next = [...chosen, ...others]
+    else if (direction === 'forward' || direction === 'backward') {
+      next = [...items]
+      const step = direction === 'forward' ? -1 : 1
+      for (let i = step === -1 ? next.length - 2 : 1; i >= 0 && i < next.length; i += step) {
+        const neighbor = i - step
+        if (next[neighbor] && selectedIds.has(next[i].id) && !selectedIds.has(next[neighbor].id)) {
+          [next[i], next[neighbor]] = [next[neighbor], next[i]]
+        }
+      }
+    } else return
+    if (next.every((item, index) => item === before[index])) return
+    items = next
+    commit(before)
+  }
+
+  function moveSelected(dx, dy) {
+    const chosen = selectedItems()
+    if (!chosen.length) return
+    const moved = new Map(translated(chosen, dx, dy).map(item => [item.id, item]))
+    if (chosen.every(item => moved.get(item.id).x === item.x && moved.get(item.id).y === item.y)) return
+    const before = items
+    items = items.map(item => moved.get(item.id) || item)
     commit(before)
   }
 
   function restore(source, destination) {
     finishEditing()
     if (!source.length || gesture) return
+    lastHistoryGroup = null
     destination.push(items)
     items = source.pop()
-    if (!selected()) selectedId = null
+    pruneSelection()
     render()
     notify()
     onChange(items)
@@ -507,7 +571,7 @@ export function createCanvas({
     finishEditing()
     const before = items
     items = [...items, item]
-    selectedId = item.id
+    selectedIds = new Set([item.id])
     tool = 'select'
     if (fitText && item.type === 'text' && !item.text) {
       render()
@@ -553,13 +617,16 @@ export function createCanvas({
 
   function clearGesture() {
     if (!gesture) return
+    if (gesture.kind === 'marquee') selectedIds = gesture.selectionBefore
     if (gesture.preview && gesture.kind === 'draw') {
       nodes.get(gesture.preview.id)?.remove()
       nodes.delete(gesture.preview.id)
     }
     gesture = null
+    marquee.hidden = true
     delete viewport.dataset.ecPanning
     render()
+    notify()
   }
 
   function pinchGeometry() {
@@ -606,10 +673,20 @@ export function createCanvas({
       return
     }
     const id = event.target.closest('.ec-node')?.dataset.id
-    selectedId = id || null
+    if (id) {
+      if (event.shiftKey) {
+        if (selectedIds.has(id)) selectedIds.delete(id)
+        else selectedIds.add(id)
+      } else if (!selectedIds.has(id)) selectedIds = new Set([id])
+      if (selectedIds.has(id)) gesture = {kind: 'move', start: point, originals: selectedItems()}
+    } else {
+      const selectionBefore = new Set(selectedIds)
+      if (!event.shiftKey) selectedIds.clear()
+      gesture = {kind: 'marquee', start: point, origin: at(point), selectionBefore,
+        base: new Set(selectedIds)}
+    }
     drawSelection()
     notify()
-    if (selected()) gesture = {kind: 'move', start: point, original: selected()}
   })
 
   function drawDraft(g, point, shift) {
@@ -637,13 +714,35 @@ export function createCanvas({
       const node = drawNode(g.preview)
       if (!node.isConnected) world.insertBefore(node, selection)
       box(selection, g.preview)
+      selection.dataset.multiple = 'false'
       selection.hidden = false
-    } else if (g.kind === 'move' || g.kind === 'resize') {
+    } else if (g.kind === 'marquee') {
+      if (!g.dragged && Math.hypot(dx, dy) < 3) return
+      g.dragged = true
+      const end = at(point)
+      const left = Math.min(g.origin.x, end.x), right = Math.max(g.origin.x, end.x)
+      const top = Math.min(g.origin.y, end.y), bottom = Math.max(g.origin.y, end.y)
+      selectedIds = new Set(g.base)
+      for (const item of items) {
+        if (item.x <= right && item.x + item.width >= left &&
+            item.y <= bottom && item.y + item.height >= top) selectedIds.add(item.id)
+      }
+      marquee.style.left = Math.min(g.start.x, point.x) + 'px'
+      marquee.style.top = Math.min(g.start.y, point.y) + 'px'
+      marquee.style.width = Math.abs(dx) + 'px'
+      marquee.style.height = Math.abs(dy) + 'px'
+      marquee.hidden = false
+      drawSelection()
+      notify()
+    } else if (g.kind === 'move') {
+      if (!g.preview && Math.hypot(dx, dy) < 2) return
+      g.preview = translated(g.originals, dx / view.zoom, dy / view.zoom)
+      for (const item of g.preview) drawNode(item)
+      drawSelection(g.preview)
+    } else if (g.kind === 'resize') {
       if (!g.preview && Math.hypot(dx, dy) < 2) return
       const source = g.original
-      const dimensions = g.kind === 'move'
-        ? {x: source.x + dx / view.zoom, y: source.y + dy / view.zoom}
-        : resizeBox(source, g.handle, dx / view.zoom, dy / view.zoom, shift)
+      const dimensions = resizeBox(source, g.handle, dx / view.zoom, dy / view.zoom, shift)
       g.preview = {...source, ...dimensions}
       drawNode(g.preview)
       box(selection, g.preview)
@@ -686,9 +785,22 @@ export function createCanvas({
     } else if (g.kind === 'move' || g.kind === 'resize') {
       preview(point, event.shiftKey)
       const before = items
-      if (g.preview && items.some(item => item.id === g.preview.id)) patch(g.preview.id, g.preview)
+      if (g.preview) {
+        const previews = new Map((g.kind === 'move' ? g.preview : [g.preview]).map(item => [item.id, item]))
+        const changed = items.some(item => {
+          const next = previews.get(item.id)
+          return next && ['x', 'y', 'width', 'height'].some(key => next[key] !== item[key])
+        })
+        if (changed) items = items.map(item => previews.get(item.id) || item)
+      }
       gesture = null
       commit(before)
+    } else if (g.kind === 'marquee') {
+      preview(point, event.shiftKey)
+      gesture = null
+      marquee.hidden = true
+      drawSelection()
+      notify()
     } else clearGesture()
   }
   viewport.addEventListener('pointerup', event => endPointer(event, false))
@@ -785,14 +897,14 @@ export function createCanvas({
       point.y >= item.y && point.y <= item.y + item.height
     let x = onSource ? item.x + offset : point.x - item.width / 2
     let y = onSource ? item.y + offset : point.y - item.height / 2
-    if (lastPlacement?.source === item.id && selectedId === lastPlacement.id &&
+    if (lastPlacement?.source === item.id && selected()?.id === lastPlacement.id &&
         Math.hypot(point.x - lastPlacement.point.x, point.y - lastPlacement.point.y) < 3 / view.zoom) {
       const previous = selected()
       if (previous) { x = previous.x + offset; y = previous.y + offset }
     }
     const id = crypto.randomUUID()
     insert({...item, id, x: clamp(x, -1e9, 1e9), y: clamp(y, -1e9, 1e9)}, {fitText: false})
-    if (selectedId === id) lastPlacement = {source: item.id, id, point}
+    if (selected()?.id === id) lastPlacement = {source: item.id, id, point}
   }
 
   document.addEventListener('copy', event => {
@@ -887,7 +999,13 @@ export function createCanvas({
       return
     }
     if (gesture) return
-    if (cmd && key === 'z') {
+    if (cmd && key === 'a') {
+      event.preventDefault()
+      selectedIds = new Set(items.map(item => item.id))
+      tool = 'select'
+      render()
+      notify()
+    } else if (cmd && key === 'z') {
       event.preventDefault()
       if (event.shiftKey) restore(future, past)
       else restore(past, future)
@@ -910,7 +1028,7 @@ export function createCanvas({
       spaceDown = true
       viewport.dataset.ecTool = 'hand'
     } else if (key === 'delete' || key === 'backspace') {
-      if (!selected()) return
+      if (!selectedIds.size) return
       event.preventDefault()
       remove()
     } else if (key === 'enter' && event.target === viewport) {
@@ -926,12 +1044,11 @@ export function createCanvas({
     } else if (key === '[' || key === ']') {
       event.preventDefault()
       arrange(key === '[' ? 'backward' : 'forward')
-    } else if (key.startsWith('arrow') && selected() && event.target === viewport) {
+    } else if (key.startsWith('arrow') && selectedIds.size && event.target === viewport) {
       event.preventDefault()
       const step = event.shiftKey ? 10 : 1
-      const {x,y} = selected()
-      updateSelected({x: x + step * ((key === 'arrowright') - (key === 'arrowleft')),
-        y: y + step * ((key === 'arrowdown') - (key === 'arrowup'))})
+      moveSelected(step * ((key === 'arrowright') - (key === 'arrowleft')),
+        step * ((key === 'arrowdown') - (key === 'arrowup')))
     }
   })
   const releaseSpace = () => { spaceDown = false; viewport.dataset.ecTool = tool }

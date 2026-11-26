@@ -6,9 +6,11 @@
 Designed and built from scratch in CA, with love.
 ## Everything
 
-The private idea canvas lives at `/everything/`. Use the Home link to return to the portfolio. Drop or paste an image, paste text, or use the floating toolbar. Space-drag pans, pinch or Ctrl-scroll zooms, and Shift-drag draws a square or circle. **Re-center** beside the zoom percentage brings all your layers into view (Shift+1). Select a layer to resize it, change its appearance, or move it forward or backward. Edits save automatically as you work. The status reads **Autosaved** after the server confirms the save.
+The private idea canvas lives at `/everything/`. Use the Home link to return to the portfolio. Drop or paste an image, paste text, or use the floating toolbar. Space-drag pans, pinch or Ctrl-scroll zooms, and Shift-drag with a shape tool draws a square or circle. **Re-center** beside the zoom percentage brings all your layers into view (Shift+1). Select a layer to resize it, change its appearance, or move it forward or backward. With the Select tool (V), drag on empty canvas to select multiple layers. Shift-click toggles a layer, Shift-drag adds to the selection, and Ctrl/⌘+A selects all layers. Drag any selected layer to move the selection together, or press Delete to remove it. Edits save automatically as you work. The status reads **Autosaved** after the server confirms the save.
 
 The image picker, clipboard, and drag-and-drop accept HEIC and HEIF photos. Your browser converts the primary still image before uploading it so the saved layer can open on other computers.
+
+For text layers, use **Italic** in the inspector to toggle italics. Fill colors update live while you adjust the picker; Undo restores the color from before that adjustment.
 
 ### Run locally
 

@@ -198,7 +198,7 @@ kbd { font: 10px var(--mono); color: var(--muted); }
 .object-title .icon { width: 15px; height: 15px; color: #565148; }
 .options { display: grid; gap: 12px; padding: 13px; font-size: 12px; }
 .field-row { display: flex; gap: 8px; }
-.number-field, #font-family, .color-field {
+.number-field, #font-family, .color-field, .text-style-toggle {
   background: #f3f1eb; border-radius: 5px; border: 1px solid #dfdcd3; min-width: 0;
 }
 .number-field { gap: 6px; min-height: 31px; padding: 0 8px; flex: 1; }
@@ -210,6 +210,9 @@ kbd { font: 10px var(--mono); color: var(--muted); }
 #font-family { width: 100%; padding: 7px 4px; font-size: 12px; }
 .property-line { justify-content: space-between; gap: 8px; }
 .size-field { flex: 0 0 87px; }
+.text-style-toggle { min-width: 87px; min-height: 31px; padding: 4px 10px; font-style: italic; }
+.text-style-toggle:hover { background: #eae6dc; }
+.text-style-toggle[aria-pressed="true"] { color: var(--active); background: #f4e4dc; border-color: #d9b4a3; }
 .color-field { padding: 3px 6px; gap: 5px; min-width: 87px; }
 #object-color { padding: 0; border: none; background: transparent; width: 20px; height: 20px; cursor: pointer; }
 #object-color::-webkit-color-swatch-wrapper { padding: 0; }

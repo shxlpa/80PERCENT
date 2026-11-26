@@ -43,8 +43,8 @@
   </aside>
 
   <aside class="chrome inspector" id="inspector" aria-labelledby="object-heading" hidden>
-    <div class="panel-head"><div class="object-title"><span id="object-icon"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#rectangle"/></svg></span><h2 id="object-heading">Rectangle</h2></div><button type="button" class="icon-button" id="clear-selection" title="Deselect layer" aria-label="Deselect layer" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#close"/></svg></button></div>
-    <div class="options">
+    <div class="panel-head"><div class="object-title"><span id="object-icon"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#rectangle"/></svg></span><h2 id="object-heading">Rectangle</h2></div><button type="button" class="icon-button" id="clear-selection" title="Clear selection" aria-label="Clear selection" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#close"/></svg></button></div>
+    <div class="options" id="object-options">
       <div class="field-row dimension-row">
         <label class="number-field"><span aria-hidden="true">W</span><input id="object-width" type="number" step="any" min="1" aria-label="Layer width"></label>
         <label class="number-field"><span aria-hidden="true">H</span><input id="object-height" type="number" step="any" min="1" aria-label="Layer height"></label>
@@ -53,6 +53,7 @@
         <label class="property-label" for="font-family">Typeface</label>
         <select id="font-family"></select>
         <label class="property-line" for="font-size"><span>Type size</span><span class="number-field size-field"><input id="font-size" type="number" min="1" step="any" aria-label="Font size"><span>px</span></span></label>
+        <div class="property-line"><span>Style</span><button type="button" id="font-italic" class="text-style-toggle" title="Italic" aria-label="Italic" aria-pressed="false">Italic</button></div>
       </div>
       <div class="property-line" id="fill-field"><label for="object-color">Fill</label><div class="color-field"><input id="object-color" type="color"><span id="hex-value"></span></div></div>
     </div>
@@ -101,7 +102,7 @@
     <button type="button" class="icon-button" id="help-toggle" title="Canvas shortcuts" aria-label="Canvas shortcuts" aria-controls="help-panel" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#help"/></svg></button>
     <aside class="chrome popover help-panel" id="help-panel" aria-labelledby="help-heading" hidden>
       <div class="panel-head"><h2 id="help-heading">Canvas shortcuts</h2><button type="button" class="icon-button" id="help-close" title="Close shortcuts" aria-label="Close shortcuts" ><svg class="icon" aria-hidden="true"><use href="/everything-assets/icons.svg#close"/></svg></button></div>
-      <dl><dt>Pan canvas</dt><dd><kbd>Space</kbd> + drag</dd><dt>Zoom</dt><dd>Pinch / Ctrl + scroll</dd><dt>Select / Hand</dt><dd><kbd>V</kbd> / <kbd>H</kbd></dd><dt>Add text</dt><dd><kbd>T</kbd></dd><dt>Rectangle / Ellipse</dt><dd><kbd>R</kbd> / <kbd>O</kbd></dd><dt>Square / Circle</dt><dd><kbd>Shift</kbd> + drag</dd><dt>Edit text</dt><dd>Double-click</dd><dt>Copy layer</dt><dd><kbd>Ctrl / ⌘</kbd> + <kbd>C</kbd></dd><dt>Paste</dt><dd><kbd>Ctrl / ⌘</kbd> + <kbd>V</kbd></dd></dl>
+      <dl><dt>Pan canvas</dt><dd><kbd>Space</kbd> + drag</dd><dt>Zoom</dt><dd>Pinch / Ctrl + scroll</dd><dt>Select / Hand</dt><dd><kbd>V</kbd> / <kbd>H</kbd></dd><dt>Select multiple</dt><dd>Drag empty canvas</dd><dt>Toggle layer</dt><dd><kbd>Shift</kbd> + click</dd><dt>Add to selection</dt><dd><kbd>Shift</kbd> + drag</dd><dt>Select all</dt><dd><kbd>Ctrl / ⌘</kbd> + <kbd>A</kbd></dd><dt>Move selection</dt><dd>Drag selected layer</dd><dt>Delete selection</dt><dd><kbd>Delete</kbd></dd><dt>Add text</dt><dd><kbd>T</kbd></dd><dt>Rectangle / Ellipse</dt><dd><kbd>R</kbd> / <kbd>O</kbd></dd><dt>Square / Circle</dt><dd><kbd>Shift</kbd> + drag</dd><dt>Edit text</dt><dd>Double-click</dd><dt>Copy layer</dt><dd><kbd>Ctrl / ⌘</kbd> + <kbd>C</kbd></dd><dt>Paste</dt><dd><kbd>Ctrl / ⌘</kbd> + <kbd>V</kbd></dd></dl>
     </aside>
   </div>
   <p id="notice" class="notice" role="status" hidden></p>

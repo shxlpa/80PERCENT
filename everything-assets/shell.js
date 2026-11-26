@@ -30,8 +30,10 @@ function icon(name) {
 
 function renderLayers() {
   if (!currentState || el('layers-panel').hidden) return;
-  const {items, selected} = currentState;
-  if (lastLayerItems === items && lastLayerSelection === selected?.id) return;
+  const {items, selectedIds} = currentState;
+  const selectionKey = selectedIds.join(',');
+  if (lastLayerItems === items && lastLayerSelection === selectionKey) return;
+  const selectedSet = new Set(selectedIds);
   const list = el('layer-list');
   const activeId = list.contains(document.activeElement) ? document.activeElement.dataset.id : null;
   const fragment = document.createDocumentFragment();
@@ -40,7 +42,7 @@ function renderLayers() {
     const button = document.createElement('button');
     button.type = 'button';
     button.dataset.id = item.id;
-    button.setAttribute('aria-pressed', String(selected?.id === item.id));
+    button.setAttribute('aria-pressed', String(selectedSet.has(item.id)));
     const name = document.createElement('span');
     name.textContent = itemName(item);
     button.append(icon(itemIcon(item)), name);
@@ -55,7 +57,7 @@ function renderLayers() {
   }
   el('no-layers').hidden = items.length > 0;
   lastLayerItems = items;
-  lastLayerSelection = selected?.id;
+  lastLayerSelection = selectionKey;
 }
 
 function setShapeButton(shape) {
@@ -69,12 +71,12 @@ function setShapeButton(shape) {
 }
 
 function displayValue(input, value) {
-  if (document.activeElement !== input) input.value = value;
+  if (document.activeElement !== input && input.value !== String(value)) input.value = value;
 }
 
 export function renderShell(state) {
   currentState = state;
-  const {tool, items, selected, zoom} = state;
+  const {tool, items, selected, selectedItems, selectedIds, zoom} = state;
   if (shapeNames[tool]) setShapeButton(tool);
   for (const button of document.querySelectorAll('button[data-tool]')) {
     button.setAttribute('aria-pressed', String(button.dataset.tool === tool));
@@ -84,24 +86,39 @@ export function renderShell(state) {
   el('action-redo').disabled = !state.canRedo;
   el('tool-image').setAttribute('aria-busy', String(state.busy));
   el('zoom-value').textContent = zoom < 0.01 ? '<1%' : Math.round(zoom * 100) + '%';
-  el('inspector').hidden = !selected;
+  const count = selectedItems.length;
+  el('inspector').hidden = count === 0;
+  el('object-options').hidden = !selected;
+  el('layer-copy').hidden = !selected;
+  el('layer-copy').disabled = !selected;
+  el('type-fields').hidden = selected?.type !== 'text';
+  el('fill-field').hidden = !selected || selected.type === 'image';
+  if (count) {
+    const selectedSet = new Set(selectedIds);
+    el('layer-back').disabled = items.slice(0, count).every(item => selectedSet.has(item.id));
+    el('layer-front').disabled = items.slice(-count).every(item => selectedSet.has(item.id));
+    const deleteLabel = count === 1 ? 'Delete layer' : 'Delete selected layers';
+    el('layer-delete').title = deleteLabel;
+    el('layer-delete').setAttribute('aria-label', deleteLabel);
+  }
+  if (count > 1) {
+    el('object-heading').textContent = count + ' layers selected';
+    el('object-icon').querySelector('use').setAttribute('href', '/everything-assets/icons.svg#layers');
+  }
   if (selected) {
     el('object-heading').textContent = selected.type === 'shape' ? itemName(selected) : selected.type === 'image' ? 'Image' : 'Text';
     el('object-icon').querySelector('use').setAttribute('href', '/everything-assets/icons.svg#' + itemIcon(selected));
     displayValue(el('object-width'), Math.round(selected.width * 10) / 10);
     displayValue(el('object-height'), Math.round(selected.height * 10) / 10);
-    el('type-fields').hidden = selected.type !== 'text';
-    el('fill-field').hidden = selected.type === 'image';
     if (selected.type === 'text') {
       displayValue(el('font-family'), selected.font);
       displayValue(el('font-size'), selected.fontSize);
+      el('font-italic').setAttribute('aria-pressed', String(Boolean(selected.italic)));
     }
     if (selected.type !== 'image') {
       displayValue(el('object-color'), selected.color);
       el('hex-value').textContent = selected.color;
     }
-    el('layer-back').disabled = items[0]?.id === selected.id;
-    el('layer-front').disabled = items.at(-1)?.id === selected.id;
   }
   renderLayers();
 }
@@ -162,7 +179,7 @@ export function bindShell(canvas) {
   el('layer-list').addEventListener('click', event => {
     const button = event.target.closest('button[data-id]');
     if (button) {
-      canvas.select(button.dataset.id);
+      canvas.select(button.dataset.id, {toggle: event.shiftKey});
       if (matchMedia('(max-width: 620px)').matches) {
         dismiss();
         el('viewport').focus({preventScroll:true});
@@ -182,7 +199,28 @@ export function bindShell(canvas) {
   const select = el('font-family');
   for (const family of FONT_FAMILIES) select.add(new Option(family, family));
   select.addEventListener('change', () => canvas.updateSelected({font: select.value}));
-  el('object-color').addEventListener('change', event => canvas.updateSelected({color: event.target.value}));
+  el('font-italic').addEventListener('click', () => {
+    if (currentState?.selected?.type === 'text') {
+      canvas.updateSelected({italic: !currentState.selected.italic});
+    }
+  });
+  const color = el('object-color');
+  let colorEdit;
+  function updateColor() {
+    const id = currentState?.selected?.id;
+    if (!id) { colorEdit = undefined; return; }
+    if (colorEdit?.id !== id) colorEdit = {id, historyGroup: {}};
+    canvas.updateSelected({color: color.value}, {historyGroup: colorEdit.historyGroup});
+  }
+  // Native pickers emit input while adjusting, then change when dismissed.
+  // Publish live colors while retaining one undo step for the picker interaction.
+  color.addEventListener('input', updateColor);
+  color.addEventListener('change', () => { updateColor(); colorEdit = undefined; });
+  color.addEventListener('pointerdown', () => { colorEdit = undefined; });
+  color.addEventListener('blur', () => { colorEdit = undefined; });
+  color.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.code === 'Space') colorEdit = undefined;
+  });
   for (const [id,key] of [['object-width','width'], ['object-height','height'], ['font-size','fontSize']]) {
     const input = el(id);
     input.addEventListener('change', () => {

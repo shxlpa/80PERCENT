@@ -23,7 +23,8 @@ export function parseLayer(json) {
     const base = {id, type, x, y, width, height}
     if (type === 'image') return {...base, name: item.name, imageId: item.imageId}
     if (type === 'shape') return {...base, shape: item.shape, color: item.color}
-    return {...base, text: item.text, color: item.color, font: item.font, fontSize: item.fontSize}
+    return {...base, text: item.text, color: item.color, font: item.font, fontSize: item.fontSize,
+      ...('italic' in item ? {italic: item.italic} : {})}
   } catch {
     return null
   }
