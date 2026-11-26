@@ -6,6 +6,7 @@ import {bindShell, renderShell} from '../everything-assets/shell.js'
 class Control extends EventTarget {
   dataset = {}
   hidden = false
+  checked = false
   value = ''
   attributes = new Map()
   setAttribute(name, value) { this.attributes.set(name, value) }
@@ -43,13 +44,14 @@ function inspector(t) {
   }
   show(layer)
   const calls = []
+  const exportOptions = []
   let exportCalls = 0
   bindShell({
     updateSelected(props, options) {
       calls.push({props, options})
       show({...selected, ...props})
     },
-    exportSelectedPhoto() { exportCalls++ },
+    exportSelectedPhoto(options) { exportCalls++; exportOptions.push(options) },
   })
   const picker = control('object-color')
   const emit = (type, color) => {
@@ -57,8 +59,40 @@ function inspector(t) {
     picker.dispatchEvent(new Event(type))
     return calls.at(-1)
   }
-  return {calls, control, emit, show, layer, exportCalls: () => exportCalls}
+  return {calls, control, emit, show, layer, exportOptions, exportCalls: () => exportCalls}
 }
+
+test('Instagram framing is optional, routes the chosen format, and survives selection and busy renders', t => {
+  const {control, show, layer, exportOptions} = inspector(t)
+  const option = control('export-instagram'), button = control('export-photo')
+  const photo = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo',
+    x: 100, y: 20, width: 300, height: 200}
+  show(photo, {canExportPhoto: true})
+  assert.equal(option.checked, false)
+  assert.equal(option.disabled, false)
+  button.dispatchEvent(new Event('click'))
+  assert.deepEqual(exportOptions.at(-1), {format: 'original'})
+
+  option.checked = true
+  button.dispatchEvent(new Event('click'))
+  assert.deepEqual(exportOptions.at(-1), {format: 'instagram'})
+  show(photo, {canExportPhoto: true, exporting: true})
+  assert.equal(option.checked, true)
+  assert.equal(option.disabled, true, 'the active export format cannot be changed while preparing')
+  show(layer)
+  assert.equal(option.checked, true, 'selecting another layer must not discard the preference')
+  show({...photo, id: 'other-photo'}, {canExportPhoto: true})
+  assert.equal(option.checked, true)
+  assert.equal(option.disabled, false)
+  button.dispatchEvent(new Event('click'))
+  assert.deepEqual(exportOptions.at(-1), {format: 'instagram'})
+
+  option.checked = false
+  show(photo, {canExportPhoto: true})
+  button.dispatchEvent(new Event('click'))
+  assert.deepEqual(exportOptions.at(-1), {format: 'original'})
+  assert.equal(exportOptions.length, 4)
+})
 
 test('photo export control follows selection eligibility, invokes export, and reports preparation', t => {
   const {control, show, layer, exportCalls} = inspector(t)

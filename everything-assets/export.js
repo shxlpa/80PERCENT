@@ -3,6 +3,15 @@ const MAX_PIXELS = 64 * 1024 * 1024
 const tooLarge = () => new Error('This photo is too large to export at full resolution in this browser. Its saved image has not been changed.')
 const validBox = item => item && ['x', 'y', 'width', 'height'].every(key => Number.isFinite(item[key])) && item.width > 0 && item.height > 0
 
+function checkFormat(format) {
+  if (!['original', 'instagram'].includes(format)) throw new Error('Choose an Original or Instagram export format.')
+}
+
+function checkSize(width, height) {
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1 ||
+      width > MAX_EDGE || height > MAX_EDGE || width * height > MAX_PIXELS) throw tooLarge()
+}
+
 export function planPhotoExport(photo, items) {
   const index = items.findIndex(item => item.id === photo?.id)
   const source = items[index]
@@ -20,14 +29,24 @@ export function photoExportDimensions(photo, sourceWidth, sourceHeight) {
   // Keep the displayed composition's proportions without shrinking either source axis.
   const scale = Math.max(sourceWidth / photo.width, sourceHeight / photo.height)
   const width = Math.round(photo.width * scale), height = Math.round(photo.height * scale)
-  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1 ||
-      width > MAX_EDGE || height > MAX_EDGE || width * height > MAX_PIXELS) throw tooLarge()
+  checkSize(width, height)
   return {width, height, scale}
 }
 
-function exportName(name) {
+export function photoExportFrame(contentWidth, contentHeight, format = 'original') {
+  checkFormat(format)
+  checkSize(contentWidth, contentHeight)
+  const unit = Math.ceil(Math.max(contentWidth / 3, contentHeight / 4))
+  const width = format === 'instagram' ? unit * 3 : contentWidth
+  const height = format === 'instagram' ? unit * 4 : contentHeight
+  checkSize(width, height)
+  // Keep source pixels on integer coordinates; odd padding differs by one pixel.
+  return {width, height, left: Math.floor((width - contentWidth) / 2), top: Math.floor((height - contentHeight) / 2)}
+}
+
+function exportName(name, format) {
   const stem = (name || 'Photo').replace(/\.[^.]+$/, '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-').trim().slice(0, 150) || 'Photo'
-  return stem + '-with-overlays.png'
+  return stem + (format === 'instagram' ? '-instagram-3x4.png' : '-with-overlays.png')
 }
 
 async function decodeImage(blob) {
@@ -139,7 +158,8 @@ function drawShape(context, item) {
   context.fill()
 }
 
-export async function exportPhoto({photo, items, loadImage}) {
+export async function exportPhoto({photo, items, loadImage, format = 'original'}) {
+  checkFormat(format)
   const plan = planPhotoExport(photo, items)
   photo = plan.photo
   const sources = new Map()
@@ -147,7 +167,8 @@ export async function exportPhoto({photo, items, loadImage}) {
   try {
     const base = await decodeImage(await loadImage(photo.imageId))
     sources.set(photo.imageId, base)
-    const {width, height} = photoExportDimensions(photo, base.width, base.height)
+    const content = photoExportDimensions(photo, base.width, base.height)
+    const {width, height, left, top} = photoExportFrame(content.width, content.height, format)
     const imageIds = [...new Set(plan.layers.filter(item => item.type === 'image').map(item => item.imageId))]
     const loads = imageIds.filter(id => !sources.has(id)).map(async id => {
       sources.set(id, await decodeImage(await loadImage(id)))
@@ -169,10 +190,14 @@ export async function exportPhoto({photo, items, loadImage}) {
     context.fillRect(width - 1, height - 1, 1, 1)
     if (context.getImageData(width - 1, height - 1, 1, 1).data[3] !== 255) throw tooLarge()
     context.clearRect(0, 0, width, height)
+    if (format === 'instagram') {
+      context.fillStyle = '#ffffff'
+      context.fillRect(0, 0, width, height)
+    }
     context.imageSmoothingEnabled = true
     context.imageSmoothingQuality = 'high'
     // The axes differ only by final integer-pixel rounding, keeping the canvas filled.
-    context.setTransform(width / photo.width, 0, 0, height / photo.height, 0, 0)
+    context.setTransform(content.width / photo.width, 0, 0, content.height / photo.height, left, top)
     context.beginPath()
     context.rect(0, 0, photo.width, photo.height)
     context.clip()
@@ -190,7 +215,7 @@ export async function exportPhoto({photo, items, loadImage}) {
     }
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
     if (!blob || blob.type !== 'image/png') throw tooLarge()
-    return {blob, width, height, filename: exportName(photo.name)}
+    return {blob, width, height, filename: exportName(photo.name, format)}
   } finally {
     measurements?.remove()
     if (canvas) canvas.width = canvas.height = 1

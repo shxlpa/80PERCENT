@@ -94,6 +94,7 @@ export function renderShell(state) {
   el('type-fields').hidden = selected?.type !== 'text';
   el('fill-field').hidden = !selected || selected.type === 'image';
   el('photo-export').hidden = !state.canExportPhoto;
+  el('export-instagram').disabled = !!state.exporting;
   el('export-photo').disabled = !!state.exporting;
   el('export-photo').setAttribute('aria-busy', String(!!state.exporting));
   el('export-photo').textContent = state.exporting ? 'Preparing PNG…' : 'Save photo + overlays';
@@ -193,7 +194,7 @@ export function bindShell(canvas) {
   for (const [id, action] of Object.entries({
     'clear-selection': () => { canvas.select(null); el('viewport').focus({preventScroll:true}); },
     'layer-copy': () => canvas.copySelected(), 'action-paste': () => canvas.pasteClipboard(),
-    'export-photo': () => canvas.exportSelectedPhoto(),
+    'export-photo': () => canvas.exportSelectedPhoto({format: el('export-instagram').checked ? 'instagram' : 'original'}),
     'action-undo': () => canvas.undo(), 'action-redo': () => canvas.redo(),
     'layer-back': () => canvas.arrange('back'), 'layer-front': () => canvas.arrange('front'),
     'layer-delete': () => { canvas.remove(); el('viewport').focus({preventScroll:true}); },

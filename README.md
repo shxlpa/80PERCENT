@@ -16,6 +16,8 @@ Drag layers near matching edges or centers to snap into alignment. Text snaps to
 
 Select a photo and choose **Save photo + overlays** to download a lossless PNG with the text, shapes, and images above it, clipped to the photo’s edges. Exports use the saved photo’s full resolution, regardless of canvas zoom. Selecting one photo together with text also works. JPEGs up to 4 MB are stored unchanged; larger uploads are reduced before storage, and exporting cannot recover detail removed during an earlier upload.
 
+For an Instagram feed post, check **Instagram frame (3:4)** before saving. The export centers the complete photo and its overlays inside a white 3:4 frame, adding equal borders on the sides of tall photos (or above and below wider photos). It keeps the saved photo’s resolution without cropping or stretching it and leaves the canvas unchanged. Uncheck it to export at the photo’s existing aspect ratio.
+
 ### Run locally
 
 Use Node.js 22.13 or later. Install dependencies with `npm ci`. The owner password comes from `EVERYTHING_PASSWORD` in the gitignored `.env.local`. On a fresh checkout, generate the file once with the following command. It creates an owner-readable file and stops if one already exists.

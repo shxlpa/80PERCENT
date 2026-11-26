@@ -654,7 +654,7 @@ export function createCanvas({
     }
   }
 
-  async function exportSelectedPhoto() {
+  async function exportSelectedPhoto({format = 'original'} = {}) {
     if (exporting || gesture) return
     finishEditing()
     const photo = selectedPhoto()
@@ -663,7 +663,7 @@ export function createCanvas({
     exporting = true
     notify()
     try {
-      const {blob, width, height, filename} = await exportPhoto({photo, items: scene, loadImage})
+      const {blob, width, height, filename} = await exportPhoto({photo, items: scene, loadImage, format})
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url

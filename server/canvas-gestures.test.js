@@ -198,7 +198,7 @@ test('failed photo export resets its busy state without modifying selection or s
   assert.deepEqual(canvas.getItems(), [photo])
   assert.equal(changes(), 0)
   assert.equal(state().canUndo, false)
-  const retry = canvas.exportSelectedPhoto()
+  const retry = canvas.exportSelectedPhoto({format: 'instagram'})
   assert.equal(state().exporting, true)
   await Promise.resolve()
   assert.equal(requests.length, 3, 'a failed export can be retried')
@@ -206,6 +206,33 @@ test('failed photo export resets its busy state without modifying selection or s
   await retry
   assert.equal(state().exporting, false)
   assert.equal(changes(), 0)
+})
+
+test('an unsupported photo export format reports an error without fetching or modifying the scene', async t => {
+  const errors = []
+  let requests = 0
+  const {canvas, state, changes} = board(t, {
+    loadImage() {
+      requests++
+      return requests === 1 ? new Promise(() => {}) : Promise.reject(new Error('Unexpected image fetch.'))
+    },
+    onError: error => errors.push(error),
+  })
+  const photo = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo',
+    x: 100, y: 20, width: 300, height: 200}
+  canvas.setItems([photo])
+  canvas.select(photo.id)
+  const beforeRequests = requests
+  await canvas.exportSelectedPhoto({format: 'unsupported-format'})
+  assert.equal(errors.length, 1)
+  assert.match(errors[0], /export format/i)
+  assert.equal(requests, beforeRequests, 'invalid modes fail before image or rendering work')
+  assert.equal(state().exporting, false)
+  assert.equal(state().canExportPhoto, true)
+  assert.deepEqual(selectedIds(state), ['photo'])
+  assert.deepEqual(canvas.getItems(), [photo])
+  assert.equal(changes(), 0)
+  assert.equal(state().canUndo, false)
 })
 
 function visibleSnapGuides(...roots) {
