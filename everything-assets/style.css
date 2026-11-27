@@ -220,12 +220,11 @@ kbd { font: 10px var(--mono); color: var(--muted); }
 #hex-value { font: 10px var(--mono); text-transform: uppercase; }
 .inspector-foot { justify-content: space-between; border-top: 1px solid var(--line); padding: 3px 8px; }
 .photo-export { padding: 10px 13px 13px; border-top: 1px solid var(--line); }
-.export-option { display: flex; align-items: center; gap: 7px; font-size: 12px; cursor: pointer; }
-.export-option input { margin: 0; accent-color: var(--active); }
 .photo-export button { width: 100%; padding: 9px 8px; border-radius: 5px; background: var(--active); color: #fff; font-size: 12px; }
 .photo-export button:hover { background: #982619; }
 .photo-export p { margin: 7px 0 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
-.photo-export .export-format-help { margin: 4px 0 10px 20px; }
+.photo-export #export-photo { margin-top: 12px; background: #f3f1eb; color: var(--ink); border: 1px solid #dfdcd3; }
+.photo-export #export-photo:hover { background: #eae6dc; }
 .inspector-foot .icon-button { width: 31px; height: 31px; }
 .inspector-foot .icon { width: 16px; height: 16px; }
 #layer-delete:hover { color: var(--red); background: #f8e6df; }

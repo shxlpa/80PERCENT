@@ -16,7 +16,9 @@ Drag layers near matching edges or centers to snap into alignment. Text snaps to
 
 Select a photo and choose **Save photo + overlays** to download a lossless PNG with the text, shapes, and images above it, clipped to the photo’s edges. Exports use the saved photo’s full resolution, regardless of canvas zoom. Selecting one photo together with text also works. JPEGs up to 4 MB are stored unchanged; larger uploads are reduced before storage, and exporting cannot recover detail removed during an earlier upload.
 
-For an Instagram feed post, check **Instagram frame (3:4)** before saving. The export centers the complete photo and its overlays inside a white 3:4 frame, adding equal borders on the sides of tall photos (or above and below wider photos). It keeps the saved photo’s resolution without cropping or stretching it and leaves the canvas unchanged. Uncheck it to export at the photo’s existing aspect ratio.
+For an Instagram feed post, choose the separate **Save for Instagram** button. It centers the complete photo and its overlays inside a white **4:5** frame, adding borders on the sides of tall photos (or above and below wider photos). It retains the saved photo’s pixel dimensions without downsampling, cropping, or stretching it and leaves the canvas unchanged. For example, a 1152 × 2048 photo exports at 1640 × 2050 with white padding; 1080 × 1350 is the same ratio, but this export preserves the larger source. Filenames end in `-instagram-4x5.png`. Use **Save photo + overlays** for the original proportions.
+
+Instagram’s native app [supports 3:4 photos](https://www.threads.com/@mosseri/post/DKOIbJkRNIb/), while [Meta’s publishing API](https://developers.facebook.com/documentation/instagram-platform/instagram-graph-api/reference/ig-user/media) specifies a 4:5 portrait limit. The Instagram button uses 4:5 for compatibility. In Instagram’s crop step, choose Original or 4:5 rather than Square; a square crop can still trim a portrait export. Use the same framing for every slide in a carousel.
 
 ### Run locally
 

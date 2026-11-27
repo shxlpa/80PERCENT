@@ -58,10 +58,10 @@
       <div class="property-line" id="fill-field"><label for="object-color">Fill</label><div class="color-field"><input id="object-color" type="color"><span id="hex-value"></span></div></div>
     </div>
     <div class="photo-export" id="photo-export" hidden>
-      <label class="export-option"><input type="checkbox" id="export-instagram" aria-describedby="export-instagram-help"><span>Instagram frame (3:4)</span></label>
-      <p id="export-instagram-help" class="export-format-help">Adds white borders to fit. No cropping.</p>
+      <button type="button" id="export-instagram" aria-describedby="export-instagram-help">Save for Instagram</button>
+      <p id="export-instagram-help">4:5 PNG · white borders, full saved resolution. No cropping.</p>
       <button type="button" id="export-photo">Save photo + overlays</button>
-      <p>Full-resolution PNG · includes layers above this photo, clipped to its edges.</p>
+      <p>Original proportions · full-resolution PNG. Both exports include overlays within the photo.</p>
     </div>
     <div class="inspector-foot">
       <button type="button" class="clipboard-action" id="layer-copy" title="Copy selected layer (Ctrl+C or ⌘C)" aria-label="Copy selected layer" aria-keyshortcuts="Control+c Meta+c">Copy</button>

@@ -36,17 +36,18 @@ export function photoExportDimensions(photo, sourceWidth, sourceHeight) {
 export function photoExportFrame(contentWidth, contentHeight, format = 'original') {
   checkFormat(format)
   checkSize(contentWidth, contentHeight)
-  const unit = Math.ceil(Math.max(contentWidth / 3, contentHeight / 4))
-  const width = format === 'instagram' ? unit * 3 : contentWidth
-  const height = format === 'instagram' ? unit * 4 : contentHeight
+  const unit = Math.ceil(Math.max(contentWidth / 4, contentHeight / 5))
+  const width = format === 'instagram' ? unit * 4 : contentWidth
+  const height = format === 'instagram' ? unit * 5 : contentHeight
   checkSize(width, height)
-  // Keep source pixels on integer coordinates; odd padding differs by one pixel.
-  return {width, height, left: Math.floor((width - contentWidth) / 2), top: Math.floor((height - contentHeight) / 2)}
+  // Preserve source pixels; odd padding differs by at most one pixel per side.
+  return {width, height, left: Math.floor((width - contentWidth) / 2),
+    top: Math.floor((height - contentHeight) / 2), scale: 1}
 }
 
 function exportName(name, format) {
   const stem = (name || 'Photo').replace(/\.[^.]+$/, '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '-').trim().slice(0, 150) || 'Photo'
-  return stem + (format === 'instagram' ? '-instagram-3x4.png' : '-with-overlays.png')
+  return stem + (format === 'instagram' ? '-instagram-4x5.png' : '-with-overlays.png')
 }
 
 async function decodeImage(blob) {
@@ -196,7 +197,8 @@ export async function exportPhoto({photo, items, loadImage, format = 'original'}
     }
     context.imageSmoothingEnabled = true
     context.imageSmoothingQuality = 'high'
-    // The axes differ only by final integer-pixel rounding, keeping the canvas filled.
+    // Both formats retain source-resolution content sizing; Instagram only adds
+    // white margins. Axes differ only by the existing final pixel rounding.
     context.setTransform(content.width / photo.width, 0, 0, content.height / photo.height, left, top)
     context.beginPath()
     context.rect(0, 0, photo.width, photo.height)

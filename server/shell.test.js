@@ -6,7 +6,6 @@ import {bindShell, renderShell} from '../everything-assets/shell.js'
 class Control extends EventTarget {
   dataset = {}
   hidden = false
-  checked = false
   value = ''
   attributes = new Map()
   setAttribute(name, value) { this.attributes.set(name, value) }
@@ -62,62 +61,55 @@ function inspector(t) {
   return {calls, control, emit, show, layer, exportOptions, exportCalls: () => exportCalls}
 }
 
-test('Instagram framing is optional, routes the chosen format, and survives selection and busy renders', t => {
-  const {control, show, layer, exportOptions} = inspector(t)
-  const option = control('export-instagram'), button = control('export-photo')
+test('photo and Instagram export buttons independently choose their explicit formats', t => {
+  const {control, show, exportOptions} = inspector(t)
+  const instagram = control('export-instagram'), original = control('export-photo')
   const photo = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo',
     x: 100, y: 20, width: 300, height: 200}
   show(photo, {canExportPhoto: true})
-  assert.equal(option.checked, false)
-  assert.equal(option.disabled, false)
-  button.dispatchEvent(new Event('click'))
-  assert.deepEqual(exportOptions.at(-1), {format: 'original'})
-
-  option.checked = true
-  button.dispatchEvent(new Event('click'))
-  assert.deepEqual(exportOptions.at(-1), {format: 'instagram'})
-  show(photo, {canExportPhoto: true, exporting: true})
-  assert.equal(option.checked, true)
-  assert.equal(option.disabled, true, 'the active export format cannot be changed while preparing')
-  show(layer)
-  assert.equal(option.checked, true, 'selecting another layer must not discard the preference')
+  assert.equal(original.textContent, 'Save photo + overlays')
+  assert.equal(instagram.textContent, 'Save for Instagram')
+  original.dispatchEvent(new Event('click'))
+  instagram.dispatchEvent(new Event('click'))
+  original.dispatchEvent(new Event('click'))
+  assert.deepEqual(exportOptions, [{format: 'original'}, {format: 'instagram'}, {format: 'original'}])
   show({...photo, id: 'other-photo'}, {canExportPhoto: true})
-  assert.equal(option.checked, true)
-  assert.equal(option.disabled, false)
-  button.dispatchEvent(new Event('click'))
+  instagram.dispatchEvent(new Event('click'))
   assert.deepEqual(exportOptions.at(-1), {format: 'instagram'})
-
-  option.checked = false
-  show(photo, {canExportPhoto: true})
-  button.dispatchEvent(new Event('click'))
-  assert.deepEqual(exportOptions.at(-1), {format: 'original'})
   assert.equal(exportOptions.length, 4)
 })
 
-test('photo export control follows selection eligibility, invokes export, and reports preparation', t => {
+test('both photo export controls follow selection eligibility and recover their labels after preparation', t => {
   const {control, show, layer, exportCalls} = inspector(t)
   const section = control('photo-export'), button = control('export-photo')
+  const buttons = [button, control('export-instagram')]
   assert.equal(section.hidden, true, 'text-only selection has no photo export action')
   const photo = {id: 'photo', type: 'image', imageId: 'photo.png', name: 'Photo',
     x: 100, y: 20, width: 300, height: 200}
   show(photo, {canExportPhoto: true})
   assert.equal(section.hidden, false)
-  assert.equal(button.disabled, false)
-  assert.equal(button.attributes.get('aria-busy'), 'false')
-  assert.equal(button.textContent, 'Save photo + overlays')
+  for (const action of buttons) {
+    assert.equal(action.disabled, false)
+    assert.equal(action.attributes.get('aria-busy'), 'false')
+  }
+  assert.deepEqual(buttons.map(action => action.textContent), ['Save photo + overlays', 'Save for Instagram'])
   button.dispatchEvent(new Event('click'))
   assert.equal(exportCalls(), 1)
   show(photo, {items: [photo, layer], selected: null, selectedItems: [photo, layer],
     selectedIds: [photo.id, layer.id], canExportPhoto: true})
   assert.equal(section.hidden, false, 'selected text overlays do not hide the export action')
   show(photo, {canExportPhoto: true, exporting: true})
-  assert.equal(button.disabled, true)
-  assert.equal(button.attributes.get('aria-busy'), 'true')
-  assert.equal(button.textContent, 'Preparing PNG…')
+  for (const action of buttons) {
+    assert.equal(action.disabled, true)
+    assert.equal(action.attributes.get('aria-busy'), 'true')
+    assert.equal(action.textContent, 'Preparing PNG…')
+  }
   show(photo, {canExportPhoto: true})
-  assert.equal(button.disabled, false)
-  assert.equal(button.attributes.get('aria-busy'), 'false')
-  assert.equal(button.textContent, 'Save photo + overlays')
+  for (const action of buttons) {
+    assert.equal(action.disabled, false)
+    assert.equal(action.attributes.get('aria-busy'), 'false')
+  }
+  assert.deepEqual(buttons.map(action => action.textContent), ['Save photo + overlays', 'Save for Instagram'])
   show(photo, {canExportPhoto: false})
   assert.equal(section.hidden, true)
 })
