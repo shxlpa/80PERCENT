@@ -1,0 +1,24 @@
+# Example only. Install/configure on the chosen Linux host after authorization.
+[Unit]
+Description=Private Everything workspace
+After=network.target
+
+[Service]
+Type=simple
+User=everything
+Group=everything
+WorkingDirectory=/opt/80percent
+EnvironmentFile=/etc/everything.env
+ExecStart=/usr/bin/node server/serve.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/everything
+
+[Install]
+WantedBy=multi-user.target

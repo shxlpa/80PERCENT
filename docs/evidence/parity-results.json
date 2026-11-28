@@ -1,0 +1,211 @@
+{
+  "baseline": "40f435bd02e0c3d246496280729e965e53cdb612",
+  "runs": [
+    {
+      "label": "desktop-chromium-baseline",
+      "requests": 114,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "revisionConflicts": 1,
+      "initialRevision": 37,
+      "savedRevision": 42,
+      "finalLayers": 11,
+      "exports": [
+        [
+          720,
+          1280
+        ],
+        [
+          1024,
+          1280
+        ]
+      ],
+      "checks": [
+        "entry-point unlock",
+        "visual parity screenshots",
+        "two sessions",
+        "drag",
+        "pan",
+        "wheel zoom",
+        "file upload bytes",
+        "clipboard text/image",
+        "stale-session merge",
+        "refresh lock",
+        "reopen saved board",
+        "logout",
+        "full-resolution exports"
+      ]
+    },
+    {
+      "label": "desktop-chromium-port",
+      "requests": 114,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "revisionConflicts": 1,
+      "initialRevision": 37,
+      "savedRevision": 42,
+      "finalLayers": 11,
+      "exports": [
+        [
+          720,
+          1280
+        ],
+        [
+          1024,
+          1280
+        ]
+      ],
+      "checks": [
+        "entry-point unlock",
+        "visual parity screenshots",
+        "two sessions",
+        "drag",
+        "pan",
+        "wheel zoom",
+        "file upload bytes",
+        "clipboard text/image",
+        "stale-session merge",
+        "refresh lock",
+        "reopen saved board",
+        "logout",
+        "full-resolution exports"
+      ]
+    },
+    {
+      "label": "iphone-webkit-baseline",
+      "requests": 220,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "revisionConflicts": 1,
+      "initialRevision": 37,
+      "savedRevision": 42,
+      "finalLayers": 11,
+      "exports": [
+        [
+          720,
+          1280
+        ],
+        [
+          1024,
+          1280
+        ]
+      ],
+      "checks": [
+        "entry-point unlock",
+        "visual parity screenshots",
+        "two sessions",
+        "drag",
+        "pan",
+        "touch tap and dispatched WebKit gesture",
+        "file upload bytes",
+        "clipboard text/image",
+        "stale-session merge",
+        "refresh lock",
+        "reopen saved board",
+        "logout",
+        "full-resolution exports"
+      ]
+    },
+    {
+      "label": "iphone-webkit-port",
+      "requests": 223,
+      "externalRequests": 0,
+      "consoleErrors": 0,
+      "revisionConflicts": 1,
+      "initialRevision": 37,
+      "savedRevision": 42,
+      "finalLayers": 11,
+      "exports": [
+        [
+          720,
+          1280
+        ],
+        [
+          1024,
+          1280
+        ]
+      ],
+      "checks": [
+        "entry-point unlock",
+        "visual parity screenshots",
+        "two sessions",
+        "drag",
+        "pan",
+        "touch tap and dispatched WebKit gesture",
+        "file upload bytes",
+        "clipboard text/image",
+        "stale-session merge",
+        "refresh lock",
+        "reopen saved board",
+        "logout",
+        "full-resolution exports"
+      ]
+    }
+  ],
+  "limitations": [
+    "Browser device emulation is not a physical iPhone or real Tailscale host."
+  ],
+  "visualParity": "All four locked/editor screenshot pairs and six export pairs are byte-identical.",
+  "screenshotsAndExports": [
+    {
+      "browser": "desktop-chromium",
+      "state": "locked",
+      "identical": true,
+      "sha256": "cb749b6d616fe9991cd3cd43fb99f4d7578323ce53fb4b902b310d2cd6df8e72"
+    },
+    {
+      "browser": "desktop-chromium",
+      "state": "board",
+      "identical": true,
+      "sha256": "50ed0ef6661c3ed6c94f5a9be6104ebf509919ba9639393d11b316911f10f4ca"
+    },
+    {
+      "browser": "desktop-chromium",
+      "state": "export-photo",
+      "identical": true,
+      "sha256": "0e2cadcb753eb329c9b2dfc5a9c44b8def29f4da027076c2c731ec115672bfaf"
+    },
+    {
+      "browser": "desktop-chromium",
+      "state": "export-instagram",
+      "identical": true,
+      "sha256": "66fdd6f13be03681e7b2d96bb2efb71d7c99ae596765726b44b1d44d4c0bbffa"
+    },
+    {
+      "browser": "desktop-chromium",
+      "state": "export-overlays",
+      "identical": true,
+      "sha256": "3f8cef842372e0108892ec3999f7943c97dd307e26a82ffbcd6684a500e41304"
+    },
+    {
+      "browser": "iphone-webkit",
+      "state": "locked",
+      "identical": true,
+      "sha256": "f11782a65410ec18bb08a2f1e2d155fbc255df2ec1eb3076b6f00a97677fe984"
+    },
+    {
+      "browser": "iphone-webkit",
+      "state": "board",
+      "identical": true,
+      "sha256": "0f43ac190213b3eb8738208a9be9ae66feb5d340386145a31f6f9788ab5880da"
+    },
+    {
+      "browser": "iphone-webkit",
+      "state": "export-photo",
+      "identical": true,
+      "sha256": "079f359712d6808a1c428ac43eac464e6466a096f9f970e31b4ac92aa2714c38"
+    },
+    {
+      "browser": "iphone-webkit",
+      "state": "export-instagram",
+      "identical": true,
+      "sha256": "f92709c066d340b53df98cdcb04d067b300977072976e578a99c487a12042f50"
+    },
+    {
+      "browser": "iphone-webkit",
+      "state": "export-overlays",
+      "identical": true,
+      "sha256": "d9a7c42c9b5cd1800a01c3e60efffbad03a2b793d836777920ae634ec9a90180"
+    }
+  ]
+}
