@@ -8,7 +8,10 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env.local server/dev.js",
     "build": "node server/build.js",
-    "test": "node --test server/*.test.js"
+    "test": "node --test server/*.test.js",
+    "start": "node server/serve.js",
+    "backup": "node server/migrate.js",
+    "test:browser": "node test-support/browser-parity.js"
   },
   "dependencies": {
     "@vercel/blob": "2.9.0",
@@ -18,6 +21,7 @@
     "zod": "4.6.6"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "undici": "6.29.1"
   }
 }

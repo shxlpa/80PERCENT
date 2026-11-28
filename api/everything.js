@@ -1,11 +1,6 @@
 import { createHandler } from '../server/everything.js';
-import { privateBlobStore } from '../server/storage.js';
 
-const token = process.env.BLOB_READ_WRITE_TOKEN;
-const handle = createHandler({ store: token && privateBlobStore(token), password: process.env.EVERYTHING_PASSWORD });
-
-export default {
-  fetch(request) {
-    return handle(request, request.headers.get('x-vercel-forwarded-for') || 'unknown');
-  }
-};
+// Vercel has no persistent local disk. Fail closed instead of silently using
+// Blob or an ephemeral SQLite database. Run server/serve.js on the private host.
+const handle = createHandler({store: null, password: null});
+export default { fetch(request) { return handle(request); } };

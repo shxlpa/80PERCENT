@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { readJson } from './storage.js';
+import { readJson } from './json-store.js';
 import { imageExtension, imageId, imageTypes, validBoard } from './validation.js';
 
 const maxBytes = 4_000_000;

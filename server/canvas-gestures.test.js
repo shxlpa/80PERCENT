@@ -696,7 +696,9 @@ test('a malformed Safari pinch cannot poison later pinch, wheel, or fit zooms', 
   }
   emit('gesturechange', {scale: 2, clientX: 160, clientY: 140, timeStamp: 20})
   assert.equal(camera().zoom, 1.04 ** 2)
-  emit('gestureend')
+  // Keep every sample on the same synthetic clock; the native Event timestamp
+  // depends on test-process startup and can otherwise extend the wheel guard.
+  emit('gestureend', {timeStamp: 30})
 
   emit('wheel', {ctrlKey: true, deltaX: 0, deltaY: -20, clientX: 160, clientY: 140, timeStamp: 300})
   assert.ok(camera().zoom > 1.04 ** 2)

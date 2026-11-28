@@ -1,14 +1,17 @@
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
-// Local development only. SQLite keeps concurrent updates atomic even when
-// two local servers share a data directory.
-export function localStore(directory) {
-  mkdirSync(directory, { recursive: true, mode: 0o700 });
-  const db = new DatabaseSync(join(directory, 'everything.sqlite'));
-  db.exec(`PRAGMA busy_timeout=5000;
+// Persistent single-host storage. SQLite serializes compare-and-swap updates
+// across processes sharing a local disk (not a network filesystem).
+export function localStore(directory, {readOnly = false} = {}) {
+  if (!readOnly) mkdirSync(directory, { recursive: true, mode: 0o700 });
+  const path = join(directory, 'everything.sqlite');
+  const db = new DatabaseSync(path, {readOnly});
+  if (!readOnly) chmodSync(path, 0o600);
+  db.exec(`PRAGMA busy_timeout=5000;`);
+  if (!readOnly) db.exec(`
     CREATE TABLE IF NOT EXISTS objects (
       key TEXT PRIMARY KEY, data BLOB NOT NULL, etag TEXT NOT NULL, expires INTEGER
     );

@@ -5,9 +5,19 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/everything.js": { "includeFiles": "server/views/*.html" }
+    "api/everything.js": {
+      "includeFiles": "server/views/*.html"
+    }
   },
   "rewrites": [
-    { "source": "/everything/", "destination": "/api/everything?action=page" }
-  ]
+    {
+      "source": "/everything/",
+      "destination": "/api/everything?action=page"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "vercel-workaround": false
+    }
+  }
 }

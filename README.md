@@ -30,8 +30,10 @@ node -e "const fs = require('node:fs'); const pw = require('node:crypto').random
 
 Run `npm run dev` and open `http://127.0.0.1:3000/everything/`. Local edits persist in the ignored `.everything-data/` directory. Run `npm test` to check access control, private image storage, and concurrent saves.
 
-### Host on Vercel
+### Private hosting without Blob
 
-The hosted board needs a private Vercel Blob store connected to the deployment environment, its `BLOB_READ_WRITE_TOKEN`, and the same owner password set as a sensitive `EVERYTHING_PASSWORD` environment variable. The `figma` branch uses the Preview environment. The build copies portfolio assets into `dist/` and the server function delivers the password form or editor. Password changes take effect on redeployment and invalidate existing sessions.
+The `vercel-workaround` branch runs Everything on persistent SQLite with the same editor. Use `npm start` on the chosen private HTTPS host; `npm run dev` remains loopback-only by default. Both use SQLite exclusively, even if a Blob token is present. This branch's Vercel API deliberately fails closed instead of using ephemeral disk or Blob, and Git deployment is disabled for this branch.
+
+See [private hosting, migration, verification and rollback](docs/private-host.md) for setup and the lossless backup commands. Hosting and production migration require the owner's host/URL decision; no production cutover is part of this branch. A private Tailscale hostname preserves `/everything/` but does not automatically preserve the public portfolio hostname.
 
 Unlocking applies only to the current page. Refreshing, leaving, closing the tab, or opening another tab requires the password again. Switching tabs keeps the open canvas unlocked. Board content and image files live on the server. Each save checks the board revision. Edits from different computers can be combined, and simultaneous edits to the same property preserve both versions as separate layers.
