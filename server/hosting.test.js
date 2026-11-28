@@ -55,7 +55,7 @@ test('private HTTP entry point reconstructs HTTPS, enforces Host/Origin, persist
   assert.equal((await login()).status, 429);
   assert.equal(globalThis.fetch.mock.callCount(), 0);
 });
-test('hosting configuration is exact, and Vercel entry point has no storage fallback', async () => {
+test('hosting configuration is exact, and unconfigured Vercel remains unavailable', async () => {
   for (const bad of ['https://host.test/', 'http://host.test', 'https://host.test/path', 'https://user:pass@host.test', 'https://host.test?x']) assert.throws(() => servingOrigin(bad));
   assert.equal(servingOrigin('https://host.test'), 'https://host.test');
   const result = await vercel.fetch(new Request('https://host.test/api/everything?action=login', {method: 'POST', headers: {origin: 'https://host.test', 'content-type': 'application/json'}, body: '{"password":"fixture"}'}));
@@ -71,5 +71,5 @@ test('runtime import graph cannot load the Blob adapter or SDK', async () => {
       if (match[1].startsWith('.')) await walk(resolve(path, '..', match[1]));
     }
   }
-  for (const entry of ['server/serve.js', 'server/dev.js', 'api/everything.js']) await walk(entry);
+  for (const entry of ['server/serve.js', 'server/dev.js']) await walk(entry);
 });

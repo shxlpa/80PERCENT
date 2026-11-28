@@ -1,5 +1,7 @@
 # Fixture validation evidence
 
+Compatibility update: main restores the exact pre-merge Vercel API and preserves its rewrite. The original evidence below describes the SQLite port commit `cc97d288`; its no-Blob runtime guarantee applies to `server/dev.js` and `server/serve.js`. The public Vercel API intentionally continues using Blob pending an authorized host migration. The compatibility regression test verifies that API against isolated mocked Blob records, never production data.
+
 Baseline: `40f435bd02e0c3d246496280729e965e53cdb612` (current main at checkout).
 The port retains all frontend, template, font and portfolio files byte-for-byte.
 This is synthetic test evidence, not a copy or validation of the live board.

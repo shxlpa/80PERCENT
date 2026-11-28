@@ -32,7 +32,7 @@ Run `npm run dev` and open `http://127.0.0.1:3000/everything/`. Local edits pers
 
 ### Private hosting without Blob
 
-The `vercel-workaround` branch runs Everything on persistent SQLite with the same editor. Use `npm start` on the chosen private HTTPS host; `npm run dev` remains loopback-only by default. Both use SQLite exclusively, even if a Blob token is present. This branch's Vercel API deliberately fails closed instead of using ephemeral disk or Blob, and Git deployment is disabled for this branch.
+The `vercel-workaround` branch runs Everything on persistent SQLite with the same editor. Use `npm start` on the chosen private HTTPS host; `npm run dev` remains loopback-only by default. Both private-server entry points use SQLite exclusively, even if a Blob token is present. The existing Vercel API and rewrite are preserved on main, so the current public workspace continues using its existing Blob configuration until a separately authorized host migration. Git deployment is disabled only for the development branch.
 
 See [private hosting, migration, verification and rollback](docs/private-host.md) for setup and the lossless backup commands. Hosting and production migration require the owner's host/URL decision; no production cutover is part of this branch. A private Tailscale hostname preserves `/everything/` but does not automatically preserve the public portfolio hostname.
 

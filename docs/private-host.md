@@ -1,6 +1,8 @@
 # Everything without runtime Blob operations
 
-This branch is a prepared port, not a live migration. Production, its Blob store,
+The SQLite host implementation is merged into main, but it is not a live migration.
+Main preserves the original Vercel API and rewrite so the existing workspace can
+continue using Blob until an explicitly authorized host migration. Blob data,
 credentials, hostname and access policy have not been changed. The screenshot's
 75% warning concerns Vercel Hobby **Blob Advanced Operations** (2,000 allowance),
 not an invoice. Moving only images would leave authentication, throttling and
@@ -23,15 +25,18 @@ The frontend, HTML, fonts, public assets, paste/HEIC conversion, gestures, sync
 reconciliation and original/Instagram export code are unchanged. Existing upload
 conversion rules still apply to *new* uploads; migration never re-encodes media.
 
-The runtime import graph cannot reach the Blob SDK. `BLOB_READ_WRITE_TOKEN` has
-no effect on the new dev or private server. The Vercel API entry point fails
-closed because Vercel's ephemeral filesystem is not a persistent database.
-`server/storage.js` remains solely for explicit offline migration and mocked
-adapter tests. The writing feed and portfolio static allowlist are retained.
+The private-server runtime import graph cannot reach the Blob SDK.
+`BLOB_READ_WRITE_TOKEN` has no effect on the new dev or private server.
+The existing Vercel API intentionally retains its original Blob adapter, password,
+client-address throttling and rewrite until cutover. It continues consuming Blob
+operations. `server/storage.js` supports that compatibility path, explicit offline
+migration and mocked adapter tests. Vercel never uses ephemeral SQLite storage.
+The writing feed and portfolio static allowlist are retained.
 
 `vercel.json` disables Git deployments specifically for `vercel-workaround`.
-Do not merge or deploy this branch as a public-site cutover: its Everything API
-would deliberately be unavailable there until a separate routing decision.
+Main's compatibility merge preserves the current public-site API; merging alone
+does not activate private hosting or remove existing Blob usage. Do not retire
+the Vercel API until the host, restored data and routing have been verified.
 
 ## Hosting choice and limits
 
@@ -106,9 +111,9 @@ The serving process must be stopped while changing its configured data directory
    backup ownership, restart behavior, and real Mac/iPhone behavior below.
 2. With separate approval for migration, save and lock **every** open production
    tab first. Freeze the old API server-side so no pending client can still write.
-   A controlled deployment of this branch's storage-free `api/everything.js` alone
-   is a possible freeze/retirement step; it deliberately makes Everything
-   unavailable at that origin. Do not deploy it during preparation. Merely asking
+   A separately reviewed maintenance response in the Vercel API is one possible
+   server-side freeze; it deliberately makes Everything unavailable at that origin.
+   Main's compatibility API is not that freeze. Do not retire it during preparation. Merely asking
    users not to edit is insufficient. Keep the old deployment and Blob data intact.
 3. In a controlled one-time operator environment, explicitly provide
    `MIGRATION_BLOB_TOKEN` and run the opt-in command below. Never put the token in
